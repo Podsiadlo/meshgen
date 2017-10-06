@@ -7,6 +7,8 @@ set(SOURCE_FILES
         main.c
         point.c
         input.c
-        triangle.c)
+        triangle.c
+        mesh.c
+        mesh.h)
 
 add_executable(meshgen ${SOURCE_FILES})

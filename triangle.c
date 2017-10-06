@@ -3,10 +3,13 @@
 #include <stdbool.h>
 #include "point.c"
 
-struct triangle {
-    struct point *a;
+struct triangle {//FIXME
+    struct point *a;//deprecated
     struct point *b;
     struct point *c;
+    struct point a2;
+    struct point b2;
+    struct point c2;
     struct triangle *child_ab;
     struct triangle *child_bc;
     struct triangle *child_ac;
@@ -27,6 +30,17 @@ bool final(struct triangle *triangle) {
     final = get_next_triangle(get_next_triangle(triangle)) == triangle;
     //TODO Check if it is on border
     return final; //sprawdza czy jest graniczny lub jego child jest ostatni - to drugie ma potencjal na optymalizacje
+}
+
+void init_triangle(struct triangle *triangle) {
+
+}
+struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y,  int c_x, int c_y, short** map) {
+    struct triangle *triangle = (struct triangle *) malloc(sizeof(struct triangle));
+    init_point(&(triangle->a2), a_x, a_y, map[a_x][a_y]);
+    init_point(&(triangle->b2), b_x, b_y, map[b_x][b_y]);
+    init_point(&(triangle->c2), c_x, c_y, map[c_x][c_y]);
+    init_triangle(triangle);
 }
 
 
@@ -223,5 +237,5 @@ struct point *get_longest_edge_midsection(const struct triangle *triangle) {
         a = triangle->a;
         b = triangle->c;
     }
-    return get_point((a->x + b->x) / 2, (a->y + b->y) / 2); //TOOD: Check if exists
+    return create_point((a->x + b->x) / 2, (a->y + b->y) / 2); //TOOD: Check if exists
 }

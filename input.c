@@ -15,7 +15,7 @@ short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitu
 void swap_if_needed(int *should_be_lower, int *should_be_bigger);
 
 short **read_map(const double begin_longitude, const double begin_latitude,
-                 const double end_longitude, const double end_latitude, char *map_dir) {
+                 const double end_longitude, const double end_latitude, char *map_dir) { // map[row][column] - it's array of rows
     int begin_longitude_int = (int) (begin_longitude * VALUES_IN_DEGREE);
     int begin_latitude_int = (int) (begin_latitude * VALUES_IN_DEGREE);
     int end_longitude_int = (int) (end_longitude * VALUES_IN_DEGREE);
