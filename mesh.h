@@ -15,7 +15,7 @@ struct mesh {
     size_t usage;
 };
 
-struct mesh *generate_mesh(short **map, int size);
+struct mesh *generate_mesh(short **map, int first_row, int first_col, int size);
 void add_triangle(struct triangle *triangle, struct mesh *mesh);
 void remove_mesh(struct mesh *mesh);
 

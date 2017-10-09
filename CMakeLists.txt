@@ -8,6 +8,8 @@ set(SOURCE_FILES
         point.c
         input.c
         triangle.c
+        output.c
+        output.h
         mesh.c
         mesh.h)
 

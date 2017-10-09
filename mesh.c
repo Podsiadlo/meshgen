@@ -10,7 +10,7 @@
  * @param size 
  * @return 
  */
-struct mesh *generate_mesh(short **map, int size) {
+struct mesh *generate_mesh(short **map, int first_row, int first_col, int size) {
     struct mesh *mesh = (struct mesh *) malloc(sizeof(struct mesh));
     mesh->triangles = (struct triangle **) malloc(INITIAL_MESH_SIZE * sizeof(struct triangle *));
     mesh->size = INITIAL_MESH_SIZE;
