@@ -1,31 +1,21 @@
 #include <stdio.h>
-#include <math.h>
 #include <stdbool.h>
-#include "point.c"
+#include <stdlib.h>
+#include <math.h>
+#include "point.h"
+#include "triangle.h"
 
-struct triangle {//FIXME
-    struct point *a;//deprecated
-    struct point *b;
-    struct point *c;
-    struct point a2;
-    struct point b2;
-    struct point c2;
-    struct triangle *child_ab;
-    struct triangle *child_bc;
-    struct triangle *child_ac;
-    short longest; //0=ab, 1=bc, 2=ac
-};
 
 void refine(struct triangle *parent) {
-    if (final(parent)) {
-        split(parent);
-        restructirize(parent);
+    if (final_step(parent)) {
+//        split(parent);
+//        restructirize(parent);
         return;
     }
-    refine(parent->child);
+//    refine(parent->child);
 }
 
-bool final(struct triangle *triangle) {
+bool final_step(struct triangle *triangle) {
     bool final;
     final = get_next_triangle(get_next_triangle(triangle)) == triangle;
     //TODO Check if it is on border
@@ -35,6 +25,7 @@ bool final(struct triangle *triangle) {
 void init_triangle(struct triangle *triangle) {
 
 }
+
 struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y,  int c_x, int c_y, short** map) {
     struct triangle *triangle = (struct triangle *) malloc(sizeof(struct triangle));
     init_point(&(triangle->a2), a_x, a_y, map[a_x][a_y]);
@@ -178,7 +169,7 @@ struct triangle *split(struct triangle *triangle1, struct triangle *triangle2) {
     fix_triangle(triangle_adp);
     //TODO: Co sie stanie z sasiadem albo jak bedzie na brzegu?
 
-    return new_triangle;
+    return NULL;
 }
 
 void fix_triangle(struct triangle *triangle) {

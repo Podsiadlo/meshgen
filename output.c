@@ -3,8 +3,6 @@
 //
 
 #include "output.h"
-#include "mesh.h"
-
 
 void save_to_dtm(struct mesh **meshes, char *filename) {
 

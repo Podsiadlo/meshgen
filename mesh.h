@@ -7,12 +7,12 @@
 
 static const int INITIAL_MESH_SIZE = 2;
 
-#include "triangle.c"
+#include "triangle.h"
 
 struct mesh {
     struct triangle** triangles;
-    size_t size;
-    size_t usage;
+    unsigned int size;
+    unsigned int usage;
 };
 
 struct mesh *generate_mesh(short **map, int first_row, int first_col, int size);

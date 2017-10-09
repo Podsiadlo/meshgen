@@ -1,18 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include "input.h"
 
-#define RESOLUTION 3
-
-static const int VALUES_IN_DEGREE = 60 * 60 / RESOLUTION;
-static const size_t PIXEL_SIZE = 2;
-
-short **init_map(int length, int width);
-char *get_filename(const char *map_dir, int begin_longitude_int, int begin_latitude_int);
-char *concatenate(const char *e1, const char *e2, const char *e3, const char *e4);
-short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
-                  unsigned int width, unsigned int length);
-void swap_if_needed(int *should_be_lower, int *should_be_bigger);
 
 short **read_map(const double begin_longitude, const double begin_latitude,
                  const double end_longitude, const double end_latitude, char *map_dir) { // map[row][column] - it's array of rows

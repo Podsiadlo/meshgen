@@ -11,6 +11,11 @@ set(SOURCE_FILES
         output.c
         output.h
         mesh.c
-        mesh.h)
+        mesh.h
+        point.h
+        triangle.h
+        input.h)
+
 
 add_executable(meshgen ${SOURCE_FILES})
+target_link_libraries(meshgen m)

@@ -1,11 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include "point.h"
 
-struct point {
-    int x;
-    int y;
-    int z;
-};
 
 struct point *create_point(int x, int y) {
     return (struct point *) malloc(sizeof(struct point));

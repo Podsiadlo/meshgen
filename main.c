@@ -1,6 +1,6 @@
-
-#include "triangle.c"
-#include "input.c"
+#include <stdlib.h>
+#include "math.h"
+#include "input.h"
 #include "mesh.h"
 #include "output.h"
 

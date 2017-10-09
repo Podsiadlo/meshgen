@@ -2,6 +2,7 @@
 // Created by krzysiek on 05.10.17.
 //
 
+#include <stdlib.h>
 #include "mesh.h"
 
 /**
