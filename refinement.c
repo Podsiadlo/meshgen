@@ -101,10 +101,6 @@ void split_border(struct triangle *triangle, struct mesh *mesh) {
 }
 
 
-/**
- * Given triangle is modified to represent a "half" of itself.
- * @return pointer to a second "half" triangle.
- */
 void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct mesh *mesh) {
     struct point center;
     get_longest_edge_midsection(&center, triangle1);

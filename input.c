@@ -48,9 +48,12 @@ short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitu
             fprintf(stderr, "%s\n", strerror(errno));
             exit(1);
         }
-//        for (int j = 0; j < width; ++j) {
-//            ntohs(map[length - 1 - i][j]);
-//        }
+        for (int j = 0; j < width; ++j) {
+            uint16_t tmp = map[length - 1 - i][j];
+            tmp <<= 8;
+            map[length - 1 - i][j] >>= 8;
+            map[length - 1 - i][j] |= tmp;
+        }
     }
     if (fclose(map_file) != 0) {
         fprintf(stderr, "%s\n", strerror(errno));
