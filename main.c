@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     for (int i = 0; i < meshes_number; ++i) {
         refine_new_mesh(meshes[i]);
     }
-    save_to_dtm(meshes, width * length, output_filename);
+    save_to_dtm(meshes, meshes_number, output_filename);
 
     free_map(map, length);
     for (int j = 0; j < meshes_number; ++j) {

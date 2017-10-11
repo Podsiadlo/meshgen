@@ -33,12 +33,12 @@ bool outside_condition(struct triangle *triangle, const short **map) { //todo op
     } else {
         ab = 0;
     }
-    if (triangle->child_ab != NULL) {
+    if (triangle->child_bc != NULL) {
         bc = fabs(fabs(triangle->c2.z - triangle->b2.z) - fabs(get_height_of_center(triangle->child_bc, map) - center));
     } else {
         bc = 0;
     }
-    if (triangle->child_ab != NULL) {
+    if (triangle->child_ac != NULL) {
         ac = fabs(fabs(triangle->a2.z - triangle->c2.z) - fabs(get_height_of_center(triangle->child_ac, map) - center));
     } else {
         ac = 0;

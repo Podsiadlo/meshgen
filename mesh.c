@@ -49,7 +49,7 @@ void add_triangle(struct triangle *triangle, struct mesh *mesh) {
 }
 
 void free_mesh(struct mesh *mesh) {
-    for (int i = 0; i < mesh->size; ++i) {
+    for (int i = 0; i < mesh->usage; ++i) {
         free(mesh->triangles[i]);
     }
     free(mesh);

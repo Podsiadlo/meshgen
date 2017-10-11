@@ -1,7 +1,7 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
 
-static const int EPSILON = 100;
+static const int EPSILON = 50000;
 
 #include <stdbool.h>
 #include "point.h"
