@@ -5,7 +5,7 @@
 #include "triangle.h"
 #include "mesh.h"
 
-bool is_final_step(struct triangle *triangle);
+bool is_final_step(struct triangle *triangle, struct mesh *mesh);
 
 void refine(struct triangle *triangle, struct mesh *mesh);
 
@@ -17,8 +17,8 @@ void split_border(struct triangle *triangle, struct mesh *mesh);
 
 bool refine_if_required(struct triangle *triangle, struct mesh *mesh);
 
-bool inside_condition(const struct triangle *triangle, const short **map);
+bool inside_condition(const struct triangle *triangle, struct mesh *mesh);
 
-bool outside_condition(struct triangle *triangle, const short **map);
+bool outside_condition(struct triangle *triangle, struct mesh *mesh);
 
 #endif //MESHGEN_REFINEMENT_H

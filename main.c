@@ -11,8 +11,8 @@ int gcd(int a, int b);
 int main(int argc, char **argv) {
     double begin_longitude = 50.5;
     double begin_latitude = 19.3;
-    double end_longitude = 50.7;
-    double end_latitude = 19.5;
+    double end_longitude = 50.51;
+    double end_latitude = 19.31;
     char *map_dir = ".";
     char *output_filename = "result.dtm";
 
@@ -45,7 +45,7 @@ struct mesh **split_map(short **map, int width, int length, int gcd) {
     struct mesh ** meshes = (struct mesh**)malloc(rows * columns * sizeof(struct mesh *));
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
-            meshes[i * rows + j] = generate_mesh(map, j * gcd, i * gcd, gcd);
+            meshes[i * columns + j] = generate_mesh(map, j * gcd, i * gcd, gcd);
         }
     }
     return meshes;
