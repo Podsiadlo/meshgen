@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "math.h"
+#include <math.h>
 #include "input.h"
 #include "mesh.h"
 #include "output.h"
@@ -17,14 +17,21 @@ int main(int argc, char **argv) {
     char *output_filename = "result.dtm";
 
     short **map = read_map(begin_longitude, begin_latitude, end_longitude, end_latitude, map_dir);
-    int width = (int) (VALUES_IN_DEGREE * fabs(end_latitude - begin_longitude));
-    int length = (int) (VALUES_IN_DEGREE * fabs(end_latitude - begin_longitude));
+    int width = (int) round(VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
+    int length = (int) round(VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
     int map_gcd = gcd(width, length);
     struct mesh **meshes = split_map(map, width, length, map_gcd);
-    for (int i = 0; i < width * length; ++i) {
-        //TODO: Do magic here
+    int meshes_number = width * length / (map_gcd * map_gcd);
+    for (int i = 0; i < meshes_number; ++i) {
+        refine_new_mesh(meshes[i]);
     }
-    save_to_dtm(meshes, output_filename);
+    save_to_dtm(meshes, width * length, output_filename);
+
+    free_map(map, length);
+    for (int j = 0; j < meshes_number; ++j) {
+        free_mesh(meshes[j]);
+    }
+    free(meshes);
 
     return 0;
 }

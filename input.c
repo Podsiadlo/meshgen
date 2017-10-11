@@ -1,15 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
+#include <errno.h>
+#include <math.h>
+#include <netinet/in.h>
 #include "input.h"
 
 
 short **read_map(const double begin_longitude, const double begin_latitude,
                  const double end_longitude, const double end_latitude, char *map_dir) { // map[row][column] - it's array of rows
-    int begin_longitude_int = (int) (begin_longitude * VALUES_IN_DEGREE);
-    int begin_latitude_int = (int) (begin_latitude * VALUES_IN_DEGREE);
-    int end_longitude_int = (int) (end_longitude * VALUES_IN_DEGREE);
-    int end_latitude_int = (int) (end_latitude * VALUES_IN_DEGREE);
+    int begin_longitude_int = (int) round(begin_longitude * VALUES_IN_DEGREE);//Rounding to avoid problems with numerical errors
+    int begin_latitude_int = (int) round(begin_latitude * VALUES_IN_DEGREE);
+    int end_longitude_int = (int) round(end_longitude * VALUES_IN_DEGREE);
+    int end_latitude_int = (int) round(end_latitude * VALUES_IN_DEGREE);
 
     swap_if_needed(&begin_latitude_int, &end_latitude_int);
     swap_if_needed(&begin_longitude_int, &end_longitude_int);
@@ -25,17 +28,34 @@ short **read_map(const double begin_longitude, const double begin_latitude,
 short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
                   unsigned int width, unsigned int length) {
     short **map = init_map(length, width);
+    char file_to_open[14];
 
-    char *file_to_open = get_filename(map_dir, begin_longitude_int, begin_latitude_int);
+    get_filename(file_to_open, map_dir, begin_longitude_int, begin_latitude_int);
 
-    FILE *map_file = fopen(file_to_open, "rb");
+    FILE *map_file;
+    if ((map_file = fopen(file_to_open, "rb")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
     int rows = VALUES_IN_DEGREE + 1;
-    fseek(map_file, ((rows - begin_latitude_int) * rows + begin_longitude_int) * PIXEL_SIZE, SEEK_SET);
+    if (fseek(map_file, ((rows - (begin_latitude_int % rows)) * rows + (begin_longitude_int % rows)) * PIXEL_SIZE, SEEK_SET) == -1) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
     for (int i = 0; i < length; ++i) {
         fread(map[length - 1 - i], PIXEL_SIZE, width, map_file);
-        fseek(map_file, (rows - width) * PIXEL_SIZE, SEEK_CUR);
+        if (fseek(map_file, (rows - width) * PIXEL_SIZE, SEEK_CUR) == -1) {
+            fprintf(stderr, "%s\n", strerror(errno));
+            exit(1);
+        }
+//        for (int j = 0; j < width; ++j) {
+//            ntohs(map[length - 1 - i][j]);
+//        }
     }
-    fclose(map_file);
+    if (fclose(map_file) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
     return map;
 }
 
@@ -54,7 +74,7 @@ void swap_if_needed(int *should_be_lower, int *should_be_bigger) {
     }
 }
 
-char *get_filename(const char *map_dir, int begin_longitude_int, int begin_latitude_int) {
+void get_filename(char* filename, const char *map_dir, int begin_longitude_int, int begin_latitude_int) {
     int first_long_to_read;
     int first_lat_to_read;
 
@@ -78,18 +98,8 @@ char *get_filename(const char *map_dir, int begin_longitude_int, int begin_latit
         first_lat_to_read = begin_latitude_int / VALUES_IN_DEGREE;
     }
 
-    char *file_to_open = concatenate(map_dir, first_long_to_read < 0 ? "S" : "N",
-                                     first_lat_to_read < 0 ? "W" : "E", ".hgt");
-    return file_to_open;
-}
-
-char *concatenate(const char *e1, const char *e2, const char *e3, const char *e4) {
-    char *result = (char *) malloc(13);
-    strcat(result, e1);
-    strcat(result, e2);
-    strcat(result, e3);
-    strcat(result, e4);
-    return result;
+    sprintf(filename, "%s/%s%d%s%.3d.hgt", map_dir, first_long_to_read < 0 ? "S" : "N",
+            first_long_to_read, first_lat_to_read < 0 ? "W" : "E", first_lat_to_read);
 }
 
 short **init_map(int length, int width) {
