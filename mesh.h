@@ -1,7 +1,7 @@
 #ifndef MESHGEN_MESH_H
 #define MESHGEN_MESH_H
 
-static const int INITIAL_MESH_SIZE = 2;
+static const int INITIAL_MESH_SIZE = 50;
 
 #include "triangle.h"
 

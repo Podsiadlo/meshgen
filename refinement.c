@@ -17,25 +17,31 @@ bool inside_condition(const struct triangle *triangle, struct mesh *mesh) {
     return fabs(get_height_mean(triangle) - get_height_of_center(triangle, mesh->map)) > EPSILON;
 }
 
-bool outside_condition(struct triangle *triangle, struct mesh *mesh) { //todo optimize
+bool outside_condition(struct triangle *triangle, struct mesh *mesh) {
     int center = get_height_of_center(triangle, mesh->map);
     double ab, bc, ac;
     if (triangle->child_ab != -1) {
-        ab = fabs(fabs(triangle->a.z - triangle->b.z) - fabs(get_height_of_center(mesh->triangles[triangle->child_ab], mesh->map) - center));
-    } else {
-        ab = 0;
+        ab = fabs(fabs(triangle->a.z - triangle->b.z) -
+                  fabs(get_height_of_center(get_triangle(triangle->child_ab, mesh), mesh->map) - center));
+        if (ab > EPSILON) {
+            return true;
+        }
     }
     if (triangle->child_bc != -1) {
-        bc = fabs(fabs(triangle->c.z - triangle->b.z) - fabs(get_height_of_center(mesh->triangles[triangle->child_bc], mesh->map) - center));
-    } else {
-        bc = 0;
+        bc = fabs(fabs(triangle->c.z - triangle->b.z) -
+                  fabs(get_height_of_center(get_triangle(triangle->child_bc, mesh), mesh->map) - center));
+        if (bc > EPSILON) {
+            return true;
+        }
     }
     if (triangle->child_ac != -1) {
-        ac = fabs(fabs(triangle->a.z - triangle->c.z) - fabs(get_height_of_center(mesh->triangles[triangle->child_ac], mesh->map) - center));
-    } else {
-        ac = 0;
+        ac = fabs(fabs(triangle->a.z - triangle->c.z) -
+                  fabs(get_height_of_center(get_triangle(triangle->child_ac, mesh), mesh->map) - center));
+        if (ac > EPSILON) {
+            return true;
+        }
     }
-    return ab > EPSILON || bc > EPSILON || ac > EPSILON;
+    return false;
 }
 
 void refine(struct triangle *triangle, struct mesh *mesh) {
@@ -68,35 +74,59 @@ void split_border(struct triangle *triangle, struct mesh *mesh) {
     if (triangle->longest == 0) {
         new_triangle = create_triangle(triangle->a.x, triangle->a.y, triangle->c.x, triangle->c.y,
                                        center.x, center.y, mesh->map);
-        add_triangle(new_triangle, mesh);
+        new_triangle->index = add_triangle(new_triangle, mesh);
         triangle->a.x = center.x;
         triangle->a.y = center.y;
         triangle->a.z = mesh->map[triangle->a.y][triangle->a.x];
         new_triangle->child_ab = triangle->child_ac;
         new_triangle->child_bc = triangle->index;
         new_triangle->child_ac = -1;
+        struct triangle * neighbour = get_triangle(new_triangle->child_ab, mesh);
+        if (neighbour->child_ab == triangle->index) {
+            neighbour->child_ab = new_triangle->index;
+        } else if (neighbour->child_bc == triangle->index) {
+            neighbour->child_bc = new_triangle->index;
+        } else {
+            neighbour->child_ac = new_triangle->index;
+        }
         triangle->child_ac = new_triangle->index;
     } else if (triangle->longest == 1) {
         new_triangle = create_triangle(triangle->a.x, triangle->a.y, triangle->b.x, triangle->b.y,
                                        center.x, center.y, mesh->map);
-        add_triangle(new_triangle, mesh);
+        new_triangle->index = add_triangle(new_triangle, mesh);
         triangle->b.x = center.x;
         triangle->b.y = center.y;
         triangle->b.z = mesh->map[triangle->b.y][triangle->b.x];
         new_triangle->child_ab = triangle->child_ab;
         new_triangle->child_bc = -1;
         new_triangle->child_ac = triangle->index;
+        struct triangle * neighbour = get_triangle(new_triangle->child_ab, mesh);
+        if (neighbour->child_ab == triangle->index) {
+            neighbour->child_ab = new_triangle->index;
+        } else if (neighbour->child_bc == triangle->index) {
+            neighbour->child_bc = new_triangle->index;
+        } else {
+            neighbour->child_ac = new_triangle->index;
+        }
         triangle->child_ab = new_triangle->index;
     } else {
         new_triangle = create_triangle(triangle->b.x, triangle->b.y, triangle->c.x, triangle->c.y,
                                        center.x, center.y, mesh->map);
-        add_triangle(new_triangle, mesh);
+        new_triangle->index = add_triangle(new_triangle, mesh);
         triangle->c.x = center.x;
         triangle->c.y = center.y;
         triangle->c.z = mesh->map[triangle->c.y][triangle->c.x];
         new_triangle->child_ab = triangle->child_bc;
         new_triangle->child_bc = -1;
         new_triangle->child_ac = triangle->index;
+        struct triangle * neighbour = get_triangle(new_triangle->child_ab, mesh);
+        if (neighbour->child_ab == triangle->index) {
+            neighbour->child_ab = new_triangle->index;
+        } else if (neighbour->child_bc == triangle->index) {
+            neighbour->child_bc = new_triangle->index;
+        } else {
+            neighbour->child_ac = new_triangle->index;
+        }
         triangle->child_bc = new_triangle->index;
     }
     fix_longest(triangle);
@@ -171,10 +201,10 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
 
     triangle_abp = triangle1;
     triangle_bcp = create_triangle(b->x, b->y, c->x, c->y, center.x, center.y, mesh->map);
-        triangle_bcp->index = add_triangle(triangle_bcp, mesh);
+    triangle_bcp->index = add_triangle(triangle_bcp, mesh);
     triangle_cdp = triangle2;
     triangle_adp = create_triangle(d->x, d->y, a->x, a->y, center.x, center.y, mesh->map);
-        triangle_adp->index = add_triangle(triangle_adp, mesh);
+    triangle_adp->index = add_triangle(triangle_adp, mesh);
 
     //modifying input triangles
     c->x = center.x;
@@ -200,8 +230,8 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     triangle_cdp->child_ac = triangle_bcp->index;
 
     triangle_adp->child_ab = child_ad != NULL ? child_ad->index : -1;
-    triangle_adp->child_bc = triangle_cdp->index;
-    triangle_adp->child_ac = triangle_abp->index;
+    triangle_adp->child_bc = triangle_abp->index;
+    triangle_adp->child_ac = triangle_cdp->index;
 
     //configuring neighbours
     if (child_ab != NULL) {
@@ -214,7 +244,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
         }
     }
 
-    if (child_ab != NULL) {
+    if (child_bc != NULL) {
         if (child_bc->child_ab == triangle1->index) {
             child_bc->child_ab = triangle_bcp->index;
         } else if (child_bc->child_bc == triangle1->index) {
@@ -224,7 +254,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
         }
     }
 
-    if (child_ab != NULL) {
+    if (child_cd != NULL) {
         if (child_cd->child_ab == triangle2->index) {
             child_cd->child_ab = triangle_cdp->index;
         } else if (child_cd->child_bc == triangle2->index) {
@@ -234,7 +264,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
         }
     }
 
-    if (child_ab != NULL) {
+    if (child_ad != NULL) {
         if (child_ad->child_ab == triangle2->index) {
             child_ad->child_ab = triangle_adp->index;
         } else if (child_ad->child_bc == triangle2->index) {

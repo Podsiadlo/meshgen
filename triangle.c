@@ -4,7 +4,7 @@
 #include "triangle.h"
 
 
-struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y, int c_x, int c_y, short** map) {
+struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y, int c_x, int c_y, short **map) {
     struct triangle *triangle = (struct triangle *) malloc(sizeof(struct triangle));
     init_point(&(triangle->a), a_x, a_y, map[a_y][a_x]);
     init_point(&(triangle->b), b_x, b_y, map[b_y][b_x]);
@@ -21,12 +21,52 @@ void fix_longest(struct triangle *triangle) {
     if (ab > bc) {
         if (ab > ac) {
             longest = 0;
+        } else if (fabs(ab - ac) < 0.000001) {
+            if (triangle->b.y > triangle->c.y) {
+                longest = 2;
+            } else if (triangle->b.y < triangle->c.y) {
+                longest = 0;
+            } else {
+                if (triangle->b.x > triangle->c.x) {
+                    longest = 2;
+                } else {
+                    longest = 0;
+                }
+            }
+        } else {
+            longest = 2;
+        }
+    } else if (fabs(ab - bc) < 0.000001) {
+        if (ab >= ac) {
+            if (triangle->a.y > triangle->c.y) {
+                longest = 1;
+            } else if (triangle->a.y < triangle->c.y) {
+                longest = 0;
+            } else {
+                if (triangle->a.x > triangle->c.x) {
+                    longest = 1;
+                } else {
+                    longest = 0;
+                }
+            }
         } else {
             longest = 2;
         }
     } else {
         if (bc > ac) {
             longest = 1;
+        } else if (fabs(ac - bc) < 0.000001) {
+            if (triangle->b.y > triangle->a.y) {
+                longest = 2;
+            } else if (triangle->b.y < triangle->a.y) {
+                longest = 1;
+            } else {
+                if (triangle->b.x > triangle->a.x) {
+                    longest = 2;
+                } else {
+                    longest = 1;
+                }
+            }
         } else {
             longest = 2;
         }

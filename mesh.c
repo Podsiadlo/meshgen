@@ -15,13 +15,6 @@ struct mesh *generate_mesh(short **map, int first_row, int first_col, int size) 
     struct triangle *second = create_triangle(first_col + size - 1, first_row,
                                               first_col, first_row,
                                               first_col, first_row + size - 1, map);
-    first->child_ac = second;
-    first->child_bc = NULL;
-    first->child_ab = NULL;
-    second->child_ac = first;
-    second->child_bc = NULL;
-    second->child_ab = NULL;
-
     first->child_ac = 1;
     first->child_bc = -1;
     first->child_ab = -1;
