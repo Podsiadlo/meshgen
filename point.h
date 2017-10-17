@@ -3,10 +3,10 @@
 struct point {
     int x;
     int y;
-    int z;
+    short z;
 };
 
-void init_point(struct point * point, int x, int y, int z);
+void init_point(struct point * point, int x, int y, short z);
 bool point_equals(struct point *a, struct point *b);
 
 #endif //MESHGEN_POINT_H

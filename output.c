@@ -13,9 +13,9 @@ void print_mesh(struct mesh *mesh) {
     printf("MESH:\n");
     for (int i = 0; i < mesh->counter; ++i) {
         printf("(%d, %d, %d), (%d, %d, %d), (%d, %d, %d)\n",
-               mesh->triangles[i]->a.x, mesh->triangles[i]->a.y, mesh->triangles[i]->a.z,
-               mesh->triangles[i]->b.x, mesh->triangles[i]->b.y, mesh->triangles[i]->b.z,
-               mesh->triangles[i]->c.x, mesh->triangles[i]->c.y, mesh->triangles[i]->c.z);
+               mesh->triangles[i].a.x, mesh->triangles[i].a.y, mesh->triangles[i].a.z,
+               mesh->triangles[i].b.x, mesh->triangles[i].b.y, mesh->triangles[i].b.z,
+               mesh->triangles[i].c.x, mesh->triangles[i].c.y, mesh->triangles[i].c.z);
     }
     printf("\n\n\n");
 }

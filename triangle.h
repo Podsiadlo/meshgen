@@ -1,7 +1,7 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
 
-static const int EPSILON = 20;
+static const int EPSILON = 7;
 
 #include <stdbool.h>
 #include "point.h"
@@ -20,7 +20,8 @@ struct triangle {
     int child_ac;
 };
 
-struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y, int c_x, int c_y, short ** map);
+struct triangle *init_triangle(struct triangle * triangle, int a_x, int a_y, int b_x, int b_y, int c_x, int c_y,
+                               const short **map);
 
 void fix_longest(struct triangle *triangle);
 

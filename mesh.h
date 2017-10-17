@@ -6,7 +6,7 @@ static const int INITIAL_MESH_SIZE = 50;
 #include "triangle.h"
 
 struct mesh {
-    struct triangle** triangles;
+    struct triangle* triangles;
     unsigned int size;
     unsigned int counter;
     short** map;
@@ -14,7 +14,7 @@ struct mesh {
 
 void refine_new_mesh(struct mesh *mesh);
 struct mesh *generate_mesh(short **map, int first_row, int first_col, int size);
-int add_triangle(struct triangle *triangle, struct mesh *mesh);
+struct triangle * get_new_triangle(struct mesh *mesh);
 struct triangle * get_triangle(int index, struct mesh * mesh);
 void free_mesh(struct mesh *mesh);
 

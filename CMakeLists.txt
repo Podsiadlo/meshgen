@@ -14,7 +14,9 @@ set(SOURCE_FILES
         mesh.h
         point.h
         triangle.h
-        input.h refinement.c refinement.h)
+        input.h
+        refinement.c
+        refinement.h)
 
 
 add_executable(meshgen ${SOURCE_FILES})

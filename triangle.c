@@ -1,11 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <math.h>
 #include "triangle.h"
 
 
-struct triangle *create_triangle(int a_x, int a_y, int b_x, int b_y, int c_x, int c_y, short **map) {
-    struct triangle *triangle = (struct triangle *) malloc(sizeof(struct triangle));
+struct triangle *init_triangle(struct triangle * triangle, int a_x, int a_y, int b_x, int b_y, int c_x, int c_y,
+                               const short **map) {
     init_point(&(triangle->a), a_x, a_y, map[a_y][a_x]);
     init_point(&(triangle->b), b_x, b_y, map[b_y][b_x]);
     init_point(&(triangle->c), c_x, c_y, map[c_y][c_x]);
