@@ -5,7 +5,7 @@
 #include "output.h"
 
 struct mesh **split_map(short **map, int width, int length, int gcd);
-int gcd(int a, int b);
+unsigned int gcd(unsigned int a, unsigned int b);
 
 
 int main(int argc, char **argv) {
@@ -17,8 +17,8 @@ int main(int argc, char **argv) {
     char *output_filename = "result.dtm";
 
     short **map = read_map(begin_longitude, begin_latitude, end_longitude, end_latitude, map_dir);
-    int width = (int) round(VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
-    int length = (int) round(VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
+    unsigned int width = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
+    unsigned int length = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
     int map_gcd = gcd(width, length);
     struct mesh **meshes = split_map(map, width, length, map_gcd);
     int meshes_number = width * length / (map_gcd * map_gcd);
@@ -51,10 +51,10 @@ struct mesh **split_map(short **map, int width, int length, int gcd) {
     return meshes;
 }
 
-int gcd(int a, int b) {
+unsigned int gcd(unsigned int a, unsigned int b) {
     do {
         if (b > a) {
-            int tmp = a;
+            unsigned int tmp = a;
             a = b;
             b = tmp;
         }

@@ -2,7 +2,7 @@
 #include "mesh.h"
 #include "refinement.h"
 
-struct mesh *generate_mesh(short **map, int first_row, int first_col, int size) {
+struct mesh *generate_mesh(short **map, unsigned int first_row, unsigned int first_col, unsigned int size) {
     struct mesh *mesh = (struct mesh *) malloc(sizeof(struct mesh));
     mesh->map = map;
     mesh->size = INITIAL_MESH_SIZE;
@@ -18,12 +18,12 @@ struct mesh *generate_mesh(short **map, int first_row, int first_col, int size) 
     init_triangle(second, first_col + size - 1, first_row,
                   first_col, first_row,
                   first_col, first_row + size - 1, mesh->map);
-    first->child_ac = second->index;
-    first->child_bc = -1;
-    first->child_ab = -1;
-    second->child_ac = first->index;
-    second->child_bc = -1;
-    second->child_ab = -1;
+    first->children[2] = second->index;
+    first->children[1] = -1;
+    first->children[0] = -1;
+    second->children[2] = first->index;
+    second->children[1] = -1;
+    second->children[0] = -1;
 
 
     return mesh;
@@ -44,7 +44,7 @@ void refine_new_mesh(struct mesh* mesh) {
 
 struct triangle * get_new_triangle(struct mesh *mesh) {
     if (mesh->counter >= mesh->size) {
-        mesh->triangles = realloc(mesh->triangles, mesh->size * 2);
+        mesh->triangles = realloc(mesh->triangles, mesh->size * 2 * sizeof(struct triangle));
         mesh->size *= 2;
     }
     mesh->triangles[mesh->counter].index = mesh->counter;

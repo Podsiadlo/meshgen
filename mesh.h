@@ -13,7 +13,7 @@ struct mesh {
 };
 
 void refine_new_mesh(struct mesh *mesh);
-struct mesh *generate_mesh(short **map, int first_row, int first_col, int size);
+struct mesh *generate_mesh(short **map, unsigned int first_row, unsigned int first_col, unsigned int size);
 struct triangle * get_new_triangle(struct mesh *mesh);
 struct triangle * get_triangle(int index, struct mesh * mesh);
 void free_mesh(struct mesh *mesh);

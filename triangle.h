@@ -8,19 +8,14 @@ static const int EPSILON = 7;
 #include "mesh.h"
 
 struct triangle {
-    struct point a;
-    struct point b;
-    struct point c;
-
     int index;
-    short longest; //0=ab, 1=bc, 2=ac
-
-    int child_ab;
-    int child_bc;
-    int child_ac;
+    struct point vertices[3]; // P0, P1, P2
+    int children[3]; //0 -> P0P1, 1 -> P1P2, 2 -> P2P0
+    short longest; //0 -> P0P1, 1 -> P1P2, 2 -> P2P0
 };
 
-struct triangle *init_triangle(struct triangle * triangle, int a_x, int a_y, int b_x, int b_y, int c_x, int c_y,
+struct triangle *init_triangle(struct triangle * triangle, unsigned int a_x, unsigned int a_y,
+                               unsigned int b_x, unsigned int b_y, unsigned int c_x, unsigned int c_y,
                                const short **map);
 
 void fix_longest(struct triangle *triangle);

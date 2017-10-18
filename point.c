@@ -2,7 +2,7 @@
 #include "point.h"
 
 
-void init_point(struct point * point, int x, int y, short z) {
+void init_point(struct point * point, unsigned int x, unsigned int y, short z) {
     point->x = x;
     point->y = y;
     point->z = z;
