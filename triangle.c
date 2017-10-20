@@ -1,5 +1,6 @@
 
 #include <math.h>
+#include <stdlib.h>
 #include "triangle.h"
 
 
@@ -13,12 +14,12 @@ struct triangle *init_triangle(struct triangle * triangle, unsigned int a_x, uns
 }
 
 void fix_longest(struct triangle *triangle) {
-    double ab = sqrt(pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
-                     + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2));
-    double bc = sqrt(pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
-                     + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2));
-    double ac = sqrt(pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
-                     + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2));
+    double ab = sqrt(pow((double)(triangle->vertices[0].x) - (double)(triangle->vertices[1].x), 2)
+                     + pow((double)(triangle->vertices[0].y) - (double)(triangle->vertices[1].y), 2));
+    double bc = sqrt(pow((double)(triangle->vertices[1].x) - (double)(triangle->vertices[2].x), 2)
+                     + pow((double)(triangle->vertices[1].y) - (double)(triangle->vertices[2].y), 2));
+    double ac = sqrt(pow((double)(triangle->vertices[2].x) - (double)(triangle->vertices[0].x), 2)
+                     + pow((double)(triangle->vertices[2].y) - (double)(triangle->vertices[0].y), 2));
 
     short longest;
     if (ab > bc) {
@@ -81,7 +82,7 @@ int get_height_mean(const struct triangle *triangle) {
     return (triangle->vertices[0].z + triangle->vertices[1].z + triangle->vertices[2].z) / 3;
 }
 
-int get_height_of_center(const struct triangle *triangle, const short **map) {
+short get_height_of_center(const struct triangle *triangle, const short **map) {
     int x = (triangle->vertices[0].x + triangle->vertices[1].x + triangle->vertices[2].x) / 3;
     int y = (triangle->vertices[0].y + triangle->vertices[1].y + triangle->vertices[2].y) / 3;
     return map[y][x];
@@ -105,4 +106,28 @@ void get_longest_edge_midsection(struct point *destination, struct triangle *tri
     }
     destination->x = (a->x + b->x) / 2;
     destination->y = (a->y + b->y) / 2;
+}
+
+
+void verify_neighbours(struct triangle *triangle, struct mesh *mesh) {
+    for (int i = 0; i < 3; ++i) {
+        if (triangle->children[i] != -1) {
+            struct triangle *neighbour = get_triangle(triangle->children[i], mesh);
+            if ((!point_equals(&triangle->vertices[i], &neighbour->vertices[0])
+                 && !point_equals(&triangle->vertices[i], &neighbour->vertices[1])
+                 && !point_equals(&triangle->vertices[i], &neighbour->vertices[2]))
+                || (!point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[0])
+                    && !point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[1])
+                    && !point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[2]))) {
+
+                exit(4);
+            }
+            if (neighbour->children[0] != triangle->index
+                && neighbour->children[1] != triangle->index
+                && neighbour->children[2] != triangle->index) {
+
+                exit(4);
+            }
+        }
+    }
 }

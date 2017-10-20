@@ -22,10 +22,12 @@ void fix_longest(struct triangle *triangle);
 
 int get_height_mean(const struct triangle *triangle);
 
-int get_height_of_center(const struct triangle *triangle, const short **map);
+short get_height_of_center(const struct triangle *triangle, const short **map);
 
 int get_next_triangle_index(struct triangle *triangle);
 
 void get_longest_edge_midsection(struct point *destination, struct triangle *triangle);
+
+void verify_neighbours(struct triangle *triangle, struct mesh *mesh);
 
 #endif //MESHGEN_TRIANGLE_H
