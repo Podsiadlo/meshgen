@@ -29,7 +29,7 @@ struct mesh *generate_mesh(short **map, unsigned int first_row, unsigned int fir
     return mesh;
 }
 
-void refine_new_mesh(struct mesh* mesh) {
+void refine_new_mesh(struct mesh *mesh) {
     bool finish = false;
     while (!finish) {
         bool modified = false;
@@ -42,7 +42,7 @@ void refine_new_mesh(struct mesh* mesh) {
     }
 }
 
-struct triangle * get_new_triangle(struct mesh *mesh) {
+struct triangle *get_new_triangle(struct mesh *mesh) {
     if (mesh->counter >= mesh->size) {
         mesh->triangles = realloc(mesh->triangles, mesh->size * 2 * sizeof(struct triangle));
         mesh->size *= 2;

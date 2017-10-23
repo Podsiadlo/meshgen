@@ -7,7 +7,7 @@ bool is_too_small(struct triangle *triangle);
 
 bool refine_if_required(struct triangle *triangle, struct mesh *mesh) {
     bool refined = false;
-    if (inside_condition(triangle, mesh) || outside_condition(triangle, mesh) || !is_too_small(triangle)) {
+    if ((inside_condition(triangle, mesh) || outside_condition(triangle, mesh)) && !is_too_small(triangle)) {
         refine(triangle, mesh);
         refined = true;
     }
@@ -33,7 +33,7 @@ bool outside_condition(struct triangle *triangle, struct mesh *mesh) {
     for (int i = 0; i < 3; ++i) {
         if (triangle->children[i] != -1) {
             delta = abs(abs(triangle->vertices[i].z - triangle->vertices[(i + 1) % 3].z) -
-                         abs(get_height_of_center(get_triangle(triangle->children[i], mesh), mesh->map) - center));
+                        abs(get_height_of_center(get_triangle(triangle->children[i], mesh), mesh->map) - center));
             if (delta > EPSILON) {
                 return true;
             }
@@ -100,9 +100,10 @@ void split_border(struct triangle *triangle, struct mesh *mesh) {
 
     fix_longest(triangle);
     fix_longest(new_triangle);
-
+#ifdef DEBUG
     verify_neighbours(triangle, mesh);
     verify_neighbours(new_triangle, mesh);
+#endif
 }
 
 
@@ -114,7 +115,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     struct point *points[4];
     struct triangle *children[4];
     struct triangle *triangles[4];
-    short outside_borders[4];
+    int outside_borders[4];
 
     //Simplify symbols
     points[0] = &(triangle1->vertices[(triangle1->longest + 1) % 3]);
@@ -122,59 +123,58 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     points[2] = &(triangle1->vertices[triangle1->longest]);
     children[0] = get_triangle(triangle1->children[(triangle1->longest + 1) % 3], mesh);
     children[1] = get_triangle(triangle1->children[(triangle1->longest + 2) % 3], mesh);
+    outside_borders[0] = (triangle1->longest + 1) % 3;
 
     points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);
-    if (point_equals(&(triangle2->vertices[triangle2->longest]), points[0])) {
-        points[0] = &(triangle2->vertices[triangle2->longest]);
-        children[3] = get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
-        children[2] = get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);
-    } else {//TODO: Is it possible?
-        points[0] = &(triangle2->vertices[(triangle2->longest + 1) % 3]);
-        children[3] = get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);
-        children[2] = get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
-    }
+    points[0] = &(triangle2->vertices[triangle2->longest]);
+    children[3] = get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
+    children[2] = get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);
+    outside_borders[2] = (triangle2->longest + 1) % 3;
 
     triangles[0] = triangle1;
     triangles[1] = get_new_triangle(mesh);
     init_triangle(triangles[1], points[1]->x, points[1]->y, points[2]->x, points[2]->y, center.x, center.y, mesh->map);
+    outside_borders[1] = 0;
     triangles[2] = triangle2;
     triangles[3] = get_new_triangle(mesh);
     init_triangle(triangles[3], points[3]->x, points[3]->y, points[0]->x, points[0]->y, center.x, center.y, mesh->map);
+    outside_borders[3] = 0;
 
     //Modify input triangles
-    points[2]->x = center.x;
-    points[2]->y = center.y;
-    points[2]->z = center.z;
-//    points[2] = &(triangles[1]->vertices[1]); //useless, but I leave it to indicate that they need to be set before using
     points[0]->x = center.x;
     points[0]->y = center.y;
     points[0]->z = center.z;
-//    points[0] = &(triangles[3]->vertices[1]);
+//    points[0] = &(triangles[3]->vertices[1]); //useless, but I leave it to indicate that they need to be set before using
+    points[2]->x = center.x;
+    points[2]->y = center.y;
+    points[2]->z = center.z;
+//    points[2] = &(triangles[1]->vertices[1]);
 
     //Set neighbours
     for (int k = 0; k < 4; ++k) {
+        triangles[k]->children[outside_borders[k]] = children[k] != NULL ? children[k]->index : -1;
+        triangles[k]->children[(outside_borders[k] + 1) % 3] = triangles[(k + 1) % 4]->index;
+        triangles[k]->children[(outside_borders[k] + 2) % 3] = triangles[(k + 3) % 4]->index;
         fix_longest(triangles[k]);
-        triangles[k]->children[triangles[k]->longest] = children[k] != NULL ? children[k]->index : -1;//FIXME: Nie mozna jednak uzyc longest.
-        triangles[k]->children[(triangles[k]->longest + 1) % 3] = triangles[(k + 1) % 4]->index;
-        triangles[k]->children[(triangles[k]->longest + 2) % 3] = triangles[(k + 3) % 4]->index;
     }
 
     //Configure neighbours
     for (int i = 0; i < 4; ++i) {
         if (children[i] != NULL) {
-            if (children[i]->children[0] == triangles[(i/2)*2]->index) {
+            if (children[i]->children[0] == triangles[(i / 2) * 2]->index) {
                 children[i]->children[0] = triangles[i]->index;
-            } else if (children[i]->children[1] == triangles[(i/2)*2]->index) {
+            } else if (children[i]->children[1] == triangles[(i / 2) * 2]->index) {
                 children[i]->children[1] = triangles[i]->index;
-            } else if (children[i]->children[2] == triangles[(i/2)*2]->index) {
+            } else if (children[i]->children[2] == triangles[(i / 2) * 2]->index) {
                 children[i]->children[2] = triangles[i]->index;
             }
         }
 
 
     }
-
+#ifdef DEBUG
     for (int j = 0; j < 4; ++j) {
         verify_neighbours(triangles[j], mesh);
     }
+#endif
 }

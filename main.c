@@ -5,6 +5,7 @@
 #include "output.h"
 
 struct mesh **split_map(short **map, int width, int length, int gcd);
+
 unsigned int gcd(unsigned int a, unsigned int b);
 
 
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 struct mesh **split_map(short **map, int width, int length, int gcd) {
     int rows = length / gcd;
     int columns = width / gcd;
-    struct mesh ** meshes = (struct mesh**)malloc(rows * columns * sizeof(struct mesh *));
+    struct mesh **meshes = (struct mesh **) malloc(rows * columns * sizeof(struct mesh *));
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
             meshes[i * columns + j] = generate_mesh(map, j * gcd, i * gcd, gcd);

@@ -8,8 +8,10 @@
 
 
 short **read_map(const double begin_longitude, const double begin_latitude,
-                 const double end_longitude, const double end_latitude, char *map_dir) { // map[row][column] - it's array of rows
-    int begin_longitude_int = (int) round(begin_longitude * VALUES_IN_DEGREE);//Rounding to avoid problems with numerical errors
+                 const double end_longitude, const double end_latitude,
+                 char *map_dir) { // map[row][column] - it's array of rows
+    int begin_longitude_int = (int) round(
+            begin_longitude * VALUES_IN_DEGREE);//Rounding to avoid problems with numerical errors
     int begin_latitude_int = (int) round(begin_latitude * VALUES_IN_DEGREE);
     int end_longitude_int = (int) round(end_longitude * VALUES_IN_DEGREE);
     int end_latitude_int = (int) round(end_latitude * VALUES_IN_DEGREE);
@@ -38,7 +40,8 @@ short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitu
         exit(1);
     }
     int rows = VALUES_IN_DEGREE + 1;
-    if (fseek(map_file, ((rows - (begin_latitude_int % rows)) * rows + (begin_longitude_int % rows)) * PIXEL_SIZE, SEEK_SET) == -1) {
+    if (fseek(map_file, ((rows - (begin_latitude_int % rows)) * rows + (begin_longitude_int % rows)) * PIXEL_SIZE,
+              SEEK_SET) == -1) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
@@ -62,7 +65,7 @@ short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitu
     return map;
 }
 
-void free_map(short** map, int length) {
+void free_map(short **map, int length) {
     for (int i = 0; i < length; ++i) {
         free(map[i]);
     }
@@ -77,7 +80,7 @@ void swap_if_needed(int *should_be_lower, int *should_be_bigger) {
     }
 }
 
-void get_filename(char* filename, const char *map_dir, int begin_longitude_int, int begin_latitude_int) {
+void get_filename(char *filename, const char *map_dir, int begin_longitude_int, int begin_latitude_int) {
     int first_long_to_read;
     int first_lat_to_read;
 

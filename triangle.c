@@ -4,7 +4,7 @@
 #include "triangle.h"
 
 
-struct triangle *init_triangle(struct triangle * triangle, unsigned int a_x, unsigned int a_y,
+struct triangle *init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
                                unsigned int b_x, unsigned int b_y, unsigned int c_x, unsigned int c_y,
                                const short **map) {
     init_point(&(triangle->vertices[0]), a_x, a_y, map[a_y][a_x]);
@@ -14,12 +14,12 @@ struct triangle *init_triangle(struct triangle * triangle, unsigned int a_x, uns
 }
 
 void fix_longest(struct triangle *triangle) {
-    double ab = sqrt(pow((double)(triangle->vertices[0].x) - (double)(triangle->vertices[1].x), 2)
-                     + pow((double)(triangle->vertices[0].y) - (double)(triangle->vertices[1].y), 2));
-    double bc = sqrt(pow((double)(triangle->vertices[1].x) - (double)(triangle->vertices[2].x), 2)
-                     + pow((double)(triangle->vertices[1].y) - (double)(triangle->vertices[2].y), 2));
-    double ac = sqrt(pow((double)(triangle->vertices[2].x) - (double)(triangle->vertices[0].x), 2)
-                     + pow((double)(triangle->vertices[2].y) - (double)(triangle->vertices[0].y), 2));
+    double ab = sqrt(pow((double) (triangle->vertices[0].x) - (double) (triangle->vertices[1].x), 2)
+                     + pow((double) (triangle->vertices[0].y) - (double) (triangle->vertices[1].y), 2));
+    double bc = sqrt(pow((double) (triangle->vertices[1].x) - (double) (triangle->vertices[2].x), 2)
+                     + pow((double) (triangle->vertices[1].y) - (double) (triangle->vertices[2].y), 2));
+    double ac = sqrt(pow((double) (triangle->vertices[2].x) - (double) (triangle->vertices[0].x), 2)
+                     + pow((double) (triangle->vertices[2].y) - (double) (triangle->vertices[0].y), 2));
 
     short longest;
     if (ab > bc) {
@@ -94,21 +94,13 @@ int get_next_triangle_index(struct triangle *triangle) {
 
 void get_longest_edge_midsection(struct point *destination, struct triangle *triangle) {
     struct point *a, *b;
-    if (triangle->longest == 0) {
-        a = &(triangle->vertices[0]);
-        b = &(triangle->vertices[1]);
-    } else if (triangle->longest == 1) {
-        a = &(triangle->vertices[2]);
-        b = &(triangle->vertices[1]);
-    } else {
-        a = &(triangle->vertices[0]);
-        b = &(triangle->vertices[2]);
-    }
+    a = &(triangle->vertices[triangle->longest]);
+    b = &(triangle->vertices[(triangle->longest + 1) % 3]);
     destination->x = (a->x + b->x) / 2;
     destination->y = (a->y + b->y) / 2;
 }
 
-
+#ifdef DEBUG
 void verify_neighbours(struct triangle *triangle, struct mesh *mesh) {
     for (int i = 0; i < 3; ++i) {
         if (triangle->children[i] != -1) {
@@ -131,3 +123,4 @@ void verify_neighbours(struct triangle *triangle, struct mesh *mesh) {
         }
     }
 }
+#endif
