@@ -3,23 +3,30 @@
 #include "refinement.h"
 
 
-bool is_too_small(struct triangle *triangle);
+bool would_create_flat_triangle(struct triangle *triangle);
 
 bool refine_if_required(struct triangle *triangle, struct mesh *mesh) {
     bool refined = false;
-    if ((inside_condition(triangle, mesh) || outside_condition(triangle, mesh)) && !is_too_small(triangle)) {
-        refine(triangle, mesh);
-        refined = true;
+    if ((inside_condition(triangle, mesh) || outside_condition(triangle, mesh)) /*&& !is_too_small(triangle)*/) {
+        if (refine(triangle, mesh) > 0) {
+            refined = true;
+        }
     }
     return refined;
 }
 
-bool is_too_small(struct triangle *triangle) {
-    if (abs(triangle->vertices[triangle->longest].x - triangle->vertices[(1 + triangle->longest) % 3].x) <= 1
-        && abs(triangle->vertices[triangle->longest].y - triangle->vertices[(1 + triangle->longest) % 3].y) <= 1) {
+bool would_create_flat_triangle(struct triangle *triangle) {
+    short longest = triangle->longest;
+    struct point center;
+    get_longest_edge_midsection(&center, triangle);
+    if (center.x == triangle->vertices[(longest + 2) % 3].x &&
+        (center.x == triangle->vertices[longest].x || center.x == triangle->vertices[(longest + 1) % 3].x)
+        || center.y == triangle->vertices[(longest + 2) % 3].y &&
+           (center.y == triangle->vertices[longest].y || center.y == triangle->vertices[(longest + 1) % 3].y)) {
 
         return true;
     }
+
     return false;
 }
 
@@ -42,12 +49,33 @@ bool outside_condition(struct triangle *triangle, struct mesh *mesh) {
     return false;
 }
 
-void refine(struct triangle *triangle, struct mesh *mesh) {
-    if (is_final_step(triangle, mesh)) {
-        split(triangle, mesh);
-    } else {
-        refine(get_triangle(get_next_triangle_index(triangle), mesh), mesh);
+int refine(struct triangle *triangle, struct mesh *mesh) {
+    if (is_too_small(triangle)) {
+        return 0;
     }
+    if (is_final_step(triangle, mesh)) {
+        return split(triangle, mesh) ? 1 : 0;
+    } else {
+        int refinements = refine(get_triangle(get_next_triangle_index(triangle), mesh), mesh);
+        refinements += split(triangle, mesh) ? 1 : 0;
+        return refinements;
+    }
+}
+
+bool is_too_small(struct triangle *triangle) {
+    short longest = triangle->longest;
+    if (abs(triangle->vertices[longest].x - triangle->vertices[(1 + longest) % 3].x) <= 1
+        && abs(triangle->vertices[longest].y - triangle->vertices[(1 + longest) % 3].y) <= 1) {
+
+        return true;
+    }
+
+    if (would_create_flat_triangle(triangle)) {
+        return true;
+    }
+
+
+    return false;
 }
 
 bool is_final_step(struct triangle *triangle, struct mesh *mesh) {
@@ -55,13 +83,17 @@ bool is_final_step(struct triangle *triangle, struct mesh *mesh) {
     return next_triangle == -1 || get_next_triangle_index(get_triangle(next_triangle, mesh)) == triangle->index;
 }
 
-void split(struct triangle *triangle, struct mesh *mesh) {
+bool split(struct triangle *triangle, struct mesh *mesh) {
     struct triangle *next_triangle = get_triangle(get_next_triangle_index(triangle), mesh);
     if (next_triangle == NULL) {
         split_border(triangle, mesh);
-    } else {
+        return true;
+    } else if (!would_create_flat_triangle(next_triangle)) {
         split_inner(triangle, next_triangle, mesh);
-    };
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
@@ -101,8 +133,8 @@ void split_border(struct triangle *triangle, struct mesh *mesh) {
     fix_longest(triangle);
     fix_longest(new_triangle);
 #ifdef DEBUG
-    verify_neighbours(triangle, mesh);
-    verify_neighbours(new_triangle, mesh);
+    verify_triangle(triangle, mesh);
+    verify_triangle(new_triangle, mesh);
 #endif
 }
 
@@ -125,7 +157,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     children[1] = get_triangle(triangle1->children[(triangle1->longest + 2) % 3], mesh);
     outside_borders[0] = (triangle1->longest + 1) % 3;
 
-    points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);
+    points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);//FIXME: przy triangle42 się psuje
     points[0] = &(triangle2->vertices[triangle2->longest]);
     children[3] = get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
     children[2] = get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);
@@ -174,7 +206,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     }
 #ifdef DEBUG
     for (int j = 0; j < 4; ++j) {
-        verify_neighbours(triangles[j], mesh);
+        verify_triangle(triangles[j], mesh);
     }
 #endif
 }

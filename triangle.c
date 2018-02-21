@@ -101,7 +101,12 @@ void get_longest_edge_midsection(struct point *destination, struct triangle *tri
 }
 
 #ifdef DEBUG
-void verify_neighbours(struct triangle *triangle, struct mesh *mesh) {
+
+void verify_triangle(struct triangle *triangle, struct mesh *mesh) {
+    if (triangle->vertices[0].x == triangle->vertices[1].x && triangle->vertices[0].x == triangle->vertices[2].x
+        || triangle->vertices[0].y == triangle->vertices[1].y && triangle->vertices[0].y == triangle->vertices[2].y) {
+        exit(5);
+    }
     for (int i = 0; i < 3; ++i) {
         if (triangle->children[i] != -1) {
             struct triangle *neighbour = get_triangle(triangle->children[i], mesh);
@@ -123,4 +128,5 @@ void verify_neighbours(struct triangle *triangle, struct mesh *mesh) {
         }
     }
 }
+
 #endif
