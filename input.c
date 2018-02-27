@@ -90,7 +90,7 @@ void get_filename(char *filename, const char *map_dir, int begin_longitude_int, 
         } else {
             first_long_to_read = begin_longitude_int / VALUES_IN_DEGREE;
         }
-    } else { //TODO: What with 0?
+    } else {
         first_long_to_read = begin_longitude_int / VALUES_IN_DEGREE;
     }
 
@@ -100,7 +100,7 @@ void get_filename(char *filename, const char *map_dir, int begin_longitude_int, 
         } else {
             first_lat_to_read = begin_latitude_int / VALUES_IN_DEGREE;
         }
-    } else { //TODO: What with 0?
+    } else {
         first_lat_to_read = begin_latitude_int / VALUES_IN_DEGREE;
     }
 

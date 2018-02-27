@@ -157,7 +157,7 @@ void split_inner(struct triangle *triangle1, struct triangle *triangle2, struct 
     children[1] = get_triangle(triangle1->children[(triangle1->longest + 2) % 3], mesh);
     outside_borders[0] = (triangle1->longest + 1) % 3;
 
-    points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);//FIXME: przy triangle42 się psuje
+    points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);
     points[0] = &(triangle2->vertices[triangle2->longest]);
     children[3] = get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
     children[2] = get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);

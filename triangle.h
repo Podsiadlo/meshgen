@@ -1,6 +1,6 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
-#define DEBUG
+//#define DEBUG
 static const int EPSILON = 5;
 
 #include <stdbool.h>
