@@ -3,21 +3,20 @@ project(meshgen)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES
-        main.c
-        point.c
-        input.c
-        triangle.c
-        output.c
-        output.h
-        mesh.c
-        mesh.h
-        point.h
-        triangle.h
-        input.h
-        refinement.c
-        refinement.h)
+add_executable(meshgen
+	Src/main.c
+	Src/point.c
+	Src/input.c
+	Src/triangle.c
+	Src/output.c
+	Src/output.h
+	Src/mesh.c
+	Src/mesh.h
+	Src/point.h
+	Src/triangle.h
+	Src/input.h
+	Src/refinement.c
+	Src/refinement.h)
 
 
-add_executable(meshgen ${SOURCE_FILES})
 target_link_libraries(meshgen m)
