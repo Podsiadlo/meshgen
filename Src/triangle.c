@@ -1,8 +1,7 @@
+#include "triangle.h"
 
 #include <math.h>
 #include <stdlib.h>
-#include "triangle.h"
-
 
 void
 init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
@@ -15,13 +14,27 @@ init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
     fix_longest(triangle);
 }
 
-void fix_longest(struct triangle *triangle) {
-    double ab = sqrt(pow((double) (triangle->vertices[0].x) - (double) (triangle->vertices[1].x), 2)
-                     + pow((double) (triangle->vertices[0].y) - (double) (triangle->vertices[1].y), 2));
-    double bc = sqrt(pow((double) (triangle->vertices[1].x) - (double) (triangle->vertices[2].x), 2)
-                     + pow((double) (triangle->vertices[1].y) - (double) (triangle->vertices[2].y), 2));
-    double ac = sqrt(pow((double) (triangle->vertices[2].x) - (double) (triangle->vertices[0].x), 2)
-                     + pow((double) (triangle->vertices[2].y) - (double) (triangle->vertices[0].y), 2));
+void
+fix_longest(struct triangle *triangle)
+{
+    double ab = sqrt(pow((double)(triangle->vertices[0].x) -
+                             (double)(triangle->vertices[1].x),
+                         2) +
+                     pow((double)(triangle->vertices[0].y) -
+                             (double)(triangle->vertices[1].y),
+                         2));
+    double bc = sqrt(pow((double)(triangle->vertices[1].x) -
+                             (double)(triangle->vertices[2].x),
+                         2) +
+                     pow((double)(triangle->vertices[1].y) -
+                             (double)(triangle->vertices[2].y),
+                         2));
+    double ac = sqrt(pow((double)(triangle->vertices[2].x) -
+                             (double)(triangle->vertices[0].x),
+                         2) +
+                     pow((double)(triangle->vertices[2].y) -
+                             (double)(triangle->vertices[0].y),
+                         2));
 
     short longest;
     if (ab > bc) {
@@ -80,21 +93,36 @@ void fix_longest(struct triangle *triangle) {
     triangle->longest = longest;
 }
 
-int get_height_mean(const struct triangle *triangle) {
-    return (triangle->vertices[0].z + triangle->vertices[1].z + triangle->vertices[2].z) / 3;
+int
+get_height_mean(const struct triangle *triangle)
+{
+    return (triangle->vertices[0].z + triangle->vertices[1].z +
+            triangle->vertices[2].z) /
+        3;
 }
 
-short get_height_of_center(const struct triangle *triangle, const short **map) {
-    int x = (triangle->vertices[0].x + triangle->vertices[1].x + triangle->vertices[2].x) / 3;
-    int y = (triangle->vertices[0].y + triangle->vertices[1].y + triangle->vertices[2].y) / 3;
+short
+get_height_of_center(const struct triangle *triangle, const short **map)
+{
+    int x = (triangle->vertices[0].x + triangle->vertices[1].x +
+             triangle->vertices[2].x) /
+        3;
+    int y = (triangle->vertices[0].y + triangle->vertices[1].y +
+             triangle->vertices[2].y) /
+        3;
     return map[y][x];
 }
 
-int get_next_triangle_index(struct triangle *triangle) {
+int
+get_next_triangle_index(struct triangle *triangle)
+{
     return triangle->children[triangle->longest];
 }
 
-void get_longest_edge_midsection(struct point *destination, struct triangle *triangle) {
+void
+get_longest_edge_midsection(struct point *destination,
+                            struct triangle *triangle)
+{
     struct point *a, *b;
     a = &(triangle->vertices[triangle->longest]);
     b = &(triangle->vertices[(triangle->longest + 1) % 3]);
@@ -104,26 +132,37 @@ void get_longest_edge_midsection(struct point *destination, struct triangle *tri
 
 #ifdef DEBUG
 
-void verify_triangle(struct triangle *triangle, struct mesh *mesh) {
-    if (triangle->vertices[0].x == triangle->vertices[1].x && triangle->vertices[0].x == triangle->vertices[2].x
-        || triangle->vertices[0].y == triangle->vertices[1].y && triangle->vertices[0].y == triangle->vertices[2].y) {
+void
+verify_triangle(struct triangle *triangle, struct mesh *mesh)
+{
+    if (triangle->vertices[0].x == triangle->vertices[1].x &&
+            triangle->vertices[0].x == triangle->vertices[2].x ||
+        triangle->vertices[0].y == triangle->vertices[1].y &&
+            triangle->vertices[0].y == triangle->vertices[2].y) {
         exit(5);
     }
     for (int i = 0; i < 3; ++i) {
         if (triangle->children[i] != -1) {
-            struct triangle *neighbour = get_triangle(triangle->children[i], mesh);
-            if ((!point_equals(&triangle->vertices[i], &neighbour->vertices[0])
-                 && !point_equals(&triangle->vertices[i], &neighbour->vertices[1])
-                 && !point_equals(&triangle->vertices[i], &neighbour->vertices[2]))
-                || (!point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[0])
-                    && !point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[1])
-                    && !point_equals(&triangle->vertices[(i + 1) % 3], &neighbour->vertices[2]))) {
+            struct triangle *neighbour =
+                get_triangle(triangle->children[i], mesh);
+            if ((!point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[2])) ||
+                (!point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[2]))) {
 
                 exit(4);
             }
-            if (neighbour->children[0] != triangle->index
-                && neighbour->children[1] != triangle->index
-                && neighbour->children[2] != triangle->index) {
+            if (neighbour->children[0] != triangle->index &&
+                neighbour->children[1] != triangle->index &&
+                neighbour->children[2] != triangle->index) {
 
                 exit(4);
             }

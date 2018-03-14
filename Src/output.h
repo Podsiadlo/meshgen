@@ -3,6 +3,7 @@
 
 #include "mesh.h"
 
-void save_to_dtm(struct mesh **meshes, int meshes_count, char *filename);
+void
+save_to_dtm(struct mesh **meshes, int meshes_count, char *filename);
 
-#endif //MESHGEN_OUTPUT_H
+#endif // MESHGEN_OUTPUT_H

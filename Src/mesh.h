@@ -12,16 +12,20 @@ struct mesh {
     const short **map;
 };
 
-void refine_new_mesh(struct mesh *mesh);
+void
+refine_new_mesh(struct mesh *mesh);
 
 struct mesh *
 generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
               unsigned int size);
 
-struct triangle *get_new_triangle(struct mesh *mesh);
+struct triangle *
+get_new_triangle(struct mesh *mesh);
 
-struct triangle *get_triangle(int index, struct mesh *mesh);
+struct triangle *
+get_triangle(int index, struct mesh *mesh);
 
-void free_mesh(struct mesh *mesh);
+void
+free_mesh(struct mesh *mesh);
 
-#endif //MESHGEN_MESH_H
+#endif // MESHGEN_MESH_H
