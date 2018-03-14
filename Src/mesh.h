@@ -9,12 +9,14 @@ struct mesh {
     struct triangle *triangles;
     unsigned int size;
     unsigned int counter;
-    short **map;
+    const short **map;
 };
 
 void refine_new_mesh(struct mesh *mesh);
 
-struct mesh *generate_mesh(short **map, unsigned int first_row, unsigned int first_col, unsigned int size);
+struct mesh *
+generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
+              unsigned int size);
 
 struct triangle *get_new_triangle(struct mesh *mesh);
 

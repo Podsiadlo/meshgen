@@ -1,14 +1,20 @@
 #include <stdlib.h>
 #include "mesh.h"
+#include <string.h>
 #include "refinement.h"
 
-struct mesh *generate_mesh(short **map, unsigned int first_row, unsigned int first_col, unsigned int size) {
-    struct mesh *mesh = (struct mesh *) malloc(sizeof(struct mesh));
-    mesh->map = map;
-    mesh->size = INITIAL_MESH_SIZE;
-    mesh->counter = 0;
-    mesh->triangles = (struct triangle *) malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
+struct mesh *
+generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
+              unsigned int size)
+{
+    struct triangle *t =
+        (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
+    struct mesh m = {
+        .triangles = t, .size = INITIAL_MESH_SIZE, .counter = 0, .map = map};
 
+    struct mesh *mesh = (struct mesh *)malloc(sizeof(struct mesh));
+
+    memcpy(mesh, &m, sizeof *mesh);
 
     struct triangle *first = get_new_triangle(mesh);
     init_triangle(first, first_col, first_row + size - 1,

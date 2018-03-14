@@ -4,7 +4,8 @@
 #include "mesh.h"
 #include "output.h"
 
-struct mesh **split_map(short **map, int width, int length, int gcd);
+struct mesh **
+split_map(const short **map, int width, int length, int gcd);
 
 unsigned int gcd(unsigned int a, unsigned int b);
 
@@ -21,7 +22,8 @@ int main(int argc, char **argv) {
     unsigned int width = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
     unsigned int length = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
     int map_gcd = gcd(width, length);
-    struct mesh **meshes = split_map(map, width, length, map_gcd);
+    struct mesh **meshes =
+        split_map((const short **)map, width, length, map_gcd);
     int meshes_number = width * length / (map_gcd * map_gcd);
     for (int i = 0; i < meshes_number; ++i) {
         refine_new_mesh(meshes[i]);
@@ -40,7 +42,9 @@ int main(int argc, char **argv) {
 /**
  * If gcd will be relatively small, especially if it will equal 1, the result will be rather not good enough.
  */
-struct mesh **split_map(short **map, int width, int length, int gcd) {
+struct mesh **
+split_map(const short **map, int width, int length, int gcd)
+{
     int rows = length / gcd;
     int columns = width / gcd;
     struct mesh **meshes = (struct mesh **) malloc(rows * columns * sizeof(struct mesh *));
