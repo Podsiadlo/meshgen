@@ -1,6 +1,8 @@
 #ifndef MESHGEN_POINT_H
 #define MESHGEN_POINT_H
 
+#include <stdbool.h>
+
 struct point {
     unsigned int x;
     unsigned int y;
