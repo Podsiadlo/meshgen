@@ -45,13 +45,13 @@ short **read_map2(const char *map_dir, int begin_longitude_int, int begin_latitu
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    for (int i = 0; i < length; ++i) {
+    for (size_t i = 0; i < length; ++i) {
         fread(map[length - 1 - i], PIXEL_SIZE, width, map_file);
         if (fseek(map_file, (rows - width) * PIXEL_SIZE, SEEK_CUR) == -1) {
             fprintf(stderr, "%s\n", strerror(errno));
             exit(1);
         }
-        for (int j = 0; j < width; ++j) {
+        for (size_t j = 0; j < width; ++j) {
             uint16_t tmp = map[length - 1 - i][j];
             tmp <<= 8;
             map[length - 1 - i][j] >>= 8;

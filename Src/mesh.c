@@ -39,7 +39,7 @@ void refine_new_mesh(struct mesh *mesh) {
     bool finish = false;
     while (!finish) {
         bool modified = false;
-        for (int i = 0; i < mesh->counter; ++i) {
+        for (size_t i = 0; i < mesh->counter; ++i) {
             if (refine_if_required(&(mesh->triangles[i]), mesh)) {
                 modified = true;
             }

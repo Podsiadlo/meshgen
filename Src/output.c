@@ -11,7 +11,7 @@ void save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
 
 void print_mesh(struct mesh *mesh) {
     printf("MESH:\n");
-    for (int i = 0; i < mesh->counter; ++i) {
+    for (size_t i = 0; i < mesh->counter; ++i) {
 #ifdef DEBUG
 #include "triangle.h"
         verify_triangle(&mesh->triangles[i], mesh);
