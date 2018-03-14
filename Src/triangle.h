@@ -14,9 +14,10 @@ struct triangle {
     short longest; //0 -> P0P1, 1 -> P1P2, 2 -> P2P0
 };
 
-struct triangle *init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
-                               unsigned int b_x, unsigned int b_y, unsigned int c_x, unsigned int c_y,
-                               const short **map);
+void
+init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
+              unsigned int b_x, unsigned int b_y, unsigned int c_x,
+              unsigned int c_y, const short **map);
 
 void fix_longest(struct triangle *triangle);
 

@@ -4,9 +4,11 @@
 #include "triangle.h"
 
 
-struct triangle *init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
-                               unsigned int b_x, unsigned int b_y, unsigned int c_x, unsigned int c_y,
-                               const short **map) {
+void
+init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
+              unsigned int b_x, unsigned int b_y, unsigned int c_x,
+              unsigned int c_y, const short **map)
+{
     init_point(&(triangle->vertices[0]), a_x, a_y, map[a_y][a_x]);
     init_point(&(triangle->vertices[1]), b_x, b_y, map[b_y][b_x]);
     init_point(&(triangle->vertices[2]), c_x, c_y, map[c_y][c_x]);
