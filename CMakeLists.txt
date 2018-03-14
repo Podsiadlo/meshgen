@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.9)
 
 project(meshgen
 	VERSION 0.1
@@ -6,9 +6,14 @@ project(meshgen
 	LANGUAGES C
 	)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1 )
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+
+include(cmake/compiler_flags.cmake)
+include(cmake/ctags.cmake)
 
 add_executable(meshgen
 	Src/main.c
@@ -25,16 +30,12 @@ add_executable(meshgen
 	Src/refinement.c
 	Src/refinement.h)
 
-
 target_link_libraries(meshgen m)
 
-find_program(CTAGS_PATH ctags)
-if(CTAGS_PATH)
-        message(STATUS "Found ctags: ${CTAGS_PATH}")
-        set_source_files_properties(tags PROPERTIES GENERATED true)
-        add_custom_target(tags
-                COMMAND ${CTAGS_PATH} -R ${CMAKE_SOURCE_DIR}
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+include(CheckIPOSupported)
+check_ipo_supported(RESULT result)
+if(${result})
+    set_target_properties(meshgen PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+endif()
 
-endif(CTAGS_PATH)
 
