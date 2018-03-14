@@ -19,6 +19,7 @@ add_executable(meshgen
 	Src/main.c
 	Src/point.c
 	Src/input.c
+	Src/asc_reader.c
 	Src/triangle.c
 	Src/output.c
 	Src/output.h
