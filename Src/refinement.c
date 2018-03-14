@@ -19,10 +19,12 @@ bool would_create_flat_triangle(struct triangle *triangle) {
     short longest = triangle->longest;
     struct point center;
     get_longest_edge_midsection(&center, triangle);
-    if (center.x == triangle->vertices[(longest + 2) % 3].x &&
-        (center.x == triangle->vertices[longest].x || center.x == triangle->vertices[(longest + 1) % 3].x)
-        || center.y == triangle->vertices[(longest + 2) % 3].y &&
-           (center.y == triangle->vertices[longest].y || center.y == triangle->vertices[(longest + 1) % 3].y)) {
+    if ((center.x == triangle->vertices[(longest + 2) % 3].x &&
+         (center.x == triangle->vertices[longest].x ||
+          center.x == triangle->vertices[(longest + 1) % 3].x)) ||
+        (center.y == triangle->vertices[(longest + 2) % 3].y &&
+         (center.y == triangle->vertices[longest].y ||
+          center.y == triangle->vertices[(longest + 1) % 3].y))) {
 
         return true;
     }
