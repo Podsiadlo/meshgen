@@ -1,15 +1,19 @@
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+
 #include "input.h"
 #include "mesh.h"
 #include "output.h"
 
-struct mesh **split_map(short **map, int width, int length, int gcd);
+struct mesh **
+split_map(const short **map, int width, int length, int gcd);
 
-unsigned int gcd(unsigned int a, unsigned int b);
+unsigned int
+gcd(unsigned int a, unsigned int b);
 
-
-int main(int argc, char **argv) {
+int
+main(int argc, char **argv)
+{
     double begin_longitude = 50.5;
     double begin_latitude = 19.3;
     double end_longitude = 50.51;
@@ -17,11 +21,15 @@ int main(int argc, char **argv) {
     char *map_dir = ".";
     char *output_filename = "result.dtm";
 
-    short **map = read_map(begin_longitude, begin_latitude, end_longitude, end_latitude, map_dir);
-    unsigned int width = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
-    unsigned int length = (unsigned int) round(VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
+    short **map = read_map(begin_longitude, begin_latitude, end_longitude,
+                           end_latitude, map_dir);
+    unsigned int width = (unsigned int)round(
+        VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
+    unsigned int length = (unsigned int)round(
+        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
     int map_gcd = gcd(width, length);
-    struct mesh **meshes = split_map(map, width, length, map_gcd);
+    struct mesh **meshes =
+        split_map((const short **)map, width, length, map_gcd);
     int meshes_number = width * length / (map_gcd * map_gcd);
     for (int i = 0; i < meshes_number; ++i) {
         refine_new_mesh(meshes[i]);
@@ -38,12 +46,16 @@ int main(int argc, char **argv) {
 }
 
 /**
- * If gcd will be relatively small, especially if it will equal 1, the result will be rather not good enough.
+ * If gcd will be relatively small, especially if it will equal 1, the result
+ * will be rather not good enough.
  */
-struct mesh **split_map(short **map, int width, int length, int gcd) {
+struct mesh **
+split_map(const short **map, int width, int length, int gcd)
+{
     int rows = length / gcd;
     int columns = width / gcd;
-    struct mesh **meshes = (struct mesh **) malloc(rows * columns * sizeof(struct mesh *));
+    struct mesh **meshes =
+        (struct mesh **)malloc(rows * columns * sizeof(struct mesh *));
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < columns; ++j) {
             meshes[i * columns + j] = generate_mesh(map, j * gcd, i * gcd, gcd);
@@ -52,7 +64,9 @@ struct mesh **split_map(short **map, int width, int length, int gcd) {
     return meshes;
 }
 
-unsigned int gcd(unsigned int a, unsigned int b) {
+unsigned int
+gcd(unsigned int a, unsigned int b)
+{
     do {
         if (b > a) {
             unsigned int tmp = a;
