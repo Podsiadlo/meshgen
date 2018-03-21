@@ -18,8 +18,8 @@ main(int argc, char **argv)
     double begin_latitude = 19.3;
     double end_longitude = 50.51;
     double end_latitude = 19.31;
-    char *map_dir = ".";
-    char *output_filename = "result.dtm";
+    char *map_dir = "Examples";
+    char *output_filename = "result.vtk";
 
     short **map = read_map(begin_longitude, begin_latitude, end_longitude,
                            end_latitude, map_dir);
