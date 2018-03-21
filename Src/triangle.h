@@ -1,11 +1,10 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
-//#define DEBUG
+#define DEBUG
 static const int EPSILON = 5;
 
 #include <stdbool.h>
 
-#include "mesh.h"
 #include "point.h"
 
 struct triangle {
@@ -37,6 +36,7 @@ get_longest_edge_midsection(struct point *destination,
                             struct triangle *triangle);
 
 #ifdef DEBUG
+#include "mesh.h"
 void
 verify_triangle(struct triangle *triangle, struct mesh *mesh);
 #endif
