@@ -63,9 +63,9 @@ get_new_triangle(struct mesh *mesh)
 }
 
 struct triangle *
-get_triangle(int index, struct mesh *mesh)
+get_triangle(int index, struct triangle *triangles)
 {
-    return index != -1 ? &(mesh->triangles[index]) : NULL;
+    return index != -1 ? &(triangles[index]) : NULL;
 }
 
 void

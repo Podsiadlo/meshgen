@@ -56,7 +56,7 @@ outside_condition(struct triangle *triangle, struct mesh *mesh)
                 abs(triangle->vertices[i].z -
                     triangle->vertices[(i + 1) % 3].z) -
                 abs(get_height_of_center(
-                        get_triangle(triangle->children[i], mesh), mesh->map) -
+                        get_triangle(triangle->children[i], mesh->triangles), mesh->map) -
                     center));
             if (delta > EPSILON) {
                 return true;
@@ -76,7 +76,7 @@ refine(struct triangle *triangle, struct mesh *mesh)
         return split(triangle, mesh) ? 1 : 0;
     } else {
         int refinements =
-            refine(get_triangle(get_next_triangle_index(triangle), mesh), mesh);
+            refine(get_triangle(get_next_triangle_index(triangle), mesh->triangles), mesh);
         refinements += split(triangle, mesh) ? 1 : 0;
         return refinements;
     }
@@ -106,7 +106,7 @@ is_final_step(struct triangle *triangle, struct mesh *mesh)
 {
     int next_triangle = get_next_triangle_index(triangle);
     return next_triangle == -1 ||
-        get_next_triangle_index(get_triangle(next_triangle, mesh)) ==
+        get_next_triangle_index(get_triangle(next_triangle, mesh->triangles)) ==
         triangle->index;
 }
 
@@ -114,7 +114,7 @@ bool
 split(struct triangle *triangle, struct mesh *mesh)
 {
     struct triangle *next_triangle =
-        get_triangle(get_next_triangle_index(triangle), mesh);
+            get_triangle(get_next_triangle_index(triangle), mesh->triangles);
     if (next_triangle == NULL) {
         split_border(triangle, mesh);
         return true;
@@ -152,7 +152,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
     triangle->children[(longest + 2) % 3] = new_triangle->index;
 
     // Fix neighbour
-    struct triangle *neighbour = get_triangle(new_triangle->children[0], mesh);
+    struct triangle *neighbour = get_triangle(new_triangle->children[0], mesh->triangles);
     if (neighbour != NULL) {
         if (neighbour->children[0] == triangle->index) {
             neighbour->children[0] = new_triangle->index;
@@ -189,17 +189,17 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
     points[1] = &(triangle1->vertices[(triangle1->longest + 2) % 3]);
     points[2] = &(triangle1->vertices[triangle1->longest]);
     children[0] =
-        get_triangle(triangle1->children[(triangle1->longest + 1) % 3], mesh);
+            get_triangle(triangle1->children[(triangle1->longest + 1) % 3], mesh->triangles);
     children[1] =
-        get_triangle(triangle1->children[(triangle1->longest + 2) % 3], mesh);
+            get_triangle(triangle1->children[(triangle1->longest + 2) % 3], mesh->triangles);
     outside_borders[0] = (triangle1->longest + 1) % 3;
 
     points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);
     points[0] = &(triangle2->vertices[triangle2->longest]);
     children[3] =
-        get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh);
+            get_triangle(triangle2->children[(triangle2->longest + 2) % 3], mesh->triangles);
     children[2] =
-        get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh);
+            get_triangle(triangle2->children[(triangle2->longest + 1) % 3], mesh->triangles);
     outside_borders[2] = (triangle2->longest + 1) % 3;
 
     triangles[0] = triangle1;

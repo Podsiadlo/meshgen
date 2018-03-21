@@ -23,7 +23,7 @@ struct triangle *
 get_new_triangle(struct mesh *mesh);
 
 struct triangle *
-get_triangle(int index, struct mesh *mesh);
+get_triangle(int index, struct triangle *triangles)
 
 void
 free_mesh(struct mesh *mesh);
