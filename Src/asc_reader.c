@@ -32,7 +32,7 @@ readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number)
     return 0;
 }
 
-double **
+short **
 readASC(const char *filename)
 {
     const size_t tambuf = 256;
@@ -123,9 +123,24 @@ readASC(const char *filename)
 
             coords[i + (nCols * j)][0] = x;
             coords[i + (nCols * j)][1] = y;
-            coords[i + (nCols * j)][2] = z;
+            coords[i + (nCols * j)][2] = z;  //czyli to jest tasma tablic (x,y,z); lista wierszy, czyli po prostu wartosci po kolei jak w pliku leci
         }
     }
 
-    return coords;
+    return convert(coords, nRows, nCols);
+}
+
+short **
+convert(double** coords, int nRows, int nCols) {
+    short** map = (short**)malloc(nRows*sizeof(double*));
+    for (int k = 0; k < nRows; ++k) {
+        map[k] = (short*)malloc(nCols* sizeof(double));
+        for (int i = 0; i < nCols; ++i) {
+            if ((short)coords[k*nCols+i][2] != coords[k*nCols+i][2]) {
+                printf("ERROR");
+            }
+            map[k][i] = coords[k*nCols+i][2];
+        }
+    }
+    return map;
 }
