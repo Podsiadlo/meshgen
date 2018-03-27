@@ -1,6 +1,8 @@
 #include "output.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
 
 void
 print_mesh(struct mesh *mesh);
@@ -28,7 +30,11 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
                       &points_size);
     }
 
-    FILE *file = fopen(filename, "w");
+    FILE *file;
+    if ((file = fopen(filename, "w")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
     fprintf(file, vtk0, point_counter);
     for (int l = 0; l < point_counter; ++l) {
         fprintf(file, "%d %d %d\n", points[l]->x, points[l]->y, points[l]->z);
@@ -41,7 +47,10 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
 //    fwrite(vtk0, sizeof(char), strlen(vtk0), file);
 //    fwrite(point_counter, sizeof(char), strlen(vtk0), file);
 
-    fclose(file);
+    if (fclose(file) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
     for (int k = 0; k < triangles_counter; ++k) {
         free(triangles[k]);
     }

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "input.h"
+#include "asc_reader.h"
 #include "mesh.h"
 #include "output.h"
 

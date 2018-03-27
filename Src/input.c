@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "asc_reader.h"
+
 short **
 read_map(const double begin_longitude, const double begin_latitude,
          const double end_longitude, const double end_latitude, char *map_dir)
