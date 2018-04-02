@@ -28,4 +28,9 @@ get_triangle(int index, struct triangle *triangles);
 void
 free_mesh(struct mesh *mesh);
 
+#ifndef NDEBUG
+void
+verify_triangle(struct triangle *triangle, struct mesh *mesh);
+#endif
+
 #endif // MESHGEN_MESH_H

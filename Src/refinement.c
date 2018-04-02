@@ -165,7 +165,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
 
     fix_longest(triangle);
     fix_longest(new_triangle);
-#ifdef DEBUG
+#ifndef NDEBUG
     verify_triangle(triangle, mesh);
     verify_triangle(new_triangle, mesh);
 #endif
@@ -249,7 +249,7 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
             }
         }
     }
-#ifdef DEBUG
+#ifndef NDEBUG
     for (int j = 0; j < 4; ++j) {
         verify_triangle(triangles[j], mesh);
     }

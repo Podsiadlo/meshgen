@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "refinement.h"
+#include "triangle.h"
 
 struct mesh *
 generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
@@ -74,3 +75,44 @@ free_mesh(struct mesh *mesh)
     free(mesh->triangles);
     free(mesh);
 }
+
+#ifndef NDEBUG
+void
+verify_triangle(struct triangle *triangle, struct mesh *mesh)
+{
+    if ((triangle->vertices[0].x == triangle->vertices[1].x &&
+            triangle->vertices[0].x == triangle->vertices[2].x) ||
+        (triangle->vertices[0].y == triangle->vertices[1].y &&
+            triangle->vertices[0].y == triangle->vertices[2].y)) {
+        exit(5);
+    }
+    for (int i = 0; i < 3; ++i) {
+        if (triangle->children[i] != -1) {
+            struct triangle *neighbour =
+                    get_triangle(triangle->children[i], mesh->triangles);
+            if ((!point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[2])) ||
+                (!point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[2]))) {
+
+                exit(4);
+            }
+            if (neighbour->children[0] != triangle->index &&
+                neighbour->children[1] != triangle->index &&
+                neighbour->children[2] != triangle->index) {
+
+                exit(4);
+            }
+        }
+    }
+}
+
+#endif
