@@ -4,6 +4,8 @@
 #include <string.h>
 #include <errno.h>
 
+#include "mesh.h"
+
 void
 print_mesh(struct mesh *mesh);
 
@@ -70,7 +72,7 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, int *triangles_
             *triangles = (struct three **) realloc(*triangles, *triangles_size);
         }
 
-#ifdef DEBUG
+#ifndef NDEBUG
         for (int j = 0; j < *triangles_counter; ++j) {
             if (triangle->points[0] == (*triangles)[j]->points[0] ||
                 triangle->points[0] == (*triangles)[j]->points[1] ||
@@ -117,8 +119,7 @@ void
 print_mesh(struct mesh *mesh) {
     printf("MESH:\n");
     for (size_t i = 0; i < mesh->counter; ++i) {
-#ifdef DEBUG
-#include "triangle.h"
+#ifndef NDEBUG
         verify_triangle(&mesh->triangles[i], mesh);
 #endif
         printf(
