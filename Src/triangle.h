@@ -9,7 +9,7 @@ static const int EPSILON = 5;
 struct triangle {
     int index;
     struct point vertices[3]; // P0, P1, P2
-    int children[3]; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
+    int neighbours[3]; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
     short longest; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
 };
 
@@ -28,7 +28,7 @@ short
 get_height_of_center(const struct triangle *triangle, const short **map);
 
 int
-get_next_triangle_index(struct triangle *triangle);
+get_longest_edge_triangle_index(struct triangle *triangle);
 
 void
 get_longest_edge_midsection(struct point *destination,

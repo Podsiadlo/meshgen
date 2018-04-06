@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <math.h>
 #include <memory.h>
-#include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 

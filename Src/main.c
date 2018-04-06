@@ -28,6 +28,10 @@ main(int argc, char **argv)
         VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
     unsigned int length = (unsigned int)round(
         VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
+//    short **map = readASC("Test/equilateral_4_4x5.inp");
+//    short **map = readASC("Test/isosceles_4_6x4.inp");
+//    int width = 35;
+//    int length = 48;
     int map_gcd = gcd(width, length);
     struct mesh **meshes =
         split_map((const short **)map, width, length, map_gcd);

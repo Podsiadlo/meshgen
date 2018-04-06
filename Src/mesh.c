@@ -26,12 +26,12 @@ generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
     struct triangle *second = get_new_triangle(mesh);
     init_triangle(second, first_col + size - 1, first_row, first_col, first_row,
                   first_col, first_row + size - 1, mesh->map);
-    first->children[2] = second->index;
-    first->children[1] = -1;
-    first->children[0] = -1;
-    second->children[2] = first->index;
-    second->children[1] = -1;
-    second->children[0] = -1;
+    first->neighbours[2] = second->index;
+    first->neighbours[1] = -1;
+    first->neighbours[0] = -1;
+    second->neighbours[2] = first->index;
+    second->neighbours[1] = -1;
+    second->neighbours[0] = -1;
 
     return mesh;
 }
@@ -87,9 +87,9 @@ verify_triangle(struct triangle *triangle, struct mesh *mesh)
         exit(5);
     }
     for (int i = 0; i < 3; ++i) {
-        if (triangle->children[i] != -1) {
+        if (triangle->neighbours[i] != -1) {
             struct triangle *neighbour =
-                    get_triangle(triangle->children[i], mesh->triangles);
+                    get_triangle(triangle->neighbours[i], mesh->triangles);
             if ((!point_equals(&triangle->vertices[i],
                                &neighbour->vertices[0]) &&
                  !point_equals(&triangle->vertices[i],
@@ -105,9 +105,9 @@ verify_triangle(struct triangle *triangle, struct mesh *mesh)
 
                 exit(4);
             }
-            if (neighbour->children[0] != triangle->index &&
-                neighbour->children[1] != triangle->index &&
-                neighbour->children[2] != triangle->index) {
+            if (neighbour->neighbours[0] != triangle->index &&
+                neighbour->neighbours[1] != triangle->index &&
+                neighbour->neighbours[2] != triangle->index) {
 
                 exit(4);
             }
