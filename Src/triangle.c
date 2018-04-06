@@ -114,9 +114,9 @@ get_height_of_center(const struct triangle *triangle, const short **map)
 }
 
 int
-get_next_triangle_index(struct triangle *triangle)
+get_longest_edge_triangle_index(struct triangle *triangle)
 {
-    return triangle->children[triangle->longest];
+    return triangle->neighbours[triangle->longest];
 }
 
 void

@@ -127,7 +127,12 @@ readASC(const char *filename)
         }
     }
 
-    return convert(coords, nRows, nCols);
+    short **map = convert(coords, nRows, nCols);
+    for (int k = 0; k < numOfPoints; ++k) {
+        free(coords[k]);
+    }
+    free(coords);
+    return map;
 }
 
 short **
