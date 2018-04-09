@@ -54,3 +54,6 @@ dkms.conf
 .idea/*
 
 result.vtk
+
+#Folder where dependencies are downloaded
+Deps/
