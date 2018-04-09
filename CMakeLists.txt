@@ -54,6 +54,14 @@ target_compile_options(meshgen PRIVATE
 	${MY_CUSTOM_C_FLAGS})
 
 
+add_executable(Test EXCLUDE_FROM_ALL
+	Tests/main.c)
+
+target_compile_options(Test PUBLIC
+	${MY_CUSTOM_C_FLAGS})
+
+target_link_libraries(Test 
+	PkgConfig::Check meshgenlib)
 
 include(CheckIPOSupported)
 check_ipo_supported(RESULT result)
