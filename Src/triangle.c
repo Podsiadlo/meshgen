@@ -1,39 +1,38 @@
 #include "triangle.h"
 
 #include <math.h>
-#include <stdlib.h>
 
 void
-init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
-              unsigned int b_x, unsigned int b_y, unsigned int c_x,
-              unsigned int c_y, const short **map)
+init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
+              double b_x, double b_y, double c_x,
+              double c_y, const short **map)
 {
-    init_point(&(triangle->vertices[0]), a_x, a_y, map[a_y][a_x]);
-    init_point(&(triangle->vertices[1]), b_x, b_y, map[b_y][b_x]);
-    init_point(&(triangle->vertices[2]), c_x, c_y, map[c_y][c_x]);
+    init_point(&(triangle->vertices[0]), a_x, a_y, map);
+    init_point(&(triangle->vertices[1]), b_x, b_y, map);
+    init_point(&(triangle->vertices[2]), c_x, c_y, map);
     fix_longest(triangle);
 }
 
 void
-fix_longest(struct triangle *triangle)
+fix_longest(struct triangle *triangle) //TODO: get rid of it
 {
-    double ab = sqrt(pow((double)(triangle->vertices[0].x) -
-                             (double)(triangle->vertices[1].x),
+    double ab = sqrt(pow((triangle->vertices[0].x) -
+                             (triangle->vertices[1].x),
                          2) +
-                     pow((double)(triangle->vertices[0].y) -
-                             (double)(triangle->vertices[1].y),
+                     pow((triangle->vertices[0].y) -
+                             (triangle->vertices[1].y),
                          2));
-    double bc = sqrt(pow((double)(triangle->vertices[1].x) -
-                             (double)(triangle->vertices[2].x),
+    double bc = sqrt(pow((triangle->vertices[1].x) -
+                             (triangle->vertices[2].x),
                          2) +
-                     pow((double)(triangle->vertices[1].y) -
-                             (double)(triangle->vertices[2].y),
+                     pow((triangle->vertices[1].y) -
+                             (triangle->vertices[2].y),
                          2));
-    double ac = sqrt(pow((double)(triangle->vertices[2].x) -
-                             (double)(triangle->vertices[0].x),
+    double ac = sqrt(pow((triangle->vertices[2].x) -
+                             (triangle->vertices[0].x),
                          2) +
-                     pow((double)(triangle->vertices[2].y) -
-                             (double)(triangle->vertices[0].y),
+                     pow((triangle->vertices[2].y) -
+                             (triangle->vertices[0].y),
                          2));
 
     short longest;
@@ -93,7 +92,7 @@ fix_longest(struct triangle *triangle)
     triangle->longest = longest;
 }
 
-int
+double
 get_height_mean(const struct triangle *triangle)
 {
     return (triangle->vertices[0].z + triangle->vertices[1].z +
@@ -101,16 +100,16 @@ get_height_mean(const struct triangle *triangle)
         3;
 }
 
-short
+double
 get_height_of_center(const struct triangle *triangle, const short **map)
 {
-    int x = (triangle->vertices[0].x + triangle->vertices[1].x +
+    double x = (triangle->vertices[0].x + triangle->vertices[1].x +
              triangle->vertices[2].x) /
         3;
-    int y = (triangle->vertices[0].y + triangle->vertices[1].y +
+    double y = (triangle->vertices[0].y + triangle->vertices[1].y +
              triangle->vertices[2].y) /
         3;
-    return map[y][x];
+    return get_height(x, y, map);
 }
 
 int
