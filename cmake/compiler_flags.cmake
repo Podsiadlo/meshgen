@@ -1,23 +1,12 @@
-#Iterate over the three languages
-foreach(LANGUAGE
-		C
-		CXX
-		Fortran
+include(myCompilerFlagsCheck)
+foreach(COMPILER
+		GNU
+		Clang
 		)
 
-	#I need the lower case version of languages to call the files (I prefer a low case filename)
-	string(TOLOWER ${LANGUAGE} language)
+	#Check and load the corresponding flags
+	if("${CMAKE_C_COMPILER_ID}" STREQUAL ${COMPILER})
+		include(cmake/Compilers/${COMPILER}/c_compiler_flags.cmake)
+	endif()
 
-	#Now I iterate over the three compilers I use
-	foreach(COMPILER
-			GNU
-			Intel
-			NAG)
-
-		#Check and load the corresponding flags
-		if("${CMAKE_${LANGUAGE}_COMPILER_ID}" STREQUAL ${COMPILER})
-			include(cmake/Compilers/${COMPILER}/${language}_compiler_flags.cmake)
-		endif()
-
-	endforeach(COMPILER)
-endforeach(LANGUAGE)
+endforeach(COMPILER)
