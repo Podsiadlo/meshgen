@@ -6,34 +6,29 @@
 #include "refinement.h"
 #include "triangle.h"
 
-struct mesh *
-generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
-              unsigned int size)
+void
+generate_first_triangles(int square_no, int size, int columns, int rows,
+                         struct mesh *mesh)
 {
-    struct triangle *t =
-        (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
-    struct mesh m = {
-        .triangles = t, .size = INITIAL_MESH_SIZE, .counter = 0, .map = map};
-
-    struct mesh *mesh = (struct mesh *)malloc(sizeof(struct mesh));
-
-    memcpy(mesh, &m, sizeof *mesh);
+    int square_row = square_no / columns;
+    int square_col = square_no % columns;
+    double first_data_row = square_row * size;
+    double first_data_col = square_col * size;
 
     struct triangle *first = get_new_triangle(mesh);
-    init_triangle(first, first_col, first_row + size - 1, first_col + size - 1,
-                  first_row + size - 1, first_col + size - 1, first_row,
+    init_triangle(first, first_data_col, first_data_row + size - 1, first_data_col + size - 1,
+                  first_data_row + size - 1, first_data_col + size - 1, first_data_row,
                   mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_col + size - 1, first_row, first_col, first_row,
-                  first_col, first_row + size - 1, mesh->map);
-    first->neighbours[2] = second->index;
-    first->neighbours[1] = -1;
-    first->neighbours[0] = -1;
-    second->neighbours[2] = first->index;
-    second->neighbours[1] = -1;
-    second->neighbours[0] = -1;
+    init_triangle(second, first_data_col + size - 1, first_data_row, first_data_col, first_data_row,
+                  first_data_col, first_data_row + size - 1, mesh->map);
 
-    return mesh;
+    first->neighbours[2] = second->index;
+    first->neighbours[1] = square_col == columns - 1 ? -1 : (square_no + 1) * 2 + 1;
+    first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + columns) * 2 + 1;
+    second->neighbours[2] = first->index;
+    second->neighbours[1] = square_col % columns == 0 ? -1 : (square_no - 1) * 2;
+    second->neighbours[0] = square_row / columns == 0 ? -1 : (square_no - columns) * 2;
 }
 
 void
