@@ -14,17 +14,17 @@ struct triangle {
 };
 
 void
-init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
-              unsigned int b_x, unsigned int b_y, unsigned int c_x,
-              unsigned int c_y, const short **map);
+init_triangle(struct triangle *triangle, double a_x, double a_y,
+              double b_x, double b_y, double c_x,
+              double c_y, const short **map);
 
 void
 fix_longest(struct triangle *triangle);
 
-int
+double
 get_height_mean(const struct triangle *triangle);
 
-short
+double
 get_height_of_center(const struct triangle *triangle, const short **map);
 
 int

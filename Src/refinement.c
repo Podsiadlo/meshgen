@@ -48,14 +48,14 @@ inside_condition(const struct triangle *triangle, struct mesh *mesh)
 bool
 outside_condition(struct triangle *triangle, struct mesh *mesh)
 {
-    short center = get_height_of_center(triangle, mesh->map);
-    int delta;
+    double center = get_height_of_center(triangle, mesh->map);
+    double delta;
     for (int i = 0; i < 3; ++i) {
         if (triangle->neighbours[i] != -1) {
-            delta = abs(
-                abs(triangle->vertices[i].z -
+            delta = fabs(
+                fabs(triangle->vertices[i].z -
                     triangle->vertices[(i + 1) % 3].z) -
-                abs(get_height_of_center(
+                fabs(get_height_of_center(
                         get_triangle(triangle->neighbours[i], mesh->triangles), mesh->map) -
                     center));
             if (delta > EPSILON) {
@@ -86,9 +86,9 @@ bool
 is_too_small(struct triangle *triangle)
 {
     short longest = triangle->longest;
-    if (abs(triangle->vertices[longest].x -
+    if (fabs(triangle->vertices[longest].x -
             triangle->vertices[(1 + longest) % 3].x) <= 1 &&
-        abs(triangle->vertices[longest].y -
+        fabs(triangle->vertices[longest].y -
             triangle->vertices[(1 + longest) % 3].y) <= 1) {
 
         return true;
@@ -143,16 +143,16 @@ split_border(struct triangle *triangle, struct mesh *mesh)
     new_triangle->neighbours[0] = triangle->neighbours[(longest + 2) % 3];
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
+    struct triangle *neighbour = get_triangle(new_triangle->neighbours[0], mesh->triangles);
 
     // Fix old triangle
     triangle->vertices[longest].x = center.x;
     triangle->vertices[longest].y = center.y;
-    triangle->vertices[longest].z =
-        mesh->map[triangle->vertices[longest].y][triangle->vertices[longest].x];
+    triangle->vertices[longest].z = get_height(center.x, center.y, mesh->map);
     triangle->neighbours[(longest + 2) % 3] = new_triangle->index;
+    fix_longest(triangle);
 
     // Fix neighbour
-    struct triangle *neighbour = get_triangle(new_triangle->neighbours[0], mesh->triangles); //wczesniej to przesunac
     if (neighbour != NULL) {
         if (neighbour->neighbours[0] == triangle->index) {//is it possible to happen?
             neighbour->neighbours[0] = new_triangle->index;
@@ -163,8 +163,6 @@ split_border(struct triangle *triangle, struct mesh *mesh)
         }
     }
 
-    fix_longest(triangle);
-    fix_longest(new_triangle);
 #ifndef NDEBUG
     verify_triangle(triangle, mesh);
     verify_triangle(new_triangle, mesh);
@@ -177,7 +175,7 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
 {
     struct point center;
     get_longest_edge_midsection(&center, triangle1);
-    center.z = mesh->map[center.y][center.x];
+    center.z = get_height(center.x, center.y, mesh->map);
 
     struct point *points[4];
     struct triangle *neighbours[4];

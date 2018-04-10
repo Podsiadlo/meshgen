@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 struct three {
-    int points[3];
+    size_t points[3];
 };
 
 void

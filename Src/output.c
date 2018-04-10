@@ -10,7 +10,8 @@ void
 print_mesh(struct mesh *mesh);
 
 void
-save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
+save_to_dtm(struct mesh **meshes, int meshes_count, char *filename)
+{
     char *vtk0 = "# vtk DataFile Version 2.0\n"
             "Map\n"
             "ASCII\n"
@@ -39,11 +40,11 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
     }
     fprintf(file, vtk0, point_counter);
     for (size_t l = 0; l < point_counter; ++l) {
-        fprintf(file, "%d %d %d\n", points[l]->x, points[l]->y, points[l]->z);
+        fprintf(file, "%lf %lf %lf\n", points[l]->x, points[l]->y, points[l]->z);
     }
     fprintf(file, vtk1, triangles_counter, 3 * triangles_counter);
     for (size_t j = 0; j < triangles_counter; ++j) {
-        fprintf(file, "%d %d %d\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+        fprintf(file, "%ld %ld %ld\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
     }
 
 //    fwrite(vtk0, sizeof(char), strlen(vtk0), file);
@@ -61,7 +62,8 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
 }
 
 void get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_counter, size_t *triangles_size,
-                   struct point ***points, size_t *point_counter, size_t *points_size) {
+                   struct point ***points, size_t *point_counter, size_t *points_size)
+{
     for (size_t i = 0; i < mesh->counter; ++i) {
         struct three *triangle = (struct three *) malloc(sizeof(struct three));
         triangle->points[0] = get_point_number(&mesh->triangles[i].vertices[0], points, point_counter, points_size);
@@ -86,7 +88,7 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangl
                         triangle->points[2] == (*triangles)[j]->points[1] ||
                         triangle->points[2] == (*triangles)[j]->points[2]) {
 
-                        printf("Found duplicated triangle: %d %d %d\n",
+                        printf("Found duplicated triangle: %ld %ld %ld\n",
                                 triangle->points[0], triangle->points[1], triangle->points[2]);
                         free(triangle);
                         return;
@@ -100,7 +102,8 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangl
     }
 }
 
-size_t get_point_number(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size) {
+size_t get_point_number(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size)
+{
     for (size_t i = 0; i < *points_counter; ++i) {
         if (point->x == (*points)[i]->x && point->y == (*points)[i]->y) {
             return i;
@@ -116,14 +119,15 @@ size_t get_point_number(struct point *point, struct point ***points, size_t *poi
 
 
 void
-print_mesh(struct mesh *mesh) {
+print_mesh(struct mesh *mesh)
+{
     printf("MESH:\n");
     for (size_t i = 0; i < mesh->counter; ++i) {
 #ifndef NDEBUG
         verify_triangle(&mesh->triangles[i], mesh);
 #endif
         printf(
-                "(%d, %d, %d), (%d, %d, %d), (%d, %d, %d)\n",
+                "(%lf, %lf, %lf), (%lf, %lf, %lf), (%lf, %lf, %lf)\n",
                 mesh->triangles[i].vertices[0].x, mesh->triangles[i].vertices[0].y,
                 mesh->triangles[i].vertices[0].z, mesh->triangles[i].vertices[1].x,
                 mesh->triangles[i].vertices[1].y, mesh->triangles[i].vertices[1].z,
