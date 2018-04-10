@@ -7,10 +7,7 @@
 #include "mesh.h"
 
 void
-print_mesh(struct mesh *mesh);
-
-void
-save_to_dtm(struct mesh **meshes, int meshes_count, char *filename)
+save_to_dtm(struct mesh *mesh, char *filename)
 {
     char *vtk0 = "# vtk DataFile Version 2.0\n"
             "Map\n"
@@ -27,11 +24,9 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename)
     size_t point_counter = 0;
     size_t triangles_counter = 0;
 
-    for (int i = 0; i < meshes_count; ++i) {
-//        print_mesh(meshes[i]);
-        get_triangles(meshes[i], &triangles, &triangles_counter, &triangles_size, &points, &point_counter,
-                      &points_size);
-    }
+//    print_mesh(meshes[i]);
+    get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
+
 
     FILE *file;
     if ((file = fopen(filename, "w")) == NULL) {

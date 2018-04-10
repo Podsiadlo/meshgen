@@ -15,9 +15,9 @@ struct mesh {
 void
 refine_new_mesh(struct mesh *mesh);
 
-struct mesh *
-generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
-              unsigned int size);
+void
+generate_first_triangles(int square_no, int size, int columns, int rows,
+                         struct mesh *mesh);
 
 struct triangle *
 get_new_triangle(struct mesh *mesh);
