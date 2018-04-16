@@ -22,7 +22,7 @@ START_TEST(test_split)
     map[2][3] = 100;
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const short **)map, 0, 0, 5);
+    struct mesh *local_mesh = generate_mesh((const short **)map, 5, 5);
 
     refine_new_mesh(local_mesh);
 

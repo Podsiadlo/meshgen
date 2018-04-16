@@ -3,8 +3,41 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
 #include "refinement.h"
 #include "triangle.h"
+
+struct mesh *
+generate_mesh(const short **map, unsigned int width, unsigned int length)
+{
+    struct triangle *triangles =
+            (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
+    struct mesh *mesh = (struct mesh *)malloc(sizeof(struct mesh));
+    mesh->triangles = triangles;
+    mesh->size = INITIAL_MESH_SIZE;
+    mesh->counter = 0;
+    mesh->map = map;
+    prepare_mesh(width, length, mesh);
+    return mesh;
+}
+
+/**
+ * If gcd will be relatively small, especially if it will equal 1, the result
+ * will be rather not good enough.
+ */
+void
+prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh)
+{
+
+    unsigned int map_gcd = gcd(width, length);
+    unsigned int rows = length / map_gcd;
+    unsigned int columns = width / map_gcd;
+    for (unsigned int i = 0; i < rows; ++i) {
+        for (unsigned int j = 0; j < columns; ++j) {
+            generate_first_triangles(i * columns + j, map_gcd, columns, rows, mesh);
+        }
+    }
+}
 
 void
 generate_first_triangles(int square_no, int size, int columns, int rows,
