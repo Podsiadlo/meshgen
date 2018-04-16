@@ -20,7 +20,7 @@ main(int argc, char **argv)
     double end_longitude = 50.51;
     double end_latitude = 19.31;
     char *map_dir = "Examples";
-    char *output_filename = "result.vtk";
+    char *output_filename = "result.inp";
 
     const short **map = (const short **)read_map(begin_longitude, begin_latitude, end_longitude,
                            end_latitude, map_dir);
@@ -38,7 +38,7 @@ main(int argc, char **argv)
 
     refine_new_mesh(&mesh);
 
-    save_to_dtm(&mesh, output_filename);
+    save_to_inp(&mesh, output_filename);
 
     free_map((short**)map, length);
     free(mesh.triangles);

@@ -7,7 +7,49 @@
 #include "mesh.h"
 
 void
-save_to_dtm(struct mesh *mesh, char *filename)
+save_to_inp(struct mesh *mesh, char *filename)
+{
+    char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
+    char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
+    char *triangle = "\n%d 0 tri %d %d %d"; //<triangle_id>  0 tri <vertex_id> <vertex_id> <vertex_id>
+
+    size_t points_size = 1000; //TODO: improve memory management
+    size_t triangles_size = 1000;
+    struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
+    struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
+    size_t point_counter = 0;
+    size_t triangles_counter = 0;
+
+    get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
+
+
+    FILE *file;
+    if ((file = fopen(filename, "w")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+    fprintf(file, preambule, point_counter, triangles_counter);
+    for (size_t l = 0; l < point_counter; ++l) {
+        fprintf(file, point, l, points[l]->x, points[l]->y, points[l]->z);
+    }
+    for (size_t j = 0; j < triangles_counter; ++j) {
+        fprintf(file, triangle, j, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+    }
+
+    if (fclose(file) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+    for (size_t k = 0; k < triangles_counter; ++k) {
+        free(triangles[k]);
+    }
+    free(points);
+    free(triangles);
+
+}
+
+void
+save_to_dtm(struct mesh *mesh, char *filename) //FIXME
 {
     char *vtk0 = "# vtk DataFile Version 2.0\n"
             "Map\n"
@@ -24,7 +66,6 @@ save_to_dtm(struct mesh *mesh, char *filename)
     size_t point_counter = 0;
     size_t triangles_counter = 0;
 
-//    print_mesh(meshes[i]);
     get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
 
 
@@ -41,9 +82,6 @@ save_to_dtm(struct mesh *mesh, char *filename)
     for (size_t j = 0; j < triangles_counter; ++j) {
         fprintf(file, "%ld %ld %ld\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
     }
-
-//    fwrite(vtk0, sizeof(char), strlen(vtk0), file);
-//    fwrite(point_counter, sizeof(char), strlen(vtk0), file);
 
     if (fclose(file) != 0) {
         fprintf(stderr, "%s\n", strerror(errno));
