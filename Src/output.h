@@ -9,6 +9,9 @@ struct three {
 };
 
 void
+save_to_inp(struct mesh *mesh, char *filename);
+
+void
 save_to_dtm(struct mesh *mesh, char *filename);
 
 void get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_counter, size_t *triangles_size,
