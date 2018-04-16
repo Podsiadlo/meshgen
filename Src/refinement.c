@@ -22,15 +22,14 @@ refine_if_required(struct triangle *triangle, struct mesh *mesh)
 bool
 would_create_flat_triangle(struct triangle *triangle)
 {
-    short longest = triangle->longest;
     struct point center;
     get_longest_edge_midsection(&center, triangle);
-    if ((center.x == triangle->vertices[(longest + 2) % 3].x && //helper
-         (center.x == triangle->vertices[longest].x ||
-          center.x == triangle->vertices[(longest + 1) % 3].x)) ||
-        (center.y == triangle->vertices[(longest + 2) % 3].y &&
-         (center.y == triangle->vertices[longest].y ||
-          center.y == triangle->vertices[(longest + 1) % 3].y))) {
+    if ((center.x == get_opposite_vertex(triangle)->x &&
+         (center.x == get_1st_longest_edge_vertex(triangle)->x ||
+          center.x == get_2nd_longest_edge_vertex(triangle)->x)) ||
+        (center.y == get_opposite_vertex(triangle)->y &&
+         (center.y == get_1st_longest_edge_vertex(triangle)->y ||
+          center.y == get_2nd_longest_edge_vertex(triangle)->y))) {
 
         return true;
     }
@@ -85,11 +84,10 @@ refine(struct triangle *triangle, struct mesh *mesh)
 bool
 is_too_small(struct triangle *triangle)
 {
-    short longest = triangle->longest;
-    if (fabs(triangle->vertices[longest].x -
-            triangle->vertices[(1 + longest) % 3].x) <= 1 &&
-        fabs(triangle->vertices[longest].y -
-            triangle->vertices[(1 + longest) % 3].y) <= 1) {
+    if (fabs(get_1st_longest_edge_vertex(triangle)->x -
+            get_2nd_longest_edge_vertex(triangle)->x) <= 1 &&
+        fabs(get_1st_longest_edge_vertex(triangle)->y -
+            get_2nd_longest_edge_vertex(triangle)->y) <= 1) {
 
         return true;
     }
@@ -136,19 +134,19 @@ split_border(struct triangle *triangle, struct mesh *mesh)
 
     // Create new triangle
     new_triangle = get_new_triangle(mesh);
-    init_triangle(new_triangle, triangle->vertices[(longest + 2) % 3].x,
-                  triangle->vertices[(longest + 2) % 3].y,
-                  triangle->vertices[longest].x, triangle->vertices[longest].y,
+    init_triangle(new_triangle, get_opposite_vertex(triangle)->x,
+                  get_opposite_vertex(triangle)->y,
+                  get_1st_longest_edge_vertex(triangle)->x, get_1st_longest_edge_vertex(triangle)->y,
                   center.x, center.y, mesh->map);
-    new_triangle->neighbours[0] = triangle->neighbours[(longest + 2) % 3];
+    new_triangle->neighbours[0] = get_2nd_shorter_edge_triangle_index(triangle);
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
     struct triangle *neighbour = get_triangle(new_triangle->neighbours[0], mesh->triangles);
 
     // Fix old triangle
-    triangle->vertices[longest].x = center.x;
-    triangle->vertices[longest].y = center.y;
-    triangle->vertices[longest].z = get_height(center.x, center.y, mesh->map);
+    get_1st_longest_edge_vertex(triangle)->x = center.x;
+    get_1st_longest_edge_vertex(triangle)->y = center.y;
+    get_1st_longest_edge_vertex(triangle)->z = get_height(center.x, center.y, mesh->map);
     triangle->neighbours[(longest + 2) % 3] = new_triangle->index;
     fix_longest(triangle);
 
@@ -183,21 +181,19 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
     int outside_borders[4];
 
     // Simplify symbols
-    points[0] = &(triangle1->vertices[(triangle1->longest + 1) % 3]);
-    points[1] = &(triangle1->vertices[(triangle1->longest + 2) % 3]);
-    points[2] = &(triangle1->vertices[triangle1->longest]);
-    neighbours[0] =
-            get_triangle(triangle1->neighbours[(triangle1->longest + 1) % 3], mesh->triangles);
-    neighbours[1] =
-            get_triangle(triangle1->neighbours[(triangle1->longest + 2) % 3], mesh->triangles);
+    points[0] = get_2nd_longest_edge_vertex(triangle1);
+    points[1] = get_opposite_vertex(triangle1);
+    points[2] = get_1st_longest_edge_vertex(triangle1);
+    neighbours[0] = get_triangle(get_1st_shorter_edge_triangle_index(triangle1), mesh->triangles);
+    neighbours[1] = get_triangle(get_2nd_shorter_edge_triangle_index(triangle1), mesh->triangles);
     outside_borders[0] = (triangle1->longest + 1) % 3;
 
-    points[3] = &(triangle2->vertices[(triangle2->longest + 2) % 3]);
-    points[0] = &(triangle2->vertices[triangle2->longest]);
+    points[3] = get_opposite_vertex(triangle2);
+    points[0] = get_1st_longest_edge_vertex(triangle2);
     neighbours[3] =
-            get_triangle(triangle2->neighbours[(triangle2->longest + 2) % 3], mesh->triangles);
+            get_triangle(get_2nd_shorter_edge_triangle_index(triangle2), mesh->triangles);
     neighbours[2] =
-            get_triangle(triangle2->neighbours[(triangle2->longest + 1) % 3], mesh->triangles);
+            get_triangle(get_1st_shorter_edge_triangle_index(triangle2), mesh->triangles);
     outside_borders[2] = (triangle2->longest + 1) % 3;
 
     triangles[0] = triangle1;
@@ -215,8 +211,8 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
     points[0]->x = center.x;
     points[0]->y = center.y;
     points[0]->z = center.z;
-    //    points[0] = &(triangles[3]->vertices[1]); //useless, but I leave it to
-    //    indicate that they need to be set before using
+    //    points[0] = &(triangles[3]->vertices[1]); //useless, but I'm leaving it to
+    //    indicate that they need to be set before using points[0] again
     points[2]->x = center.x;
     points[2]->y = center.y;
     points[2]->z = center.z;

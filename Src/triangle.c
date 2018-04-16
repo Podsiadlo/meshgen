@@ -118,6 +118,18 @@ get_longest_edge_triangle_index(struct triangle *triangle)
     return triangle->neighbours[triangle->longest];
 }
 
+int
+get_1st_shorter_edge_triangle_index(struct triangle *triangle)
+{
+    return triangle->neighbours[(triangle->longest + 1) % 3];
+}
+
+int
+get_2nd_shorter_edge_triangle_index(struct triangle *triangle)
+{
+    return triangle->neighbours[(triangle->longest + 2) % 3];
+}
+
 void
 get_longest_edge_midsection(struct point *destination,
                             struct triangle *triangle)
@@ -129,3 +141,20 @@ get_longest_edge_midsection(struct point *destination,
     destination->y = (a->y + b->y) / 2;
 }
 
+struct point *
+get_opposite_vertex(struct triangle* triangle)
+{
+    return &triangle->vertices[(triangle->longest + 2) % 3];
+}
+
+struct point *
+get_1st_longest_edge_vertex(struct triangle *triangle)
+{
+    return &triangle->vertices[triangle->longest];
+}
+
+struct point *
+get_2nd_longest_edge_vertex(struct triangle *triangle)
+{
+    return &triangle->vertices[(triangle->longest + 1) % 3];
+}

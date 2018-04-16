@@ -30,9 +30,23 @@ get_height_of_center(const struct triangle *triangle, const short **map);
 int
 get_longest_edge_triangle_index(struct triangle *triangle);
 
+int
+get_1st_shorter_edge_triangle_index(struct triangle *triangle);
+
+int
+get_2nd_shorter_edge_triangle_index(struct triangle *triangle);
+
 void
 get_longest_edge_midsection(struct point *destination,
                             struct triangle *triangle);
 
+struct point *
+get_opposite_vertex(struct triangle* triangle);
+
+struct point *
+get_1st_longest_edge_vertex(struct triangle *triangle);
+
+struct point *
+get_2nd_longest_edge_vertex(struct triangle *triangle);
 
 #endif // MESHGEN_TRIANGLE_H
