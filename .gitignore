@@ -53,7 +53,7 @@ dkms.conf
 
 .idea/*
 
-result.vtk
+out/
 
 #Folder where dependencies are downloaded
 Deps/

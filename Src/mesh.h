@@ -12,6 +12,12 @@ struct mesh {
     const short **map;
 };
 
+struct mesh *
+generate_mesh(const short **map, unsigned int width, unsigned int length);
+
+void
+prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh);
+
 void
 refine_new_mesh(struct mesh *mesh);
 

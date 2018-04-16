@@ -29,6 +29,7 @@ add_library(meshgenlib
 	Src/output.c
 	Src/mesh.c
 	Src/refinement.c
+	Src/utils.c
 	)
 
 
