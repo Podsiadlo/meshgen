@@ -1,39 +1,38 @@
 #include "triangle.h"
 
 #include <math.h>
-#include <stdlib.h>
 
 void
-init_triangle(struct triangle *triangle, unsigned int a_x, unsigned int a_y,
-              unsigned int b_x, unsigned int b_y, unsigned int c_x,
-              unsigned int c_y, const short **map)
+init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
+              double b_x, double b_y, double c_x,
+              double c_y, const short **map)
 {
-    init_point(&(triangle->vertices[0]), a_x, a_y, map[a_y][a_x]);
-    init_point(&(triangle->vertices[1]), b_x, b_y, map[b_y][b_x]);
-    init_point(&(triangle->vertices[2]), c_x, c_y, map[c_y][c_x]);
+    init_point(&(triangle->vertices[0]), a_x, a_y, map);
+    init_point(&(triangle->vertices[1]), b_x, b_y, map);
+    init_point(&(triangle->vertices[2]), c_x, c_y, map);
     fix_longest(triangle);
 }
 
 void
-fix_longest(struct triangle *triangle)
+fix_longest(struct triangle *triangle) //TODO: get rid of it
 {
-    double ab = sqrt(pow((double)(triangle->vertices[0].x) -
-                             (double)(triangle->vertices[1].x),
+    double ab = sqrt(pow((triangle->vertices[0].x) -
+                             (triangle->vertices[1].x),
                          2) +
-                     pow((double)(triangle->vertices[0].y) -
-                             (double)(triangle->vertices[1].y),
+                     pow((triangle->vertices[0].y) -
+                             (triangle->vertices[1].y),
                          2));
-    double bc = sqrt(pow((double)(triangle->vertices[1].x) -
-                             (double)(triangle->vertices[2].x),
+    double bc = sqrt(pow((triangle->vertices[1].x) -
+                             (triangle->vertices[2].x),
                          2) +
-                     pow((double)(triangle->vertices[1].y) -
-                             (double)(triangle->vertices[2].y),
+                     pow((triangle->vertices[1].y) -
+                             (triangle->vertices[2].y),
                          2));
-    double ac = sqrt(pow((double)(triangle->vertices[2].x) -
-                             (double)(triangle->vertices[0].x),
+    double ac = sqrt(pow((triangle->vertices[2].x) -
+                             (triangle->vertices[0].x),
                          2) +
-                     pow((double)(triangle->vertices[2].y) -
-                             (double)(triangle->vertices[0].y),
+                     pow((triangle->vertices[2].y) -
+                             (triangle->vertices[0].y),
                          2));
 
     short longest;
@@ -93,7 +92,7 @@ fix_longest(struct triangle *triangle)
     triangle->longest = longest;
 }
 
-int
+double
 get_height_mean(const struct triangle *triangle)
 {
     return (triangle->vertices[0].z + triangle->vertices[1].z +
@@ -101,22 +100,34 @@ get_height_mean(const struct triangle *triangle)
         3;
 }
 
-short
+double
 get_height_of_center(const struct triangle *triangle, const short **map)
 {
-    int x = (triangle->vertices[0].x + triangle->vertices[1].x +
+    double x = (triangle->vertices[0].x + triangle->vertices[1].x +
              triangle->vertices[2].x) /
         3;
-    int y = (triangle->vertices[0].y + triangle->vertices[1].y +
+    double y = (triangle->vertices[0].y + triangle->vertices[1].y +
              triangle->vertices[2].y) /
         3;
-    return map[y][x];
+    return get_height(x, y, map);
 }
 
 int
-get_next_triangle_index(struct triangle *triangle)
+get_longest_edge_triangle_index(struct triangle *triangle)
 {
-    return triangle->children[triangle->longest];
+    return triangle->neighbours[triangle->longest];
+}
+
+int
+get_1st_shorter_edge_triangle_index(struct triangle *triangle)
+{
+    return triangle->neighbours[(triangle->longest + 1) % 3];
+}
+
+int
+get_2nd_shorter_edge_triangle_index(struct triangle *triangle)
+{
+    return triangle->neighbours[(triangle->longest + 2) % 3];
 }
 
 void
@@ -130,43 +141,20 @@ get_longest_edge_midsection(struct point *destination,
     destination->y = (a->y + b->y) / 2;
 }
 
-#ifdef DEBUG
-void
-verify_triangle(struct triangle *triangle, struct mesh *mesh)
+struct point *
+get_opposite_vertex(struct triangle* triangle)
 {
-    if ((triangle->vertices[0].x == triangle->vertices[1].x &&
-            triangle->vertices[0].x == triangle->vertices[2].x) ||
-        (triangle->vertices[0].y == triangle->vertices[1].y &&
-            triangle->vertices[0].y == triangle->vertices[2].y)) {
-        exit(5);
-    }
-    for (int i = 0; i < 3; ++i) {
-        if (triangle->children[i] != -1) {
-            struct triangle *neighbour =
-                    get_triangle(triangle->children[i], mesh->triangles);
-            if ((!point_equals(&triangle->vertices[i],
-                               &neighbour->vertices[0]) &&
-                 !point_equals(&triangle->vertices[i],
-                               &neighbour->vertices[1]) &&
-                 !point_equals(&triangle->vertices[i],
-                               &neighbour->vertices[2])) ||
-                (!point_equals(&triangle->vertices[(i + 1) % 3],
-                               &neighbour->vertices[0]) &&
-                 !point_equals(&triangle->vertices[(i + 1) % 3],
-                               &neighbour->vertices[1]) &&
-                 !point_equals(&triangle->vertices[(i + 1) % 3],
-                               &neighbour->vertices[2]))) {
-
-                exit(4);
-            }
-            if (neighbour->children[0] != triangle->index &&
-                neighbour->children[1] != triangle->index &&
-                neighbour->children[2] != triangle->index) {
-
-                exit(4);
-            }
-        }
-    }
+    return &triangle->vertices[(triangle->longest + 2) % 3];
 }
 
-#endif
+struct point *
+get_1st_longest_edge_vertex(struct triangle *triangle)
+{
+    return &triangle->vertices[triangle->longest];
+}
+
+struct point *
+get_2nd_longest_edge_vertex(struct triangle *triangle)
+{
+    return &triangle->vertices[(triangle->longest + 1) % 3];
+}

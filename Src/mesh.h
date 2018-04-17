@@ -12,20 +12,31 @@ struct mesh {
     const short **map;
 };
 
+struct mesh *
+generate_mesh(const short **map, unsigned int width, unsigned int length);
+
+void
+prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh);
+
 void
 refine_new_mesh(struct mesh *mesh);
 
-struct mesh *
-generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
-              unsigned int size);
+void
+generate_first_triangles(int square_no, int size, int columns, int rows,
+                         struct mesh *mesh);
 
 struct triangle *
 get_new_triangle(struct mesh *mesh);
 
 struct triangle *
-get_triangle(int index, struct triangle *triangles)
+get_triangle(int index, struct triangle *triangles);
 
 void
 free_mesh(struct mesh *mesh);
+
+#ifndef NDEBUG
+void
+verify_triangle(struct triangle *triangle, struct mesh *mesh);
+#endif
 
 #endif // MESHGEN_MESH_H

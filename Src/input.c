@@ -3,9 +3,11 @@
 #include <errno.h>
 #include <math.h>
 #include <memory.h>
-#include <netinet/in.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "asc_reader.h"
 
 short **
 read_map(const double begin_longitude, const double begin_latitude,

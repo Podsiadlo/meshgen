@@ -3,36 +3,65 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utils.h"
 #include "refinement.h"
+#include "triangle.h"
 
 struct mesh *
-generate_mesh(const short **map, unsigned int first_row, unsigned int first_col,
-              unsigned int size)
+generate_mesh(const short **map, unsigned int width, unsigned int length)
 {
-    struct triangle *t =
-        (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
-    struct mesh m = {
-        .triangles = t, .size = INITIAL_MESH_SIZE, .counter = 0, .map = map};
-
+    struct triangle *triangles =
+            (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
     struct mesh *mesh = (struct mesh *)malloc(sizeof(struct mesh));
+    mesh->triangles = triangles;
+    mesh->size = INITIAL_MESH_SIZE;
+    mesh->counter = 0;
+    mesh->map = map;
+    prepare_mesh(width, length, mesh);
+    return mesh;
+}
 
-    memcpy(mesh, &m, sizeof *mesh);
+/**
+ * If gcd will be relatively small, especially if it will equal 1, the result
+ * will be rather not good enough.
+ */
+void
+prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh)
+{
+
+    unsigned int map_gcd = gcd(width, length);
+    unsigned int rows = length / map_gcd;
+    unsigned int columns = width / map_gcd;
+    for (unsigned int i = 0; i < rows; ++i) {
+        for (unsigned int j = 0; j < columns; ++j) {
+            generate_first_triangles(i * columns + j, map_gcd, columns, rows, mesh);
+        }
+    }
+}
+
+void
+generate_first_triangles(int square_no, int size, int columns, int rows,
+                         struct mesh *mesh)
+{
+    int square_row = square_no / columns;
+    int square_col = square_no % columns;
+    double first_data_row = square_row * size;
+    double first_data_col = square_col * size;
 
     struct triangle *first = get_new_triangle(mesh);
-    init_triangle(first, first_col, first_row + size - 1, first_col + size - 1,
-                  first_row + size - 1, first_col + size - 1, first_row,
+    init_triangle(first, first_data_col, first_data_row + size - 1, first_data_col + size - 1,
+                  first_data_row + size - 1, first_data_col + size - 1, first_data_row,
                   mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_col + size - 1, first_row, first_col, first_row,
-                  first_col, first_row + size - 1, mesh->map);
-    first->children[2] = second->index;
-    first->children[1] = -1;
-    first->children[0] = -1;
-    second->children[2] = first->index;
-    second->children[1] = -1;
-    second->children[0] = -1;
+    init_triangle(second, first_data_col + size - 1, first_data_row, first_data_col, first_data_row,
+                  first_data_col, first_data_row + size - 1, mesh->map);
 
-    return mesh;
+    first->neighbours[2] = second->index;
+    first->neighbours[1] = square_col == columns - 1 ? -1 : (square_no + 1) * 2 + 1;
+    first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + columns) * 2 + 1;
+    second->neighbours[2] = first->index;
+    second->neighbours[1] = square_col % columns == 0 ? -1 : (square_no - 1) * 2;
+    second->neighbours[0] = square_row / columns == 0 ? -1 : (square_no - columns) * 2;
 }
 
 void
@@ -74,3 +103,44 @@ free_mesh(struct mesh *mesh)
     free(mesh->triangles);
     free(mesh);
 }
+
+#ifndef NDEBUG
+void
+verify_triangle(struct triangle *triangle, struct mesh *mesh)
+{
+    if ((triangle->vertices[0].x == triangle->vertices[1].x &&
+            triangle->vertices[0].x == triangle->vertices[2].x) ||
+        (triangle->vertices[0].y == triangle->vertices[1].y &&
+            triangle->vertices[0].y == triangle->vertices[2].y)) {
+        exit(5);
+    }
+    for (int i = 0; i < 3; ++i) {
+        if (triangle->neighbours[i] != -1) {
+            struct triangle *neighbour =
+                    get_triangle(triangle->neighbours[i], mesh->triangles);
+            if ((!point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[i],
+                               &neighbour->vertices[2])) ||
+                (!point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[0]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[1]) &&
+                 !point_equals(&triangle->vertices[(i + 1) % 3],
+                               &neighbour->vertices[2]))) {
+
+                exit(4);
+            }
+            if (neighbour->neighbours[0] != triangle->index &&
+                neighbour->neighbours[1] != triangle->index &&
+                neighbour->neighbours[2] != triangle->index) {
+
+                exit(4);
+            }
+        }
+    }
+}
+
+#endif

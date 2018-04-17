@@ -1,12 +1,56 @@
 #include "output.h"
 
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
+#include "mesh.h"
 
 void
-print_mesh(struct mesh *mesh);
+save_to_inp(struct mesh *mesh, char *filename)
+{
+    char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
+    char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
+    char *triangle = "\n%d 0 tri %d %d %d"; //<triangle_id>  0 tri <vertex_id> <vertex_id> <vertex_id>
+
+    size_t points_size = 1000; //TODO: improve memory management
+    size_t triangles_size = 1000;
+    struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
+    struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
+    size_t point_counter = 0;
+    size_t triangles_counter = 0;
+
+    get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
+
+
+    FILE *file;
+    if ((file = fopen(filename, "w")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+    fprintf(file, preambule, point_counter, triangles_counter);
+    for (size_t l = 0; l < point_counter; ++l) {
+        fprintf(file, point, l, points[l]->x, points[l]->y, points[l]->z);
+    }
+    for (size_t j = 0; j < triangles_counter; ++j) {
+        fprintf(file, triangle, j, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+    }
+
+    if (fclose(file) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+    for (size_t k = 0; k < triangles_counter; ++k) {
+        free(triangles[k]);
+    }
+    free(points);
+    free(triangles);
+
+}
 
 void
-save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
+save_to_dtm(struct mesh *mesh, char *filename) //FIXME
+{
     char *vtk0 = "# vtk DataFile Version 2.0\n"
             "Map\n"
             "ASCII\n"
@@ -19,39 +63,41 @@ save_to_dtm(struct mesh **meshes, int meshes_count, char *filename) {
     size_t triangles_size = 1000;
     struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
     struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
-    int point_counter = 0;
-    int triangles_counter = 0;
+    size_t point_counter = 0;
+    size_t triangles_counter = 0;
 
-    for (int i = 0; i < meshes_count; ++i) {
-//        print_mesh(meshes[i]);
-        get_triangles(meshes[i], &triangles, &triangles_counter, &triangles_size, &points, &point_counter,
-                      &points_size);
+    get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
+
+
+    FILE *file;
+    if ((file = fopen(filename, "w")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
     }
-
-    FILE *file = fopen(filename, "w");
     fprintf(file, vtk0, point_counter);
-    for (int l = 0; l < point_counter; ++l) {
-        fprintf(file, "%d %d %d\n", points[l]->x, points[l]->y, points[l]->z);
+    for (size_t l = 0; l < point_counter; ++l) {
+        fprintf(file, "%lf %lf %lf\n", points[l]->x, points[l]->y, points[l]->z);
     }
     fprintf(file, vtk1, triangles_counter, 3 * triangles_counter);
-    for (int j = 0; j < triangles_counter; ++j) {
-        fprintf(file, "%d %d %d\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+    for (size_t j = 0; j < triangles_counter; ++j) {
+        fprintf(file, "%ld %ld %ld\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
     }
 
-//    fwrite(vtk0, sizeof(char), strlen(vtk0), file);
-//    fwrite(point_counter, sizeof(char), strlen(vtk0), file);
-
-    fclose(file);
-    for (int k = 0; k < triangles_counter; ++k) {
+    if (fclose(file) != 0) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+    for (size_t k = 0; k < triangles_counter; ++k) {
         free(triangles[k]);
     }
     free(points);
     free(triangles);
 }
 
-void get_triangles(struct mesh *mesh, struct three ***triangles, int *triangles_counter, size_t *triangles_size,
-                   struct point ***points, int *point_counter, size_t *points_size) {
-    for (int i = 0; i < mesh->counter; ++i) {
+void get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_counter, size_t *triangles_size,
+                   struct point ***points, size_t *point_counter, size_t *points_size)
+{
+    for (size_t i = 0; i < mesh->counter; ++i) {
         struct three *triangle = (struct three *) malloc(sizeof(struct three));
         triangle->points[0] = get_point_number(&mesh->triangles[i].vertices[0], points, point_counter, points_size);
         triangle->points[1] = get_point_number(&mesh->triangles[i].vertices[1], points, point_counter, points_size);
@@ -61,8 +107,8 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, int *triangles_
             *triangles = (struct three **) realloc(*triangles, *triangles_size);
         }
 
-#ifdef DEBUG
-        for (int j = 0; j < *triangles_counter; ++j) {
+#ifndef NDEBUG
+        for (size_t j = 0; j < *triangles_counter; ++j) {
             if (triangle->points[0] == (*triangles)[j]->points[0] ||
                 triangle->points[0] == (*triangles)[j]->points[1] ||
                 triangle->points[0] == (*triangles)[j]->points[2]) {
@@ -75,7 +121,7 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, int *triangles_
                         triangle->points[2] == (*triangles)[j]->points[1] ||
                         triangle->points[2] == (*triangles)[j]->points[2]) {
 
-                        printf("Found duplicated triangle: %d %d %d\n",
+                        printf("Found duplicated triangle: %ld %ld %ld\n",
                                 triangle->points[0], triangle->points[1], triangle->points[2]);
                         free(triangle);
                         return;
@@ -89,8 +135,9 @@ void get_triangles(struct mesh *mesh, struct three ***triangles, int *triangles_
     }
 }
 
-int get_point_number(struct point *point, struct point ***points, int *points_counter, size_t *points_size) {
-    for (int i = 0; i < *points_counter; ++i) {
+size_t get_point_number(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size)
+{
+    for (size_t i = 0; i < *points_counter; ++i) {
         if (point->x == (*points)[i]->x && point->y == (*points)[i]->y) {
             return i;
         }
@@ -105,15 +152,15 @@ int get_point_number(struct point *point, struct point ***points, int *points_co
 
 
 void
-print_mesh(struct mesh *mesh) {
+print_mesh(struct mesh *mesh)
+{
     printf("MESH:\n");
     for (size_t i = 0; i < mesh->counter; ++i) {
-#ifdef DEBUG
-#include "triangle.h"
+#ifndef NDEBUG
         verify_triangle(&mesh->triangles[i], mesh);
 #endif
         printf(
-                "(%d, %d, %d), (%d, %d, %d), (%d, %d, %d)\n",
+                "(%lf, %lf, %lf), (%lf, %lf, %lf), (%lf, %lf, %lf)\n",
                 mesh->triangles[i].vertices[0].x, mesh->triangles[i].vertices[0].y,
                 mesh->triangles[i].vertices[0].z, mesh->triangles[i].vertices[1].x,
                 mesh->triangles[i].vertices[1].y, mesh->triangles[i].vertices[1].z,
