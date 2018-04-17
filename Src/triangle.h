@@ -1,6 +1,6 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
-static const int EPSILON = 5;
+static const int EPSILON = 34;
 
 #include <stdbool.h>
 
@@ -20,6 +20,9 @@ init_triangle(struct triangle *triangle, double a_x, double a_y,
 
 void
 fix_longest(struct triangle *triangle);
+
+bool
+is_in_triangle(double x, double y, const struct triangle *triangle);
 
 double
 get_height_mean(const struct triangle *triangle);

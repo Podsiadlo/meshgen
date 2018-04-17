@@ -92,6 +92,26 @@ fix_longest(struct triangle *triangle) //TODO: get rid of it
     triangle->longest = longest;
 }
 
+bool
+is_in_triangle(double x, double y, const struct triangle *triangle)
+{
+
+    double A = 1 / 2 * (-triangle->vertices[1].y * triangle->vertices[2].x +
+                        triangle->vertices[0].y * (-triangle->vertices[1].x + triangle->vertices[2].x) +
+                        triangle->vertices[0].x * (triangle->vertices[1].y - triangle->vertices[2].y) +
+                        triangle->vertices[1].x * triangle->vertices[2].y);
+    double sign = A < 0 ? -1 : 1;
+    double s = (triangle->vertices[0].y * triangle->vertices[2].x - triangle->vertices[0].x * triangle->vertices[2].y +
+                (triangle->vertices[2].y - triangle->vertices[0].y) * x +
+                (triangle->vertices[0].x - triangle->vertices[2].x) * y) * sign;
+    double t = (triangle->vertices[0].x * triangle->vertices[1].y - triangle->vertices[0].y * triangle->vertices[1].x +
+                (triangle->vertices[0].y - triangle->vertices[1].y) * x +
+                (triangle->vertices[1].x - triangle->vertices[0].x) * y) * sign;
+
+    return s > 0 && t > 0 && (s + t) < 2 * A * sign;
+
+}
+
 double
 get_height_mean(const struct triangle *triangle)
 {

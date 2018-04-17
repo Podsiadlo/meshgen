@@ -38,10 +38,32 @@ would_create_flat_triangle(struct triangle *triangle)
 }
 
 bool
-inside_condition(const struct triangle *triangle, struct mesh *mesh)
+inside_condition(const struct triangle *triangle, struct mesh *mesh) //TODO: optimize
 {
-    return fabs(get_height_mean(triangle) -
-                get_height_of_center(triangle, mesh->map)) > EPSILON;
+    double height_mean = get_height_mean(triangle);
+    double lowest_x =
+            triangle->vertices[0].x < triangle->vertices[1].x ? triangle->vertices[0].x : triangle->vertices[1].x;
+    lowest_x = triangle->vertices[2].x < lowest_x ? triangle->vertices[2].x : lowest_x;
+    double highest_x =
+            triangle->vertices[0].x > triangle->vertices[1].x ? triangle->vertices[0].x : triangle->vertices[1].x;
+    highest_x = triangle->vertices[2].x > highest_x ? triangle->vertices[2].x : highest_x;
+    double lowest_y =
+            triangle->vertices[0].y < triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
+    lowest_y = triangle->vertices[2].y < lowest_y ? triangle->vertices[2].y : lowest_y;
+    double highest_y =
+            triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
+    highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
+
+    for (int i = (int)floor(lowest_x); i < ceil(highest_x); ++i) {
+        for (int j = (int)floor(lowest_y); j < ceil(highest_y); ++j) {
+            if (is_in_triangle(i, j, triangle)) {
+                if (fabs(height_mean - get_height(i, j, mesh->map)) > EPSILON) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool
