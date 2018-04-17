@@ -1,6 +1,8 @@
 #include <check.h>
 
 #include "mesh.h"
+#include "output.h"
+#include "refinement.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -8,7 +10,7 @@
 Suite *
 meshgen_suite(void);
 
-START_TEST(test_split)
+START_TEST(test_refine_new_mesh)
 {
 
     // Simple 5x5 map with all heights zero except for one with 100m
@@ -30,6 +32,40 @@ START_TEST(test_split)
 }
 END_TEST
 
+START_TEST(test_refine)
+{
+
+    short **map = (short **)malloc(5 * sizeof(short *));
+    for (int i = 0; i < 5; ++i) {
+        map[i] = (short *)malloc(5 * sizeof(short));
+        for (int j = 0; j < 5; ++j) {
+            map[i][j] = 0;
+        }
+    }
+
+    // Generate the initial mesh
+    struct mesh *local_mesh = generate_mesh((const short **)map, 5, 5);
+
+    struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
+
+    refine(triangle_to_refine, local_mesh);
+
+    ck_assert_int_eq(local_mesh->counter, 4);
+
+    refine(triangle_to_refine, local_mesh);
+
+    ck_assert_int_eq(local_mesh->counter, 5);
+
+    refine(triangle_to_refine, local_mesh);
+
+    ck_assert_int_eq(local_mesh->counter, 8);
+
+    refine(triangle_to_refine, local_mesh);
+
+    ck_assert_int_eq(local_mesh->counter, 13);
+}
+END_TEST
+
 Suite *
 meshgen_suite(void)
 {
@@ -41,7 +77,8 @@ meshgen_suite(void)
     /* Core test case */
     tc_core = tcase_create("Core");
 
-    tcase_add_test(tc_core, test_split);
+    tcase_add_test(tc_core, test_refine_new_mesh);
+    tcase_add_test(tc_core, test_refine);
     suite_add_tcase(s, tc_core);
 
     return s;
