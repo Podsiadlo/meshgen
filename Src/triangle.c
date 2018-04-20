@@ -93,23 +93,21 @@ fix_longest(struct triangle *triangle) //TODO: get rid of it
 }
 
 bool
-is_in_triangle(double x, double y, const struct triangle *triangle)
+is_inside_triangle(double x, double y, const struct triangle *triangle)
 {
+    double x1 = triangle->vertices[0].x;
+    double y1 = triangle->vertices[0].y;
+    double x2 = triangle->vertices[1].x;
+    double y2 = triangle->vertices[1].y;
+    double x3 = triangle->vertices[2].x;
+    double y3 = triangle->vertices[2].y;
 
-    double A = 1 / 2 * (-triangle->vertices[1].y * triangle->vertices[2].x +
-                        triangle->vertices[0].y * (-triangle->vertices[1].x + triangle->vertices[2].x) +
-                        triangle->vertices[0].x * (triangle->vertices[1].y - triangle->vertices[2].y) +
-                        triangle->vertices[1].x * triangle->vertices[2].y);
-    double sign = A < 0 ? -1 : 1;
-    double s = (triangle->vertices[0].y * triangle->vertices[2].x - triangle->vertices[0].x * triangle->vertices[2].y +
-                (triangle->vertices[2].y - triangle->vertices[0].y) * x +
-                (triangle->vertices[0].x - triangle->vertices[2].x) * y) * sign;
-    double t = (triangle->vertices[0].x * triangle->vertices[1].y - triangle->vertices[0].y * triangle->vertices[1].x +
-                (triangle->vertices[0].y - triangle->vertices[1].y) * x +
-                (triangle->vertices[1].x - triangle->vertices[0].x) * y) * sign;
+    double denominator = ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3)); //TODO: can be moved out as it is constant for a triangle
+    double a = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denominator;
+    double b = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denominator;
+    double c = 1 - a - b;
 
-    return s > 0 && t > 0 && (s + t) < 2 * A * sign;
-
+    return -EPSILON <= a && a <= 1 + EPSILON && -EPSILON <= b && b <= 1 + EPSILON && -EPSILON <= c && c <= 1 + EPSILON;
 }
 
 double
