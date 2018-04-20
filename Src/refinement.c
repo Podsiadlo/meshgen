@@ -3,15 +3,13 @@
 #include <math.h>
 #include <stdlib.h>
 
-bool
-would_create_flat_triangle(struct triangle *triangle);
 
 bool
 refine_if_required(struct triangle *triangle, struct mesh *mesh)
 {
     bool refined = false;
-    if ((inside_condition(triangle, mesh) ||
-         outside_condition(triangle, mesh)) /*&& !is_too_small(triangle)*/) {
+    if (inside_condition(triangle, mesh) /*||
+         outside_condition(triangle, mesh)*/) {
         if (refine(triangle, mesh) > 0) {
             refined = true;
         }
@@ -20,7 +18,7 @@ refine_if_required(struct triangle *triangle, struct mesh *mesh)
 }
 
 bool
-would_create_flat_triangle(struct triangle *triangle)
+would_create_flat_triangle(struct triangle *triangle) //TODO: Check if it's still required
 {
     struct point center;
     get_longest_edge_midsection(&center, triangle);
@@ -56,8 +54,8 @@ inside_condition(const struct triangle *triangle, struct mesh *mesh) //TODO: opt
 
     for (int i = (int)floor(lowest_x); i < ceil(highest_x); ++i) {
         for (int j = (int)floor(lowest_y); j < ceil(highest_y); ++j) {
-            if (is_in_triangle(i, j, triangle)) {
-                if (fabs(height_mean - get_height(i, j, mesh->map)) > EPSILON) {
+            if (is_inside_triangle(i, j, triangle)) {
+                if (fabs(height_mean - get_height(i, j, mesh->map)) > TOLERANCE) {
                     return true;
                 }
             }
@@ -79,7 +77,7 @@ outside_condition(struct triangle *triangle, struct mesh *mesh)
                 fabs(get_height_of_center(
                         get_triangle(triangle->neighbours[i], mesh->triangles), mesh->map) -
                     center));
-            if (delta > EPSILON) {
+            if (delta > TOLERANCE) {
                 return true;
             }
         }

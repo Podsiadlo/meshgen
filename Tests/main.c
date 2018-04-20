@@ -1,8 +1,6 @@
 #include <check.h>
 
 #include "mesh.h"
-#include "output.h"
-#include "refinement.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -66,6 +64,35 @@ START_TEST(test_refine)
 }
 END_TEST
 
+START_TEST(test_is_inside_triangle)
+    {
+
+        double step = 1;
+        int lower_boundary = 1;
+        double upper_boundary = 6.5;
+        struct triangle * triangle = (struct triangle *)malloc(sizeof(struct triangle));
+
+        triangle->vertices[0].x = lower_boundary;
+        triangle->vertices[0].y = lower_boundary;
+        triangle->vertices[1].x = upper_boundary;
+        triangle->vertices[1].y = upper_boundary;
+        triangle->vertices[2].x = upper_boundary;
+        triangle->vertices[2].y = lower_boundary;
+
+        int points_inside = 0;
+        for (double i = 0; i <= floor(upper_boundary); i+= step) {
+            for (double j = 0; j <= floor(upper_boundary); j+= step) {
+                points_inside += is_inside_triangle(i, j, triangle) ? lower_boundary : 0;
+            }
+        }
+
+        double n = floor((upper_boundary) / step);
+        double expected = (lower_boundary + (n - 1) / 2) * n;
+
+        ck_assert_int_eq(points_inside, expected);
+    }
+END_TEST
+
 Suite *
 meshgen_suite(void)
 {
@@ -79,6 +106,7 @@ meshgen_suite(void)
 
     tcase_add_test(tc_core, test_refine_new_mesh);
     tcase_add_test(tc_core, test_refine);
+    tcase_add_test(tc_core, test_is_inside_triangle);
     suite_add_tcase(s, tc_core);
 
     return s;
