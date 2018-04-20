@@ -9,11 +9,11 @@ struct mesh {
     struct triangle *triangles;
     unsigned int size;
     unsigned int counter;
-    const short **map;
+    const double **map;
 };
 
 struct mesh *
-generate_mesh(const short **map, unsigned int width, unsigned int length);
+generate_mesh(const double **map, unsigned int width, unsigned int length);
 
 void
 prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh);

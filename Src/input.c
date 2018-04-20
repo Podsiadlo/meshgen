@@ -9,7 +9,7 @@
 
 #include "asc_reader.h"
 
-short **
+double **
 read_map(const double begin_longitude, const double begin_latitude,
          const double end_longitude, const double end_latitude, char *map_dir)
 { // map[row][column] - it's array of rows
@@ -26,17 +26,17 @@ read_map(const double begin_longitude, const double begin_latitude,
     unsigned int width = end_longitude_int - begin_longitude_int;
     unsigned int length = end_latitude_int - begin_latitude_int;
 
-    short **map = read_map2(map_dir, begin_longitude_int, begin_latitude_int,
+    double **map = read_map2(map_dir, begin_longitude_int, begin_latitude_int,
                             width, length);
 
     return map;
 }
 
-short **
+double **
 read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
           unsigned int width, unsigned int length)
 {
-    short **map = init_map(length, width);
+    double **map = init_map(length, width);
     char file_to_open[14];
 
     get_filename(file_to_open, map_dir, begin_longitude_int,
@@ -56,19 +56,22 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
+    uint16_t* buffer = (uint16_t *)malloc(PIXEL_SIZE*width);
     for (size_t i = 0; i < length; ++i) {
-        fread(map[length - 1 - i], PIXEL_SIZE, width, map_file);
+        fread(buffer, PIXEL_SIZE, width, map_file);
         if (fseek(map_file, (rows - width) * PIXEL_SIZE, SEEK_CUR) == -1) {
             fprintf(stderr, "%s\n", strerror(errno));
             exit(1);
         }
         for (size_t j = 0; j < width; ++j) {
-            uint16_t tmp = map[length - 1 - i][j];
+            uint16_t tmp = buffer[j];
             tmp <<= 8;
-            map[length - 1 - i][j] >>= 8;
-            map[length - 1 - i][j] |= tmp;
+            buffer[j] >>= 8;
+            buffer[j] |= tmp;
+            map[length - 1 - i][j] = buffer[j];
         }
     }
+    free(buffer);
     if (fclose(map_file) != 0) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
@@ -77,7 +80,7 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
 }
 
 void
-free_map(short **map, int length)
+free_map(double **map, int length)
 {
     for (int i = 0; i < length; ++i) {
         free(map[i]);
@@ -127,13 +130,13 @@ get_filename(char *filename, const char *map_dir, int begin_longitude_int,
             first_lat_to_read < 0 ? "W" : "E", first_lat_to_read);
 }
 
-short **
+double **
 init_map(int length, int width)
 {
-    short **map;
-    map = (short **)malloc(length * sizeof(short *));
+    double **map;
+    map = (double **)malloc(length * sizeof(double *));
     for (int i = 0; i < length; ++i) {
-        map[i] = (short *)malloc(width * sizeof(short));
+        map[i] = (double *)malloc(width * sizeof(double));
     }
     return map;
 }
