@@ -12,9 +12,9 @@ START_TEST(test_refine_new_mesh)
 {
 
     // Simple 5x5 map with all heights zero except for one with 100m
-    short **map = (short **)malloc(5 * sizeof(short *));
+    double **map = (double **)malloc(5 * sizeof(double *));
     for (int i = 0; i < 5; ++i) {
-        map[i] = (short *)malloc(5 * sizeof(short));
+        map[i] = (double *)malloc(5 * sizeof(double));
         for (int j = 0; j < 5; ++j) {
             map[i][j] = 0;
         }
@@ -22,7 +22,7 @@ START_TEST(test_refine_new_mesh)
     map[2][3] = 100;
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const short **)map, 5, 5);
+    struct mesh *local_mesh = generate_mesh((const double **)map, 5, 5);
 
     refine_new_mesh(local_mesh);
 
@@ -33,16 +33,16 @@ END_TEST
 START_TEST(test_refine)
 {
 
-    short **map = (short **)malloc(5 * sizeof(short *));
+    double **map = (double **)malloc(5 * sizeof(double *));
     for (int i = 0; i < 5; ++i) {
-        map[i] = (short *)malloc(5 * sizeof(short));
+        map[i] = (double *)malloc(5 * sizeof(double));
         for (int j = 0; j < 5; ++j) {
             map[i][j] = 0;
         }
     }
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const short **)map, 5, 5);
+    struct mesh *local_mesh = generate_mesh((const double **)map, 5, 5);
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 

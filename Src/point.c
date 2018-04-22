@@ -3,7 +3,7 @@
 #include <math.h>
 
 void
-init_point(struct point *point, double x, double y, const short **map)
+init_point(struct point *point, double x, double y, const double **map)
 {
     point->x = x;
     point->y = y;
@@ -11,7 +11,7 @@ init_point(struct point *point, double x, double y, const short **map)
 }
 
 double
-get_height(double x, double y, const short **map)  //TODO: test it
+get_height(double x, double y, const double **map)  //TODO: test it
 {
     double z_a = map[(int)floor(x)][(int)floor(y)];
     double z_b = map[(int)ceil(x)][(int)floor(y)];

@@ -8,7 +8,7 @@
 #include "triangle.h"
 
 struct mesh *
-generate_mesh(const short **map, unsigned int width, unsigned int length)
+generate_mesh(const double **map, unsigned int width, unsigned int length)
 {
     struct triangle *triangles =
             (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));

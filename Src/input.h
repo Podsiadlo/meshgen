@@ -5,15 +5,15 @@
 static const int VALUES_IN_DEGREE = 60 * 60 / RESOLUTION;
 static const unsigned short PIXEL_SIZE = 2;
 
-short **
-read_map(double begin_longitude, double begin_latitude, double end_longitude,
-         double end_latitude, char *map_dir);
+double **
+read_map(const double begin_longitude, const double begin_latitude, const double end_longitude,
+         const double end_latitude, char *map_dir);
 
-short **
+double **
 read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
           unsigned int width, unsigned int length);
 
-short **
+double **
 init_map(int length, int width);
 
 void
@@ -24,6 +24,6 @@ void
 swap_if_needed(int *should_be_lower, int *should_be_bigger);
 
 void
-free_map(short **map, int length);
+free_map(double **map, int length);
 
 #endif // MESHGEN_INPUT_H

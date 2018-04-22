@@ -5,7 +5,7 @@
 void
 init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
               double b_x, double b_y, double c_x,
-              double c_y, const short **map)
+              double c_y, const double **map)
 {
     init_point(&(triangle->vertices[0]), a_x, a_y, map);
     init_point(&(triangle->vertices[1]), b_x, b_y, map);
@@ -119,7 +119,7 @@ get_height_mean(const struct triangle *triangle)
 }
 
 double
-get_height_of_center(const struct triangle *triangle, const short **map)
+get_height_of_center(const struct triangle *triangle, const double **map)
 {
     double x = (triangle->vertices[0].x + triangle->vertices[1].x +
              triangle->vertices[2].x) /
