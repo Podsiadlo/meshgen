@@ -13,11 +13,11 @@ main(int argc, char **argv)
 //    double end_longitude = 50.51;
 //    double end_latitude = 19.31;
 //    char *map_dir = "Examples";
-    char *output_filename = "out/result.inp";
+    char *output_filename = "out/result_test1.inp";
     size_t width;
     size_t length;
 
-    const double **map = (const double **)readASC(&width, &length, "Examples/test3.asc");
+    const double **map = (const double **)readASC(&width, &length, "Examples/test1.asc");
 
 //    const double **map = (const double **)read_map(begin_longitude, begin_latitude, end_longitude,
 //                           end_latitude, map_dir);

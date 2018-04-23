@@ -14,7 +14,7 @@ init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change 
 }
 
 void
-fix_longest(struct triangle *triangle) //TODO: get rid of it
+fix_longest(struct triangle *triangle) //TODO: consider doing it in more algorithmic way
 {
     double ab = sqrt(pow((triangle->vertices[0].x) -
                              (triangle->vertices[1].x),

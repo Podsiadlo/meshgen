@@ -29,9 +29,9 @@ void
 prepare_mesh(size_t width, size_t length, struct mesh *mesh)
 {
 
-    size_t map_gcd = gcd(width, length);
-    size_t rows = length / map_gcd;
-    size_t columns = width / map_gcd;
+    size_t map_gcd = gcd(width - 1, length -1);
+    size_t rows = (length - 1) / map_gcd;
+    size_t columns = (width - 1) / map_gcd;
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
             generate_first_triangles(i * columns + j, map_gcd, columns, rows, mesh);
@@ -49,12 +49,12 @@ generate_first_triangles(int square_no, int size, int cols, int rows,
     double first_data_col = square_col * size;
 
     struct triangle *first = get_new_triangle(mesh);
-    init_triangle(first, first_data_col, first_data_row + size - 1, first_data_col + size - 1,
-                  first_data_row + size - 1, first_data_col + size - 1, first_data_row,
+    init_triangle(first, first_data_col, first_data_row + size, first_data_col + size,
+                  first_data_row + size, first_data_col + size, first_data_row,
                   mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_data_col + size - 1, first_data_row, first_data_col, first_data_row,
-                  first_data_col, first_data_row + size - 1, mesh->map);
+    init_triangle(second, first_data_col + size, first_data_row, first_data_col, first_data_row,
+                  first_data_col, first_data_row + size, mesh->map);
 
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
