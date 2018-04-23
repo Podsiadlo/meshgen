@@ -13,10 +13,10 @@ init_point(struct point *point, double x, double y, const double **map)
 double
 get_height(double x, double y, const double **map)  //TODO: test it
 {
-    double z_a = map[(int)floor(x)][(int)floor(y)];
-    double z_b = map[(int)ceil(x)][(int)floor(y)];
-    double z_c = map[(int)ceil(x)][(int)ceil(y)];
-    double z_d = map[(int)floor(x)][(int)ceil(y)];
+    double z_a = map[(int)floor(y)][(int)floor(x)];
+    double z_b = map[(int)floor(y)][(int)ceil(x)];
+    double z_c = map[(int)ceil(y)][(int)ceil(x)];
+    double z_d = map[(int)ceil(y)][(int)floor(x)];
 
     double x_fract = x - floor(x);
     double y_fract = y - floor(y);
