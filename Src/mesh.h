@@ -3,26 +3,27 @@
 
 static const int INITIAL_MESH_SIZE = 50;
 
+#include <stdlib.h>
 #include "triangle.h"
 
 struct mesh {
     struct triangle *triangles;
-    unsigned int size;
-    unsigned int counter;
+    size_t size;
+    size_t counter;
     const double **map;
 };
 
 struct mesh *
-generate_mesh(const double **map, unsigned int width, unsigned int length);
+generate_mesh(const double **map, size_t width, size_t length);
 
 void
-prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh);
+prepare_mesh(size_t width, size_t length, struct mesh *mesh);
 
 void
 refine_new_mesh(struct mesh *mesh);
 
 void
-generate_first_triangles(int square_no, int size, int columns, int rows,
+generate_first_triangles(int square_no, int size, int cols, int rows,
                          struct mesh *mesh);
 
 struct triangle *

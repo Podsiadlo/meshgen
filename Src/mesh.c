@@ -8,7 +8,7 @@
 #include "triangle.h"
 
 struct mesh *
-generate_mesh(const double **map, unsigned int width, unsigned int length)
+generate_mesh(const double **map, size_t width, size_t length)
 {
     struct triangle *triangles =
             (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
@@ -26,25 +26,25 @@ generate_mesh(const double **map, unsigned int width, unsigned int length)
  * will be rather not good enough.
  */
 void
-prepare_mesh(unsigned int width, unsigned int length, struct mesh *mesh)
+prepare_mesh(size_t width, size_t length, struct mesh *mesh)
 {
 
-    unsigned int map_gcd = gcd(width, length);
-    unsigned int rows = length / map_gcd;
-    unsigned int columns = width / map_gcd;
-    for (unsigned int i = 0; i < rows; ++i) {
-        for (unsigned int j = 0; j < columns; ++j) {
+    size_t map_gcd = gcd(width, length);
+    size_t rows = length / map_gcd;
+    size_t columns = width / map_gcd;
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < columns; ++j) {
             generate_first_triangles(i * columns + j, map_gcd, columns, rows, mesh);
         }
     }
 }
 
 void
-generate_first_triangles(int square_no, int size, int columns, int rows,
+generate_first_triangles(int square_no, int size, int cols, int rows,
                          struct mesh *mesh)
 {
-    int square_row = square_no / columns;
-    int square_col = square_no % columns;
+    int square_row = square_no / cols;
+    int square_col = square_no % cols;
     double first_data_row = square_row * size;
     double first_data_col = square_col * size;
 
@@ -57,11 +57,11 @@ generate_first_triangles(int square_no, int size, int columns, int rows,
                   first_data_col, first_data_row + size - 1, mesh->map);
 
     first->neighbours[2] = second->index;
-    first->neighbours[1] = square_col == columns - 1 ? -1 : (square_no + 1) * 2 + 1;
-    first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + columns) * 2 + 1;
+    first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
+    first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + cols) * 2 + 1;
     second->neighbours[2] = first->index;
-    second->neighbours[1] = square_col % columns == 0 ? -1 : (square_no - 1) * 2;
-    second->neighbours[0] = square_row / columns == 0 ? -1 : (square_no - columns) * 2;
+    second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
+    second->neighbours[0] = square_row / cols == 0 ? -1 : (square_no - cols) * 2;
 }
 
 void
@@ -87,7 +87,7 @@ get_new_triangle(struct mesh *mesh)
             realloc(mesh->triangles, mesh->size * 2 * sizeof(struct triangle));
         mesh->size *= 2;
     }
-    mesh->triangles[mesh->counter].index = mesh->counter;
+    mesh->triangles[mesh->counter].index = (int)mesh->counter;
     return &(mesh->triangles[mesh->counter++]);
 }
 

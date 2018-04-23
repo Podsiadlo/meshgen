@@ -33,7 +33,7 @@ readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number)
 }
 
 double **
-readASC(const char *filename)
+readASC(size_t *cols, size_t *rows, const char *filename)
 {
     const size_t tambuf = 256;
     char buf[tambuf];
@@ -128,6 +128,9 @@ readASC(const char *filename)
     }
 
     double **map = convert(coords, nRows, nCols);
+    *cols = nCols;
+    *rows = nRows;
+
     for (int k = 0; k < numOfPoints; ++k) {
         free(coords[k]);
     }
@@ -141,9 +144,6 @@ convert(double** coords, size_t nRows, size_t nCols) {
     for (size_t k = 0; k < nRows; ++k) {
         map[k] = (double *)malloc(nCols* sizeof(double));
         for (size_t i = 0; i < nCols; ++i) {
-            if ((short)coords[k*nCols+i][2] != coords[k*nCols+i][2]) {
-                printf("ERROR");
-            }
             map[k][i] = coords[k*nCols+i][2];
         }
     }

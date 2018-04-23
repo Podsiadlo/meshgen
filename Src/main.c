@@ -8,19 +8,23 @@
 int
 main(int argc, char **argv)
 {
-    double begin_longitude = 50.5;
-    double begin_latitude = 19.3;
-    double end_longitude = 50.51;
-    double end_latitude = 19.31;
-    char *map_dir = "Examples";
+//    double begin_longitude = 50.5;
+//    double begin_latitude = 19.3;
+//    double end_longitude = 50.51;
+//    double end_latitude = 19.31;
+//    char *map_dir = "Examples";
     char *output_filename = "out/result.inp";
+    size_t width;
+    size_t length;
 
-    const double **map = (const double **)read_map(begin_longitude, begin_latitude, end_longitude,
-                           end_latitude, map_dir);
-    unsigned int width = (unsigned int)round(
-        VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
-    unsigned int length = (unsigned int)round(
-        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
+    const double **map = (const double **)readASC(&width, &length, "Examples/test3.asc");
+
+//    const double **map = (const double **)read_map(begin_longitude, begin_latitude, end_longitude,
+//                           end_latitude, map_dir);
+//    size_t width = (size_t)round(
+//        VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
+//    size_t length = (size_t)round(
+//        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
 
     struct mesh* mesh = generate_mesh(map, width, length);
 

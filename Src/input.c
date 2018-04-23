@@ -5,17 +5,14 @@
 #include <memory.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
-
-#include "asc_reader.h"
 
 double **
 read_map(const double begin_longitude, const double begin_latitude,
          const double end_longitude, const double end_latitude, char *map_dir)
 { // map[row][column] - it's array of rows
-    int begin_longitude_int = (int)round(
-        begin_longitude *
-        VALUES_IN_DEGREE); // Rounding to avoid problems with numerical errors
+
+    // Rounding to avoid problems with numerical errors
+    int begin_longitude_int = (int)round(begin_longitude * VALUES_IN_DEGREE);
     int begin_latitude_int = (int)round(begin_latitude * VALUES_IN_DEGREE);
     int end_longitude_int = (int)round(end_longitude * VALUES_IN_DEGREE);
     int end_latitude_int = (int)round(end_latitude * VALUES_IN_DEGREE);
@@ -23,20 +20,20 @@ read_map(const double begin_longitude, const double begin_latitude,
     swap_if_needed(&begin_latitude_int, &end_latitude_int);
     swap_if_needed(&begin_longitude_int, &end_longitude_int);
 
-    unsigned int width = end_longitude_int - begin_longitude_int;
-    unsigned int length = end_latitude_int - begin_latitude_int;
+    size_t cols = end_longitude_int - begin_longitude_int;
+    size_t rows = end_latitude_int - begin_latitude_int;
 
     double **map = read_map2(map_dir, begin_longitude_int, begin_latitude_int,
-                            width, length);
+                            cols, rows);
 
     return map;
 }
 
 double **
 read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
-          unsigned int width, unsigned int length)
+          size_t cols, size_t rows)
 {
-    double **map = init_map(length, width);
+    double **map = init_map(rows, cols);
     char file_to_open[14];
 
     get_filename(file_to_open, map_dir, begin_longitude_int,
@@ -47,28 +44,28 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    int rows = VALUES_IN_DEGREE + 1;
+    int rows_in_degree = VALUES_IN_DEGREE + 1;
     if (fseek(map_file,
-              ((rows - (begin_latitude_int % rows)) * rows +
-               (begin_longitude_int % rows)) *
+              ((rows_in_degree - (begin_latitude_int % rows_in_degree)) * rows_in_degree +
+               (begin_longitude_int % rows_in_degree)) *
                   PIXEL_SIZE,
               SEEK_SET) == -1) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    uint16_t* buffer = (uint16_t *)malloc(PIXEL_SIZE*width);
-    for (size_t i = 0; i < length; ++i) {
-        fread(buffer, PIXEL_SIZE, width, map_file);
-        if (fseek(map_file, (rows - width) * PIXEL_SIZE, SEEK_CUR) == -1) {
+    uint16_t* buffer = (uint16_t *)malloc(PIXEL_SIZE*cols);
+    for (size_t i = 0; i < rows; ++i) {
+        fread(buffer, PIXEL_SIZE, cols, map_file);
+        if (fseek(map_file, (rows_in_degree - cols) * PIXEL_SIZE, SEEK_CUR) == -1) {
             fprintf(stderr, "%s\n", strerror(errno));
             exit(1);
         }
-        for (size_t j = 0; j < width; ++j) {
+        for (size_t j = 0; j < cols; ++j) {
             uint16_t tmp = buffer[j];
             tmp <<= 8;
             buffer[j] >>= 8;
             buffer[j] |= tmp;
-            map[length - 1 - i][j] = buffer[j];
+            map[rows - 1 - i][j] = buffer[j];
         }
     }
     free(buffer);
@@ -80,9 +77,9 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
 }
 
 void
-free_map(double **map, int length)
+free_map(double **map, size_t rows)
 {
-    for (int i = 0; i < length; ++i) {
+    for (int i = 0; i < rows; ++i) {
         free(map[i]);
     }
     free(map);
@@ -131,12 +128,12 @@ get_filename(char *filename, const char *map_dir, int begin_longitude_int,
 }
 
 double **
-init_map(int length, int width)
+init_map(size_t rows, size_t cols)
 {
     double **map;
-    map = (double **)malloc(length * sizeof(double *));
-    for (int i = 0; i < length; ++i) {
-        map[i] = (double *)malloc(width * sizeof(double));
+    map = (double **)malloc(rows * sizeof(double *));
+    for (int i = 0; i < rows; ++i) {
+        map[i] = (double *)malloc(cols * sizeof(double));
     }
     return map;
 }
