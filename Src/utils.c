@@ -1,11 +1,11 @@
 #include "utils.h"
 
-unsigned int
-gcd(unsigned int a, unsigned int b)
+size_t
+gcd(size_t a, size_t b)
 {
     do {
         if (b > a) {
-            unsigned int tmp = a;
+            size_t tmp = a;
             a = b;
             b = tmp;
         }

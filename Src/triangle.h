@@ -1,6 +1,6 @@
 #ifndef MESHGEN_TRIANGLE_H
 #define MESHGEN_TRIANGLE_H
-static const int TOLERANCE = 6;
+static const int TOLERANCE = 100;
 static const double EPSILON = 0.00001;
 
 #include <stdbool.h>

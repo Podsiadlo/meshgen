@@ -199,30 +199,34 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
     struct triangle *neighbours[4];
     struct triangle *triangles[4];
     int outside_borders[4];
+    triangles[1] = get_new_triangle(mesh);
+    triangles[3] = get_new_triangle(mesh);
+    //in case it was reallocated during triangles[3] creation
+    //FIXME: In fact, it can dangerous, as now triangles[1]
+    //might be pointing to memory with 'undefined' values
+    triangles[0] = get_triangle(triangle1->index, mesh->triangles);
+    triangles[1] = get_triangle(triangles[1]->index, mesh->triangles);
+    triangles[2] = get_triangle(triangle2->index, mesh->triangles);
 
     // Simplify symbols
-    points[0] = get_2nd_longest_edge_vertex(triangle1);
-    points[1] = get_opposite_vertex(triangle1);
-    points[2] = get_1st_longest_edge_vertex(triangle1);
-    neighbours[0] = get_triangle(get_1st_shorter_edge_triangle_index(triangle1), mesh->triangles);
-    neighbours[1] = get_triangle(get_2nd_shorter_edge_triangle_index(triangle1), mesh->triangles);
-    outside_borders[0] = (triangle1->longest + 1) % 3;
+    points[0] = get_2nd_longest_edge_vertex(triangles[0]);
+    points[1] = get_opposite_vertex(triangles[0]);
+    points[2] = get_1st_longest_edge_vertex(triangles[0]);
+    neighbours[0] = get_triangle(get_1st_shorter_edge_triangle_index(triangles[0]), mesh->triangles);
+    neighbours[1] = get_triangle(get_2nd_shorter_edge_triangle_index(triangles[0]), mesh->triangles);
+    outside_borders[0] = (triangles[0]->longest + 1) % 3;
 
-    points[3] = get_opposite_vertex(triangle2);
-    points[0] = get_1st_longest_edge_vertex(triangle2);
+    points[3] = get_opposite_vertex(triangles[2]);
+    points[0] = get_1st_longest_edge_vertex(triangles[2]);
     neighbours[3] =
-            get_triangle(get_2nd_shorter_edge_triangle_index(triangle2), mesh->triangles);
+            get_triangle(get_2nd_shorter_edge_triangle_index(triangles[2]), mesh->triangles);
     neighbours[2] =
-            get_triangle(get_1st_shorter_edge_triangle_index(triangle2), mesh->triangles);
-    outside_borders[2] = (triangle2->longest + 1) % 3;
+            get_triangle(get_1st_shorter_edge_triangle_index(triangles[2]), mesh->triangles);
+    outside_borders[2] = (triangles[2]->longest + 1) % 3;
 
-    triangles[0] = triangle1;
-    triangles[1] = get_new_triangle(mesh);
     init_triangle(triangles[1], points[1]->x, points[1]->y, points[2]->x,
                   points[2]->y, center.x, center.y, mesh->map);
     outside_borders[1] = 0;
-    triangles[2] = triangle2;
-    triangles[3] = get_new_triangle(mesh);
     init_triangle(triangles[3], points[3]->x, points[3]->y, points[0]->x,
                   points[0]->y, center.x, center.y, mesh->map);
     outside_borders[3] = 0;
