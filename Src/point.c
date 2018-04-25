@@ -1,4 +1,5 @@
 #include "point.h"
+#include "triangle.h"
 
 #include <math.h>
 
@@ -34,5 +35,5 @@ get_height(double x, double y, const double **map)  //TODO: test it
 bool
 point_equals(struct point *a, struct point *b)
 {
-    return a->x == b->x && a->y == b->y;
+    return fabs(a->x - b->x) < EPSILON && fabs(a->y - b->y) < EPSILON;
 }
