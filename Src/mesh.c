@@ -61,17 +61,17 @@ generate_first_triangles(int square_no, int size, int cols, int rows,
     first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + cols) * 2 + 1;
     second->neighbours[2] = first->index;
     second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
-    second->neighbours[0] = square_row / cols == 0 ? -1 : (square_no - cols) * 2;
+    second->neighbours[0] = square_row  == 0 ? -1 : (square_no - cols) * 2;
 }
 
 void
-refine_new_mesh(struct mesh *mesh)
+refine_new_mesh(struct mesh *mesh, double tolerance)
 {
     bool finish = false;
     while (!finish) {
         bool modified = false;
         for (size_t i = 0; i < mesh->counter; ++i) {
-            if (refine_if_required(&(mesh->triangles[i]), mesh)) {
+            if (refine_if_required(&(mesh->triangles[i]), tolerance, mesh)) {
                 modified = true;
             }
         }

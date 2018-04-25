@@ -5,10 +5,10 @@
 
 
 bool
-refine_if_required(struct triangle *triangle, struct mesh *mesh)
+refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh)
 {
     bool refined = false;
-    if (inside_condition(triangle, mesh) /*||
+    if (inside_condition(triangle, tolerance, mesh) /*||
          outside_condition(triangle, mesh)*/) {
         if (refine(triangle, mesh) > 0) {
             refined = true;
@@ -36,7 +36,7 @@ would_create_flat_triangle(struct triangle *triangle) //TODO: Check if it's stil
 }
 
 bool
-inside_condition(const struct triangle *triangle, struct mesh *mesh) //TODO: optimize
+inside_condition(const struct triangle *triangle, double tolerance, struct mesh *mesh) //TODO: optimize
 {
     double height_mean = get_height_mean(triangle);
     double lowest_x =
@@ -55,7 +55,7 @@ inside_condition(const struct triangle *triangle, struct mesh *mesh) //TODO: opt
     for (int i = (int)floor(lowest_x); i < ceil(highest_x); ++i) {
         for (int j = (int)floor(lowest_y); j < ceil(highest_y); ++j) {
             if (is_inside_triangle(i, j, triangle)) {
-                if (fabs(height_mean - get_height(i, j, mesh->map)) > TOLERANCE) {
+                if (fabs(height_mean - get_height(i, j, mesh->map)) > tolerance) {
                     return true;
                 }
             }
@@ -65,7 +65,7 @@ inside_condition(const struct triangle *triangle, struct mesh *mesh) //TODO: opt
 }
 
 bool
-outside_condition(struct triangle *triangle, struct mesh *mesh)
+outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh)
 {
     double center = get_height_of_center(triangle, mesh->map);
     double delta;
@@ -77,7 +77,7 @@ outside_condition(struct triangle *triangle, struct mesh *mesh)
                 fabs(get_height_of_center(
                         get_triangle(triangle->neighbours[i], mesh->triangles), mesh->map) -
                     center));
-            if (delta > TOLERANCE) {
+            if (delta > tolerance) {
                 return true;
             }
         }

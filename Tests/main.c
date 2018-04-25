@@ -26,7 +26,7 @@ START_TEST(test_refine_new_mesh)
     // Generate the initial mesh
     struct mesh *local_mesh = generate_mesh((const double **)map, 5, 5);
 
-    refine_new_mesh(local_mesh);
+    refine_new_mesh(local_mesh, 10);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 }
