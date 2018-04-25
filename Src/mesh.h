@@ -14,17 +14,16 @@ struct mesh {
 };
 
 struct mesh *
-generate_mesh(const double **map, size_t width, size_t length);
+generate_mesh(const double **map, size_t width, size_t length, size_t requested_size);
 
 void
-prepare_mesh(size_t width, size_t length, struct mesh *mesh);
+prepare_mesh(size_t width, size_t length, size_t requested_size, struct mesh *mesh);
 
 void
 refine_new_mesh(struct mesh *mesh, double tolerance);
 
 void
-generate_first_triangles(int square_no, int size, int cols, int rows,
-                         struct mesh *mesh);
+generate_first_triangles(int square_no, double cell_length, double cell_width, int cols, int rows, struct mesh *mesh);
 
 struct triangle *
 get_new_triangle(struct mesh *mesh);

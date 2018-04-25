@@ -24,7 +24,7 @@ START_TEST(test_refine_new_mesh)
     map[2][3] = 100;
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const double **)map, 5, 5);
+    struct mesh *local_mesh = generate_mesh((const double **) map, 5, 5, 5);
 
     refine_new_mesh(local_mesh, 10);
 
@@ -44,7 +44,7 @@ START_TEST(test_refine)
     }
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const double **)map, 5, 5);
+    struct mesh *local_mesh = generate_mesh((const double **) map, 5, 5, 5);
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 

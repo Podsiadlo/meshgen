@@ -8,7 +8,7 @@
 #include "triangle.h"
 
 struct mesh *
-generate_mesh(const double **map, size_t width, size_t length)
+generate_mesh(const double **map, size_t width, size_t length, size_t requested_size)
 {
     struct triangle *triangles =
             (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
@@ -17,7 +17,7 @@ generate_mesh(const double **map, size_t width, size_t length)
     mesh->size = INITIAL_MESH_SIZE;
     mesh->counter = 0;
     mesh->map = map;
-    prepare_mesh(width, length, mesh);
+    prepare_mesh(width, length, requested_size, mesh);
     return mesh;
 }
 
@@ -26,35 +26,51 @@ generate_mesh(const double **map, size_t width, size_t length)
  * will be rather not good enough.
  */
 void
-prepare_mesh(size_t width, size_t length, struct mesh *mesh)
+prepare_mesh(size_t width, size_t length, size_t requested_size, struct mesh *mesh)
 {
+    double cell_width;
+    double cell_length;
+    size_t rows;
+    size_t columns;
 
-    size_t map_gcd = gcd(width - 1, length -1);
-    size_t rows = (length - 1) / map_gcd;
-    size_t columns = (width - 1) / map_gcd;
+    columns = (width-1) / requested_size;
+    if ((width-1) % requested_size != 0) {
+        if ((double)((width-1) % requested_size) / requested_size > 0.5) {
+            columns++;
+        }
+    }
+    cell_width = (double)(width-1) / columns;
+
+    rows = (length-1) / requested_size;
+    if ((length-1) % requested_size != 0) {
+        if ((double)((length-1) % requested_size) / requested_size > 0.5) {
+            rows++;
+        }
+    }
+    cell_length = (double)(length-1) / rows;
+
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
-            generate_first_triangles(i * columns + j, map_gcd, columns, rows, mesh);
+            generate_first_triangles(i * columns + j, cell_length, cell_width, columns, rows, mesh);
         }
     }
 }
 
 void
-generate_first_triangles(int square_no, int size, int cols, int rows,
-                         struct mesh *mesh)
+generate_first_triangles(int square_no, double cell_length, double cell_width, int cols, int rows, struct mesh *mesh)
 {
     int square_row = square_no / cols;
     int square_col = square_no % cols;
-    double first_data_row = square_row * size;
-    double first_data_col = square_col * size;
+    double first_data_row = square_row * cell_width;
+    double first_data_col = square_col * cell_length;
 
     struct triangle *first = get_new_triangle(mesh);
-    init_triangle(first, first_data_col, first_data_row + size, first_data_col + size,
-                  first_data_row + size, first_data_col + size, first_data_row,
+    init_triangle(first, first_data_col, first_data_row + cell_width, first_data_col + cell_length,
+                  first_data_row + cell_width, first_data_col + cell_length, first_data_row,
                   mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_data_col + size, first_data_row, first_data_col, first_data_row,
-                  first_data_col, first_data_row + size, mesh->map);
+    init_triangle(second, first_data_col + cell_length, first_data_row, first_data_col, first_data_row,
+                  first_data_col, first_data_row + cell_width, mesh->map);
 
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;

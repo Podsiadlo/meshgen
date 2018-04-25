@@ -27,7 +27,7 @@ main(int argc, char **argv)
 //    size_t length = (size_t)round(
 //        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
 
-    struct mesh* mesh = generate_mesh(map, width, length);
+    struct mesh* mesh = generate_mesh(map, width, length, 5);
 
     refine_new_mesh(mesh, tolerance);
 
