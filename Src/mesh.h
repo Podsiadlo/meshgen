@@ -20,7 +20,7 @@ void
 prepare_mesh(size_t width, size_t length, struct mesh *mesh);
 
 void
-refine_new_mesh(struct mesh *mesh);
+refine_new_mesh(struct mesh *mesh, double tolerance);
 
 void
 generate_first_triangles(int square_no, int size, int cols, int rows,

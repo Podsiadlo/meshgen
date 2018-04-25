@@ -8,6 +8,7 @@
 int
 main(int argc, char **argv)
 {
+    double tolerance = 1;
 //    double begin_longitude = 50.5;
 //    double begin_latitude = 19.3;
 //    double end_longitude = 50.51;
@@ -28,7 +29,7 @@ main(int argc, char **argv)
 
     struct mesh* mesh = generate_mesh(map, width, length);
 
-    refine_new_mesh(mesh);
+    refine_new_mesh(mesh, tolerance);
 
     save_to_inp(mesh, output_filename);
 

@@ -7,7 +7,7 @@
 #include "triangle.h"
 
 bool
-refine_if_required(struct triangle *triangle, struct mesh *mesh);
+refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh);
 
 int
 refine(struct triangle *triangle, struct mesh *mesh);
@@ -19,10 +19,10 @@ bool
 is_too_small(struct triangle *triangle);
 
 bool
-inside_condition(const struct triangle *triangle, struct mesh *mesh);
+inside_condition(const struct triangle *triangle, double tolerance, struct mesh *mesh);
 
 bool
-outside_condition(struct triangle *triangle, struct mesh *mesh);
+outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh);
 
 bool
 split(struct triangle *triangle, struct mesh *mesh);
