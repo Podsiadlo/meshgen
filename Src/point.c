@@ -12,7 +12,7 @@ init_point(struct point *point, double x, double y, const double **map)
 }
 
 double
-get_height(double x, double y, const double **map)  //TODO: test it
+get_height(double x, double y, const double **map)
 {
     //using bilinear interpolation
     double upper_left = map[(int)floor(y)][(int)floor(x)];

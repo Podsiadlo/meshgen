@@ -194,19 +194,20 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
     struct point center;
     get_longest_edge_midsection(&center, triangle1);
     center.z = get_height(center.x, center.y, mesh->map);
+    int triangle1_index = triangle1->index;
+    int triangle2_index = triangle2->index;
 
     struct point *points[4];
     struct triangle *neighbours[4];
     struct triangle *triangles[4];
     int outside_borders[4];
     triangles[1] = get_new_triangle(mesh);
+    int new_triangle_index = triangles[1]->index;
     triangles[3] = get_new_triangle(mesh);
-    //in case it was reallocated during triangles[3] creation
-    //FIXME: In fact, it can dangerous, as now triangles[1]
-    //might be pointing to memory with 'undefined' values
-    triangles[0] = get_triangle(triangle1->index, mesh->triangles);
-    triangles[1] = get_triangle(triangles[1]->index, mesh->triangles);
-    triangles[2] = get_triangle(triangle2->index, mesh->triangles);
+    //in case it was reallocated during triangles[1 or 3] creation
+    triangles[0] = get_triangle(triangle1_index, mesh->triangles);
+    triangles[1] = get_triangle(new_triangle_index, mesh->triangles);
+    triangles[2] = get_triangle(triangle2_index, mesh->triangles);
 
     // Simplify symbols
     points[0] = get_2nd_longest_edge_vertex(triangles[0]);
