@@ -1,7 +1,6 @@
 #include <check.h>
 
 #include "mesh.h"
-#include "output.h"
 #include "refinement.h"
 
 #include <stdint.h>
