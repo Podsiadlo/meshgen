@@ -94,6 +94,38 @@ START_TEST(test_is_inside_triangle)
     }
 END_TEST
 
+
+START_TEST(test_get_height)
+{
+
+    double **map = (double **)malloc(5 * sizeof(double *));
+    for (int i = 0; i < 5; ++i) {
+        map[i] = (double *)malloc(5 * sizeof(double));
+        for (int j = 0; j < 5; ++j) {
+            map[i][j] = (j / 2) * 10 * ((i / 2) + 1);
+        }
+    }
+    //0 0 10 10 20
+    //0 0 10 10 20
+    //0 0 20 20 40
+    //0 0 20 20 40
+    //0 0 30 30 60
+    ck_assert_double_eq_tol(get_height(0, 0, (const double **)map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(4, 4, (const double **)map), 60, 0.00001);
+    ck_assert_double_eq_tol(get_height(1, 0.5, (const double **)map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(0.5, 4, (const double **)map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(0.5, 3.5, (const double **)map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(2, 2, (const double **)map), 20, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.25, 2.75, (const double **)map), 20, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0, (const double **)map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0.5, (const double **)map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.5, 1.5, (const double **)map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 1.5, (const double **)map), 22.5, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.25, 3.25, (const double **)map), 28.125, 0.00001);
+
+}
+END_TEST
+
 Suite *
 meshgen_suite(void)
 {
@@ -108,6 +140,7 @@ meshgen_suite(void)
     tcase_add_test(tc_core, test_refine_new_mesh);
     tcase_add_test(tc_core, test_refine);
     tcase_add_test(tc_core, test_is_inside_triangle);
+    tcase_add_test(tc_core, test_get_height);
     suite_add_tcase(s, tc_core);
 
     return s;
