@@ -8,7 +8,8 @@
 int
 main(int argc, char **argv)
 {
-    double tolerance = 1;
+    double tolerance = 10;
+    int requested_size = 5;
 //    double begin_longitude = 50.5;
 //    double begin_latitude = 19.3;
 //    double end_longitude = 50.51;
@@ -27,7 +28,7 @@ main(int argc, char **argv)
 //    size_t length = (size_t)round(
 //        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
 
-    struct mesh* mesh = generate_mesh(map, width, length);
+    struct mesh* mesh = generate_mesh(map, width, length, requested_size);
 
     refine_new_mesh(mesh, tolerance);
 
