@@ -30,7 +30,7 @@ add_library(meshgenlib
 	Src/mesh.c
 	Src/refinement.c
 	Src/utils.c
-	)
+	Src/map.c)
 
 
 target_compile_options(meshgenlib PRIVATE

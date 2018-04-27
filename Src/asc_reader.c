@@ -1,4 +1,5 @@
 #include "asc_reader.h"
+#include "mesh.h"
 
 #include <math.h>
 #include <stddef.h>
@@ -32,8 +33,8 @@ readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number)
     return 0;
 }
 
-double **
-readASC(size_t *cols, size_t *rows, const char *filename)
+struct map *
+readASC(const char *filename)
 {
     const size_t tambuf = 256;
     char buf[tambuf];
@@ -127,9 +128,7 @@ readASC(size_t *cols, size_t *rows, const char *filename)
         }
     }
 
-    double **map = convert(coords, nRows, nCols);
-    *cols = nCols;
-    *rows = nRows;
+    struct map *map = convert(coords, nRows, nCols);
 
     for (int k = 0; k < numOfPoints; ++k) {
         free(coords[k]);
@@ -138,14 +137,14 @@ readASC(size_t *cols, size_t *rows, const char *filename)
     return map;
 }
 
-double **
+struct map *
 convert(double** coords, size_t nRows, size_t nCols) {
-    double ** map = (double **)malloc(nRows*sizeof(double*));
+    double ** map_data = init_map_data(nRows, nCols);
     for (size_t k = 0; k < nRows; ++k) {
-        map[k] = (double *)malloc(nCols* sizeof(double));
         for (size_t i = 0; i < nCols; ++i) {
-            map[k][i] = coords[k*nCols+i][2];
+            map_data[k][i] = coords[k*nCols+i][2];
         }
     }
+    struct map *map =init_map((const double **) map_data, nCols, nRows, 1, 1);
     return map;
 }

@@ -16,7 +16,7 @@ struct triangle {
 void
 init_triangle(struct triangle *triangle, double a_x, double a_y,
               double b_x, double b_y, double c_x,
-              double c_y, const double **map);
+              double c_y, struct map *map);
 
 void
 fix_longest(struct triangle *triangle);
@@ -28,7 +28,7 @@ double
 get_height_mean(const struct triangle *triangle);
 
 double
-get_height_of_center(const struct triangle *triangle, const double **map);
+get_height_of_center(const struct triangle *triangle, struct map *map);
 
 int
 get_longest_edge_triangle_index(struct triangle *triangle);

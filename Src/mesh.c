@@ -8,7 +8,7 @@
 #include "triangle.h"
 
 struct mesh *
-generate_mesh(const double **map, size_t width, size_t length, size_t requested_size)
+generate_mesh(struct map *map, size_t requested_size)
 {
     struct triangle *triangles =
             (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
@@ -17,37 +17,33 @@ generate_mesh(const double **map, size_t width, size_t length, size_t requested_
     mesh->size = INITIAL_MESH_SIZE;
     mesh->counter = 0;
     mesh->map = map;
-    prepare_mesh(width, length, requested_size, mesh);
+    prepare_mesh(requested_size, mesh);
     return mesh;
 }
 
-/**
- * If gcd will be relatively small, especially if it will equal 1, the result
- * will be rather not good enough.
- */
 void
-prepare_mesh(size_t width, size_t length, size_t requested_size, struct mesh *mesh)
+prepare_mesh(size_t requested_size, struct mesh *mesh)
 {
     double cell_width;
     double cell_length;
     size_t rows;
     size_t columns;
 
-    columns = (width-1) / requested_size;
-    if ((width-1) % requested_size != 0) {
-        if ((double)((width-1) % requested_size) / requested_size > 0.5) {
+    columns = (mesh->map->width-1) / requested_size;
+    if ((mesh->map->width-1) % requested_size != 0) {
+        if ((double)((mesh->map->width-1) % requested_size) / requested_size > 0.5) {
             columns++;
         }
     }
-    cell_width = (double)(width-1) / columns;
+    cell_width = (double)(mesh->map->width-1) / columns;
 
-    rows = (length-1) / requested_size;
-    if ((length-1) % requested_size != 0) {
-        if ((double)((length-1) % requested_size) / requested_size > 0.5) {
+    rows = (mesh->map->length-1) / requested_size;
+    if ((mesh->map->length-1) % requested_size != 0) {
+        if ((double)((mesh->map->length-1) % requested_size) / requested_size > 0.5) {
             rows++;
         }
     }
-    cell_length = (double)(length-1) / rows;
+    cell_length = (double)(mesh->map->length-1) / rows;
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
@@ -57,10 +53,11 @@ prepare_mesh(size_t width, size_t length, size_t requested_size, struct mesh *me
 }
 
 void
-generate_first_triangles(int square_no, double cell_length, double cell_width, int cols, int rows, struct mesh *mesh)
+generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
+                         struct mesh *mesh)
 {
-    int square_row = square_no / cols;
-    int square_col = square_no % cols;
+    size_t square_row = square_no / cols;
+    size_t square_col = square_no % cols;
     double first_data_row = square_row * cell_width;
     double first_data_col = square_col * cell_length;
 
@@ -74,10 +71,10 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, i
 
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
-    first->neighbours[0] = square_row == rows - 1 ? -1 : (square_no + cols) * 2 + 1;
+    first->neighbours[0] = square_row == rows - 1 ? -1 : (int)(square_no + cols) * 2 + 1;
     second->neighbours[2] = first->index;
     second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
-    second->neighbours[0] = square_row  == 0 ? -1 : (square_no - cols) * 2;
+    second->neighbours[0] = square_row  == 0 ? -1 : (int)(square_no - cols) * 2;
 }
 
 void
@@ -116,6 +113,7 @@ get_triangle(int index, struct triangle *triangles)
 void
 free_mesh(struct mesh *mesh)
 {
+    free_map(mesh->map);
     free(mesh->triangles);
     free(mesh);
 }

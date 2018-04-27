@@ -1,4 +1,5 @@
 #include "input.h"
+#include "map.h"
 
 #include <errno.h>
 #include <math.h>
@@ -9,7 +10,7 @@
 double **
 read_map(const double begin_longitude, const double begin_latitude,
          const double end_longitude, const double end_latitude, char *map_dir)
-{ // map[row][column] - it's array of rows
+{ // data[row][column] - it's array of rows
 
     // Rounding to avoid problems with numerical errors
     int begin_longitude_int = (int)round(begin_longitude * VALUES_IN_DEGREE);
@@ -33,7 +34,7 @@ double **
 read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
           size_t cols, size_t rows)
 {
-    double **map = init_map(rows, cols);
+    double **map_data = init_map_data(rows, cols);
     char file_to_open[14];
 
     get_filename(file_to_open, map_dir, begin_longitude_int,
@@ -65,7 +66,7 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
             tmp <<= 8;
             buffer[j] >>= 8;
             buffer[j] |= tmp;
-            map[rows - 1 - i][j] = buffer[j];
+            map_data[rows - 1 - i][j] = buffer[j];
         }
     }
     free(buffer);
@@ -73,16 +74,7 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    return map;
-}
-
-void
-free_map(double **map, size_t rows)
-{
-    for (int i = 0; i < rows; ++i) {
-        free(map[i]);
-    }
-    free(map);
+    return map_data;
 }
 
 void
@@ -127,13 +119,3 @@ get_filename(char *filename, const char *map_dir, int begin_longitude_int,
             first_lat_to_read < 0 ? "W" : "E", first_lat_to_read);
 }
 
-double **
-init_map(size_t rows, size_t cols)
-{
-    double **map;
-    map = (double **)malloc(rows * sizeof(double *));
-    for (int i = 0; i < rows; ++i) {
-        map[i] = (double *)malloc(cols * sizeof(double));
-    }
-    return map;
-}

@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 
 bool
@@ -29,6 +30,7 @@ would_create_flat_triangle(struct triangle *triangle) //TODO: Check if it's stil
          (center.y == get_1st_longest_edge_vertex(triangle)->y ||
           center.y == get_2nd_longest_edge_vertex(triangle)->y))) {
 
+        fprintf(stderr, "Function would_create_flat_triangle was called\n");
         return true;
     }
 

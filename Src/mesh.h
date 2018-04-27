@@ -10,20 +10,21 @@ struct mesh {
     struct triangle *triangles;
     size_t size;
     size_t counter;
-    const double **map;
+    struct map *map;
 };
 
 struct mesh *
-generate_mesh(const double **map, size_t width, size_t length, size_t requested_size);
+generate_mesh(struct map *map, size_t requested_size);
 
 void
-prepare_mesh(size_t width, size_t length, size_t requested_size, struct mesh *mesh);
+prepare_mesh(size_t requested_size, struct mesh *mesh);
 
 void
 refine_new_mesh(struct mesh *mesh, double tolerance);
 
 void
-generate_first_triangles(int square_no, double cell_length, double cell_width, int cols, int rows, struct mesh *mesh);
+generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
+                         struct mesh *mesh);
 
 struct triangle *
 get_new_triangle(struct mesh *mesh);

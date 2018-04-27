@@ -10,13 +10,15 @@
 int
 main(int argc, char **argv)
 {
-    //default parameters
-    double tolerance = 1;
+    //default arguments
+    double tolerance = 10;
     size_t requested_size = 10;
+    char *output_filename = "out/result_test5.inp";
+    char *input_filename = "Examples/test5.asc";
 
     //argument parsing
     int argument;
-    while ((argument = getopt (argc, argv, "t:s:")) != -1)
+    while ((argument = getopt (argc, argv, "t:s:i:o:")) != -1)
         switch (argument)
         {
             case 't':
@@ -25,11 +27,19 @@ main(int argc, char **argv)
             case 's':
                 requested_size = (size_t)atoi(optarg);
                 break;
+            case 'i':
+                input_filename = optarg;
+                break;
+            case 'o':
+                output_filename = optarg;
+                break;
             case '?':
                 if (optopt == 't' || optopt == 's')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 else if (isprint (optopt))
-                    fprintf(stderr, "Unknown option `-%c'.\nUSAGE: meshgen -t <tolerance> -s <requsted_size>\n",
+                    fprintf(stderr, "Unknown option `-%c'.\n"
+                                    "USAGE: meshgen -t <tolerance> -s <requsted_size> "
+                                    "-i <data_file> -o <output_file>\n",
                             optopt);
                 else
                     fprintf (stderr,
@@ -41,11 +51,8 @@ main(int argc, char **argv)
         }
 
     //data reading
-    size_t width;
-    size_t length;
+    struct map *map = readASC(input_filename);
 
-    char *output_filename = "out/result_test2.inp";
-    const double **map = (const double **)readASC(&width, &length, "Examples/test2.asc");
 
 //    double begin_longitude = 50.5;
 //    double begin_latitude = 19.3;
@@ -61,7 +68,7 @@ main(int argc, char **argv)
 //        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
 
     //Actual algorithm
-    struct mesh* mesh = generate_mesh(map, width, length, requested_size);
+    struct mesh* mesh = generate_mesh(map, requested_size);
 
     refine_new_mesh(mesh, tolerance);
 
@@ -69,7 +76,6 @@ main(int argc, char **argv)
     save_to_inp(mesh, output_filename);
 
     //cleaning memory
-    free_map((double **)map, length);
     free_mesh(mesh);
 
     return 0;

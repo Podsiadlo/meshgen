@@ -5,7 +5,7 @@
 void
 init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
               double b_x, double b_y, double c_x,
-              double c_y, const double **map)
+              double c_y, struct map *map)
 {
     init_point(&(triangle->vertices[0]), a_x, a_y, map);
     init_point(&(triangle->vertices[1]), b_x, b_y, map);
@@ -16,7 +16,7 @@ init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change 
 void
 fix_longest(struct triangle *triangle)
 {
-    double ab = sqrt(pow((triangle->vertices[0].x) -
+    double ab = sqrt(pow((triangle->vertices[0].x) - //TODO: Do I need to take sqrt of it?
                              (triangle->vertices[1].x),
                          2) +
                      pow((triangle->vertices[0].y) -
@@ -39,7 +39,7 @@ fix_longest(struct triangle *triangle)
     if (ab > bc) {
         if (ab > ac) {
             longest = 0;
-        } else if (fabs(ab - ac) < 0.000001) {
+        } else if (fabs(ab - ac) < EPSILON) {
             if (triangle->vertices[1].y > triangle->vertices[2].y) {
                 longest = 2;
             } else if (triangle->vertices[1].y < triangle->vertices[2].y) {
@@ -54,7 +54,7 @@ fix_longest(struct triangle *triangle)
         } else {
             longest = 2;
         }
-    } else if (fabs(ab - bc) < 0.000001) {
+    } else if (fabs(ab - bc) < EPSILON) {
         if (ab >= ac) {
             if (triangle->vertices[0].y > triangle->vertices[2].y) {
                 longest = 1;
@@ -73,7 +73,7 @@ fix_longest(struct triangle *triangle)
     } else {
         if (bc > ac) {
             longest = 1;
-        } else if (fabs(ac - bc) < 0.000001) {
+        } else if (fabs(ac - bc) < EPSILON) {
             if (triangle->vertices[1].y > triangle->vertices[0].y) {
                 longest = 2;
             } else if (triangle->vertices[1].y < triangle->vertices[0].y) {
@@ -119,7 +119,7 @@ get_height_mean(const struct triangle *triangle)
 }
 
 double
-get_height_of_center(const struct triangle *triangle, const double **map)
+get_height_of_center(const struct triangle *triangle, struct map *map)
 {
     double x = (triangle->vertices[0].x + triangle->vertices[1].x +
              triangle->vertices[2].x) /

@@ -7,10 +7,10 @@
 int
 readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number);
 
-double **
-readASC(size_t *cols, size_t *rows, const char *filename);
+struct map *
+readASC(const char *filename);
 
-double **
+struct map *
 convert(double** coords, const size_t nRows, const size_t nCols);
 
 #endif // ASC_READER_H

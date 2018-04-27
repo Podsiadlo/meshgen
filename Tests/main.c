@@ -13,17 +13,17 @@ START_TEST(test_refine_new_mesh)
 {
 
     // Simple 5x5 map with all heights zero except for one with 100m
-    double **map = (double **)malloc(5 * sizeof(double *));
+    double **map_data = init_map_data(5, 5);
     for (int i = 0; i < 5; ++i) {
-        map[i] = (double *)malloc(5 * sizeof(double));
         for (int j = 0; j < 5; ++j) {
-            map[i][j] = 0;
+            map_data[i][j] = 0;
         }
     }
-    map[2][3] = 100;
+    map_data[2][3] = 100;
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const double **) map, 5, 5, 5);
+    struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
+    struct mesh *local_mesh = generate_mesh(map, 5);
 
     refine_new_mesh(local_mesh, 10);
 
@@ -34,16 +34,18 @@ END_TEST
 START_TEST(test_refine)
 {
 
-    double **map = (double **)malloc(5 * sizeof(double *));
+    // Simple 5x5 map with all heights zero except for one with 100m
+    double **map_data = init_map_data(5, 5);
     for (int i = 0; i < 5; ++i) {
-        map[i] = (double *)malloc(5 * sizeof(double));
         for (int j = 0; j < 5; ++j) {
-            map[i][j] = 0;
+            map_data[i][j] = 0;
         }
     }
+    map_data[2][3] = 100;
 
     // Generate the initial mesh
-    struct mesh *local_mesh = generate_mesh((const double **) map, 5, 5, 5);
+    struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
+    struct mesh *local_mesh = generate_mesh(map, 5);
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 
@@ -97,31 +99,30 @@ END_TEST
 
 START_TEST(test_get_height)
 {
-
-    double **map = (double **)malloc(5 * sizeof(double *));
+    double **map_data = init_map_data(5, 5);
     for (int i = 0; i < 5; ++i) {
-        map[i] = (double *)malloc(5 * sizeof(double));
         for (int j = 0; j < 5; ++j) {
-            map[i][j] = (j / 2) * 10 * ((i / 2) + 1);
+            map_data[i][j] = (j / 2) * 10 * ((i / 2) + 1);
         }
     }
+    struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
     //0 0 10 10 20
     //0 0 10 10 20
     //0 0 20 20 40
     //0 0 20 20 40
     //0 0 30 30 60
-    ck_assert_double_eq_tol(get_height(0, 0, (const double **)map), 0, 0.00001);
-    ck_assert_double_eq_tol(get_height(4, 4, (const double **)map), 60, 0.00001);
-    ck_assert_double_eq_tol(get_height(1, 0.5, (const double **)map), 0, 0.00001);
-    ck_assert_double_eq_tol(get_height(0.5, 4, (const double **)map), 0, 0.00001);
-    ck_assert_double_eq_tol(get_height(0.5, 3.5, (const double **)map), 0, 0.00001);
-    ck_assert_double_eq_tol(get_height(2, 2, (const double **)map), 20, 0.00001);
-    ck_assert_double_eq_tol(get_height(2.25, 2.75, (const double **)map), 20, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 0, (const double **)map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 0.5, (const double **)map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(2.5, 1.5, (const double **)map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 1.5, (const double **)map), 22.5, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.25, 3.25, (const double **)map), 28.125, 0.00001);
+    ck_assert_double_eq_tol(get_height(0, 0, map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(4, 4, map), 60, 0.00001);
+    ck_assert_double_eq_tol(get_height(1, 0.5, map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(0.5, 4, map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(0.5, 3.5, map), 0, 0.00001);
+    ck_assert_double_eq_tol(get_height(2, 2, map), 20, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.25, 2.75, map), 20, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0, map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0.5, map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.5, 1.5, map), 15, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 1.5, map), 22.5, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.25, 3.25, map), 28.125, 0.00001);
 
 }
 END_TEST
