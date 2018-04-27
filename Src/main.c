@@ -11,7 +11,7 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 10;
+    double tolerance = 1;
     size_t requested_size = 10;
     char *output_filename = "out/result_test5.inp";
     char *input_filename = "Examples/test5.asc";

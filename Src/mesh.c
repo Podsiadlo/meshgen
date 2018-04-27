@@ -58,16 +58,16 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
 {
     size_t square_row = square_no / cols;
     size_t square_col = square_no % cols;
-    double first_data_row = square_row * cell_width;
-    double first_data_col = square_col * cell_length;
+    double first_data_row = square_row * cell_length;
+    double first_data_col = square_col * cell_width;
 
     struct triangle *first = get_new_triangle(mesh);
-    init_triangle(first, first_data_col, first_data_row + cell_width, first_data_col + cell_length,
-                  first_data_row + cell_width, first_data_col + cell_length, first_data_row,
+    init_triangle(first, first_data_col, first_data_row + cell_length, first_data_col + cell_width,
+                  first_data_row + cell_length, first_data_col + cell_width, first_data_row,
                   mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_data_col + cell_length, first_data_row, first_data_col, first_data_row,
-                  first_data_col, first_data_row + cell_width, mesh->map);
+    init_triangle(second, first_data_col + cell_width, first_data_row, first_data_col, first_data_row,
+                  first_data_col, first_data_row + cell_length, mesh->map);
 
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
