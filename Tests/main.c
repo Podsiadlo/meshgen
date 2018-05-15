@@ -2,6 +2,7 @@
 
 #include "mesh.h"
 #include "refinement.h"
+#include "output.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -28,6 +29,8 @@ START_TEST(test_refine_new_mesh)
     refine_new_mesh(local_mesh, 10);
 
     ck_assert_int_eq(local_mesh->counter, 13);
+
+    free_mesh(local_mesh);
 }
 END_TEST
 
@@ -64,6 +67,8 @@ START_TEST(test_refine)
     refine(triangle_to_refine, local_mesh);
 
     ck_assert_int_eq(local_mesh->counter, 13);
+
+    free_mesh(local_mesh);
 }
 END_TEST
 
@@ -93,6 +98,8 @@ START_TEST(test_is_inside_triangle)
         double expected = (lower_boundary + (n - 1) / 2) * n;
 
         ck_assert_int_eq(points_inside, expected);
+
+        free(triangle);
     }
 END_TEST
 
@@ -124,6 +131,7 @@ START_TEST(test_get_height)
     ck_assert_double_eq_tol(get_height(3.5, 1.5, map), 22.5, 0.00001);
     ck_assert_double_eq_tol(get_height(3.25, 3.25, map), 28.125, 0.00001);
 
+    free_map(map);
 }
 END_TEST
 

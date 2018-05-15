@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-double **
+struct map *
 read_map(const double begin_longitude, const double begin_latitude,
          const double end_longitude, const double end_latitude, char *map_dir)
 { // data[row][column] - it's array of rows
@@ -23,18 +23,30 @@ read_map(const double begin_longitude, const double begin_latitude,
 
     size_t cols = end_longitude_int - begin_longitude_int;
     size_t rows = end_latitude_int - begin_latitude_int;
-
-    double **map = read_map2(map_dir, begin_longitude_int, begin_latitude_int,
-                            cols, rows);
+    double **map_data = init_map_data(rows, cols);
+    struct map * map = (struct map*)malloc(sizeof(struct map));
+    map->data = (const double **) map_data;
+    map->length = rows;
+    map->width = cols;
+    map->cell_length = 1;
+    map->cell_width = 1;
+//    for (int i = (int) begin_latitude; i <= (int) end_latitude; ++i) {
+//        for (int j = (int) begin_longitude; j <= (int) end_longitude; ++j) {
+//            int begin_longitude_int = j * VALUES_IN_DEGREE;
+//            int begin_latitude_int = (int) round(begin_latitude * VALUES_IN_DEGREE);
+//            int end_longitude_int = (int) round(end_longitude * VALUES_IN_DEGREE);
+//            int end_latitude_int = (int) round(end_latitude * VALUES_IN_DEGREE);
+//        }
+//    }
+    read_map2(map_data, map_dir, begin_longitude_int, begin_latitude_int, cols, rows);
 
     return map;
 }
 
-double **
-read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
+void
+read_map2(double **map_data, const char *map_dir, int begin_longitude_int, int begin_latitude_int,
           size_t cols, size_t rows)
 {
-    double **map_data = init_map_data(rows, cols);
     char file_to_open[14];
 
     get_filename(file_to_open, map_dir, begin_longitude_int,
@@ -74,7 +86,6 @@ read_map2(const char *map_dir, int begin_longitude_int, int begin_latitude_int,
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    return map_data;
 }
 
 void

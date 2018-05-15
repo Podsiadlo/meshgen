@@ -2,10 +2,12 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
-#include "utils.h"
 #include "refinement.h"
 #include "triangle.h"
+
+#define NDEBUG
 
 struct mesh *
 generate_mesh(struct map *map, size_t requested_size)
@@ -28,6 +30,10 @@ prepare_mesh(size_t requested_size, struct mesh *mesh)
     double cell_length;
     size_t rows;
     size_t columns;
+
+    if (requested_size > (mesh->map->width-1) || requested_size > (mesh->map->length-1)) {
+        requested_size = mesh->map->width > mesh->map->length ? (mesh->map->length-1) : (mesh->map->width-1);
+    }
 
     columns = (mesh->map->width-1) / requested_size;
     if ((mesh->map->width-1) % requested_size != 0) {
@@ -62,6 +68,7 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
     double first_data_col = square_col * cell_width;
 
     struct triangle *first = get_new_triangle(mesh);
+    int first_index = first->index;
     init_triangle(first, first_data_col, first_data_row + cell_length, first_data_col + cell_width,
                   first_data_row + cell_length, first_data_col + cell_width, first_data_row,
                   mesh->map);
@@ -69,6 +76,7 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
     init_triangle(second, first_data_col + cell_width, first_data_row, first_data_col, first_data_row,
                   first_data_col, first_data_row + cell_length, mesh->map);
 
+    first = get_triangle(first_index, mesh->triangles);
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
     first->neighbours[0] = square_row == rows - 1 ? -1 : (int)(square_no + cols) * 2 + 1;
@@ -96,8 +104,12 @@ struct triangle *
 get_new_triangle(struct mesh *mesh)
 {
     if (mesh->counter >= mesh->size) {
-        mesh->triangles =
-            realloc(mesh->triangles, mesh->size * 2 * sizeof(struct triangle));
+        void *realloc_check = realloc(mesh->triangles, mesh->size * 2 * sizeof(struct triangle));
+        if (realloc_check == NULL) {
+            fprintf(stderr, "Error during triangles reallocation.\n");
+            exit(6);
+        }
+        mesh->triangles = realloc_check;
         mesh->size *= 2;
     }
     mesh->triangles[mesh->counter].index = (int)mesh->counter;

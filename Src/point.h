@@ -19,4 +19,7 @@ get_height(double x, double y, struct map *map);
 bool
 point_equals(struct point *a, struct point *b);
 
+double
+get_coordinate(int coordinate, struct point *point);
+
 #endif // MESHGEN_POINT_H

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define NDEBUG
 
 bool
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh)
@@ -96,8 +97,10 @@ refine(struct triangle *triangle, struct mesh *mesh)
     if (is_final_step(triangle, mesh)) {
         return split(triangle, mesh) ? 1 : 0;
     } else {
+        int triangle_index = triangle->index;
         int refinements =
             refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh);
+        triangle = get_triangle(triangle_index, mesh->triangles);
         refinements += split(triangle, mesh) ? 1 : 0;
         return refinements;
     }
@@ -149,6 +152,7 @@ split(struct triangle *triangle, struct mesh *mesh)
 void
 split_border(struct triangle *triangle, struct mesh *mesh)
 {
+    int triangle_index = triangle->index;
     struct point center;
     get_longest_edge_midsection(&center, triangle);
     struct triangle *new_triangle;
@@ -156,6 +160,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
 
     // Create new triangle
     new_triangle = get_new_triangle(mesh);
+    triangle = get_triangle(triangle_index, mesh->triangles);
     init_triangle(new_triangle, get_opposite_vertex(triangle)->x,
                   get_opposite_vertex(triangle)->y,
                   get_1st_longest_edge_vertex(triangle)->x, get_1st_longest_edge_vertex(triangle)->y,

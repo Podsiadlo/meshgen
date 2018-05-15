@@ -2,6 +2,7 @@
 #include "triangle.h"
 
 #include <math.h>
+#include <values.h>
 
 void
 init_point(struct point *point, double x, double y, struct map *map)
@@ -38,4 +39,19 @@ bool
 point_equals(struct point *a, struct point *b)
 {
     return fabs(a->x - b->x) < EPSILON && fabs(a->y - b->y) < EPSILON;
+}
+
+double
+get_coordinate(int coordinate, struct point *point)
+{
+    switch (coordinate) {
+        case 0:
+            return point->x;
+        case 1:
+            return point->y;
+        case 2:
+            return point->z;
+        default:
+            return MINDOUBLE;
+    }
 }

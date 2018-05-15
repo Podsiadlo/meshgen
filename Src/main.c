@@ -11,9 +11,9 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 1;
-    size_t requested_size = 10;
-    char *output_filename = "out/result_test5.inp";
+    double tolerance = 100;
+    size_t requested_size = 500;
+    char *output_filename = "out/result9.smesh";
     char *input_filename = "Examples/test5.asc";
 
     //argument parsing
@@ -51,29 +51,24 @@ main(int argc, char **argv)
         }
 
     //data reading
-    struct map *map = readASC(input_filename);
+//    struct map *map = readASC(input_filename);
 
 
-//    double begin_longitude = 50.5;
-//    double begin_latitude = 19.3;
-//    double end_longitude = 50.51;
-//    double end_latitude = 19.31;
-//    char *map_dir = "Examples";
+    double begin_longitude = 50.1;
+    double begin_latitude = 19.7;
+    double end_longitude = 50.2;
+    double end_latitude = 19.9;
+    char *map_dir = "Examples";
 
-//    const double **map = (const double **)read_map(begin_longitude, begin_latitude, end_longitude,
-//                           end_latitude, map_dir);
-//    size_t width = (size_t)round(
-//        VALUES_IN_DEGREE * fabs(end_longitude - begin_longitude));
-//    size_t length = (size_t)round(
-//        VALUES_IN_DEGREE * fabs(end_latitude - begin_latitude));
-
+    struct map *map = read_map(begin_longitude, begin_latitude, end_longitude,
+                               end_latitude, map_dir);
     //Actual algorithm
     struct mesh* mesh = generate_mesh(map, requested_size);
 
     refine_new_mesh(mesh, tolerance);
 
     //writing results
-    save_to_inp(mesh, output_filename);
+    save_to_smesh(mesh, output_filename);
 
     //cleaning memory
     free_mesh(mesh);
