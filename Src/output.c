@@ -16,7 +16,7 @@ save_to_inp(struct mesh *mesh, char *filename) {
     char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
     char *triangle = "\n%d 0 tri %d %d %d"; //<triangle_id>  0 tri <vertex_id> <vertex_id> <vertex_id>
 
-    size_t points_size = mesh->counter * 2; //TODO: improve memory management
+    size_t points_size = mesh->counter + 2;
     size_t triangles_size = mesh->counter;
     struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
     struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
@@ -53,7 +53,7 @@ save_to_inp(struct mesh *mesh, char *filename) {
 
 void
 save_to_smesh(struct mesh *mesh, char *filename) {
-    double height = 500;
+    double height = 2000;
 
     char *point_preambule = "%d 3 0 0"; //<number_of_points> <dimensions> <#_of_attributes> <boundary_markers>
     char *facet_preambule = "\n%d 0"; //<number_of_facets> <boundary_markers>
@@ -62,7 +62,7 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     char *surface_facet = "\n4 %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id>
     char *ending = "\n0\n0"; //<holes> <region_attributes>
 
-    size_t points_size = mesh->counter * 2; //TODO: improve memory management
+    size_t points_size = mesh->counter + 6;
     size_t triangles_size = mesh->counter;
     struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
     struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
@@ -286,7 +286,7 @@ get_point_index(struct point *point, struct point ***points, size_t *points_coun
 }
 
 size_t get_new_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size) {
-    if (*points_counter >= *points_size) {
+    if (*points_counter >= *points_size) { //TODO:
         *points_size *= 2;
         struct point **realloc_check = realloc(*points, *points_size);
         if (realloc_check == NULL) {

@@ -47,7 +47,7 @@ void
 read_map2(double **map_data, const char *map_dir, int begin_longitude_int, int begin_latitude_int,
           size_t cols, size_t rows)
 {
-    char file_to_open[14];
+    char file_to_open[256];
 
     get_filename(file_to_open, map_dir, begin_longitude_int,
                  begin_latitude_int);
