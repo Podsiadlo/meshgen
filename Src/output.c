@@ -56,10 +56,10 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     double height = 2000;
 
     char *point_preambule = "%d 3 0 0"; //<number_of_points> <dimensions> <#_of_attributes> <boundary_markers>
-    char *facet_preambule = "\n%d 0"; //<number_of_facets> <boundary_markers>
+    char *facet_preambule = "\n%d 1"; //<number_of_facets> <boundary_markers>
     char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
-    char *triangle = "\n3 %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id>
-    char *surface_facet = "\n4 %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id>
+    char *triangle = "\n3 %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id> <face>
+    char *surface_facet = "\n4 %d %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id>
     char *ending = "\n0\n0"; //<holes> <region_attributes>
 
     size_t points_size = mesh->counter + 6;
@@ -109,15 +109,15 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     fprintf(file, facet_preambule, triangles_counter + 5);
     fflush(file);
     for (size_t j = 0; j < triangles_counter; ++j) {
-        fprintf(file, triangle, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+        fprintf(file, triangle, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2], 1);
         fflush(file);
     }
-    fprintf(file, surface_facet, point_counter - 3, point_counter - 4, point_counter - 2, point_counter - 1);
+    fprintf(file, surface_facet, point_counter - 3, point_counter - 4, point_counter - 2, point_counter - 1, 6);
     fflush(file);
-    write_border_facet(0., 0, file, points, point_counter);
-    write_border_facet(mesh->map->width - 1, 0, file, points, point_counter);
-    write_border_facet(0., 1, file, points, point_counter);
-    write_border_facet(mesh->map->length - 1, 1, file, points, point_counter);
+    write_border_facet(0., 0, 2, file, points, point_counter);
+    write_border_facet(mesh->map->width - 1, 0, 3, file, points, point_counter);
+    write_border_facet(0., 1, 4, file, points, point_counter);
+    write_border_facet(mesh->map->length - 1, 1, 5, file, points, point_counter);
 
     fprintf(file, ending);
 
@@ -180,7 +180,8 @@ save_to_dtm(struct mesh *mesh, char *filename) //FIXME
 }
 
 void
-write_border_facet(double border, int coordinate, FILE *file, struct point **points, size_t point_counter)
+write_border_facet(double border, int coordinate, int wall_number, FILE *file, struct point **points,
+                   size_t point_counter)
 {
     size_t buffer[1000]; //TODO improve memory management
     int border_points = find_border_points(border, coordinate, buffer, points, point_counter);
@@ -191,6 +192,8 @@ write_border_facet(double border, int coordinate, FILE *file, struct point **poi
         fprintf(file, " %d", (int) buffer[i]);
         fflush(file);
     }
+    fprintf(file, " %d", wall_number);
+    fflush(file);
 }
 
 void
