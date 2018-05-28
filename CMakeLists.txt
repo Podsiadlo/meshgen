@@ -30,7 +30,12 @@ add_library(meshgenlib
 	Src/mesh.c
 	Src/refinement.c
 	Src/utils.c
-	Src/map.c)
+	Src/map.c
+	Src/libmgrs/mgrs.c
+	Src/libmgrs/polarst.c
+	Src/libmgrs/tranmerc.c
+	Src/libmgrs/ups.c
+	Src/libmgrs/utm.c)
 
 
 target_compile_options(meshgenlib PRIVATE

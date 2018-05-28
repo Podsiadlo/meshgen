@@ -1,6 +1,8 @@
 #ifndef MESHGEN_REFINEMENT_H
 #define MESHGEN_REFINEMENT_H
 
+static const int STEP_IN_METERS = 90;
+
 #include <stdbool.h>
 
 #include "mesh.h"

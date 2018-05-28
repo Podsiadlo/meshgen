@@ -12,8 +12,8 @@ main(int argc, char **argv)
 {
     //default arguments
     double tolerance = 30;
-    size_t requested_size = 500;
-    char *output_filename = "out/result14.inp";
+    size_t requested_size = 5000000;
+    char *output_filename = "out/result15.inp";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
     double begin_longitude = 50.01;

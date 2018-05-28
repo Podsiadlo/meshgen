@@ -8,6 +8,8 @@
 #include "triangle.h"
 #include "input.h"
 
+#include "libmgrs/utm.h"
+
 #define NDEBUG
 
 struct mesh *
@@ -73,11 +75,10 @@ generate_first_triangles(size_t square_no, double cell_length, double cell_width
     struct triangle *first = get_new_triangle(mesh);
     int first_index = first->index;
     init_triangle(first, first_data_col, first_data_row + cell_length, first_data_col + cell_width,
-                  first_data_row + cell_length, first_data_col + cell_width, first_data_row,
-                  mesh->map);
+                  first_data_row + cell_length, first_data_col + cell_width, first_data_row, false, mesh->map);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_data_col + cell_width, first_data_row, first_data_col, first_data_row,
-                  first_data_col, first_data_row + cell_length, mesh->map);
+    init_triangle(second, first_data_col + cell_width, first_data_row, first_data_col, first_data_row, first_data_col,
+                  first_data_row + cell_length, false, mesh->map);
 
     first = get_triangle(first_index, mesh->triangles);
     first->neighbours[2] = second->index;

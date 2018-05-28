@@ -3,13 +3,12 @@
 #include <math.h>
 
 void
-init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
-              double b_x, double b_y, double c_x,
-              double c_y, struct map *map)
+init_triangle(struct triangle *triangle, double a_x, double a_y, double b_x, double b_y, double c_x, double c_y,
+              bool utm, struct map *map)
 {
-    init_point(&(triangle->vertices[0]), a_x, a_y, map);
-    init_point(&(triangle->vertices[1]), b_x, b_y, map);
-    init_point(&(triangle->vertices[2]), c_x, c_y, map);
+    init_point(&(triangle->vertices[0]), a_x, a_y, utm, map);
+    init_point(&(triangle->vertices[1]), b_x, b_y, utm, map);
+    init_point(&(triangle->vertices[2]), c_x, c_y, utm, map);
     fix_longest(triangle);
 }
 
@@ -127,7 +126,10 @@ get_height_of_center(const struct triangle *triangle, struct map *map)
     double y = (triangle->vertices[0].y + triangle->vertices[1].y +
              triangle->vertices[2].y) /
         3;
-    return get_height(x, y, map);
+    struct point center;
+    center.x = x;
+    center.y = y;
+    return get_point_height(&center, map);
 }
 
 int

@@ -6,4 +6,10 @@
 size_t
 gcd(size_t a, size_t b);
 
+double
+d2r(double degrees);
+
+double
+r2d(double radians);
+
 #endif //MESHGEN_UTILS_H

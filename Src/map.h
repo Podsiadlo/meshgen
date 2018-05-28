@@ -11,6 +11,8 @@ struct map {
     double cell_width;
     double cell_length;
     const double **data;
+    char hemisphere;
+    long zone;
 };
 
 struct map *

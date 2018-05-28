@@ -11,10 +11,13 @@ struct point {
 };
 
 void
-init_point(struct point *point, double x, double y, struct map *map);
+init_point(struct point *point, double x, double y, bool utm, struct map *map);
 
 double
-get_height(double x, double y, struct map *map);
+get_point_height(struct point *point, struct map *map);
+
+double
+get_height(double lon, double lat, struct map *map);
 
 bool
 point_equals(struct point *a, struct point *b);

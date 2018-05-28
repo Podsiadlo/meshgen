@@ -14,9 +14,8 @@ struct triangle {
 };
 
 void
-init_triangle(struct triangle *triangle, double a_x, double a_y,
-              double b_x, double b_y, double c_x,
-              double c_y, struct map *map);
+init_triangle(struct triangle *triangle, double a_x, double a_y, double b_x, double b_y, double c_x, double c_y,
+              bool utm, struct map *map);
 
 void
 fix_longest(struct triangle *triangle);
