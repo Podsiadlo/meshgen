@@ -20,6 +20,6 @@ get_filename(char *filename, const char *map_dir, int begin_longitude_int,
              int begin_latitude_int);
 
 void
-swap_if_needed(int *should_be_lower, int *should_be_bigger);
+swap_if_needed(double *should_be_lower, double *should_be_bigger);
 
 #endif // MESHGEN_INPUT_H

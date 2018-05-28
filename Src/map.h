@@ -4,6 +4,8 @@
 #include <stdlib.h>
 
 struct map {
+    double north_border;
+    double west_border;
     size_t width;
     size_t length;
     double cell_width;

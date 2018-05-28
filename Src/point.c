@@ -1,5 +1,6 @@
 #include "point.h"
 #include "triangle.h"
+//#include <libmgrs/mgrs.h>
 
 #include <math.h>
 #include <values.h>
@@ -16,20 +17,20 @@ double
 get_height(double x, double y, struct map *map)
 {
     //using bilinear interpolation
-    double divisor = map->cell_length * map->cell_width;
-    double upper_left = map->data[(int)floor(y)][(int)floor(x)];
-    double upper_right = map->data[(int)floor(y)][(int)ceil(x)];
-    double lower_right = map->data[(int)ceil(y)][(int)ceil(x)];
-    double lower_left = map->data[(int)ceil(y)][(int)floor(x)];
+    double divisor = 1.00 * 1.00;
+    double top_left = map->data[(int)floor(fabs(y - map->north_border)*1200)][(int)floor((x-map->west_border)*1200)];
+    double top_right = map->data[(int)floor(fabs(y - map->north_border)*1200)][(int)ceil((x-map->west_border)*1200)];
+    double bottom_right = map->data[(int)ceil(fabs(y - map->north_border)*1200)][(int)ceil((x-map->west_border)*1200)];
+    double bottom_left = map->data[(int)ceil(fabs(y - map->north_border)*1200)][(int)floor((x-map->west_border)*1200)];
 
-    double x_fract = x - floor(x);
-    double y_fract = y - floor(y);
+    double x_fract = (x-map->west_border)*1200 - floor((x-map->west_border)*1200);
+    double y_fract = fabs(y - map->north_border)*1200 - floor(fabs(y - map->north_border)*1200);
 
     double height = 0.;
-    height += upper_left * (1 - x_fract) * (1 - y_fract) / divisor;
-    height += upper_right * x_fract * (1 - y_fract) / divisor;
-    height += lower_right * x_fract * y_fract / divisor;
-    height += lower_left * (1 - x_fract) * y_fract / divisor;
+    height += top_left * (1 - x_fract) * (1 - y_fract) /*/ divisor*/;
+    height += top_right * x_fract * (1 - y_fract) /*/ divisor*/;
+    height += bottom_right * x_fract * y_fract /*/ divisor*/;
+    height += bottom_left * (1 - x_fract) * y_fract /*/ divisor*/;
 
     return height;
 }

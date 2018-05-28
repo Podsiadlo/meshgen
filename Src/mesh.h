@@ -23,7 +23,7 @@ void
 refine_new_mesh(struct mesh *mesh, double tolerance);
 
 void
-generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
+generate_first_triangles(size_t square_no, double cell_length, double cell_width, size_t cols, size_t rows,
                          struct mesh *mesh);
 
 struct triangle *
