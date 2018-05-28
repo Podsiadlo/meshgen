@@ -16,9 +16,6 @@ bool
 is_final_step(struct triangle *triangle, struct mesh *mesh);
 
 bool
-is_too_small(struct triangle *triangle);
-
-bool
 inside_condition(const struct triangle *triangle, double tolerance, struct mesh *mesh);
 
 bool

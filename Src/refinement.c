@@ -20,25 +20,6 @@ refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mes
 }
 
 bool
-would_create_flat_triangle(struct triangle *triangle) //TODO: Check if it's still required
-{
-    struct point center;
-    get_longest_edge_midsection(&center, triangle);
-    if ((center.x == get_opposite_vertex(triangle)->x &&
-         (center.x == get_1st_longest_edge_vertex(triangle)->x ||
-          center.x == get_2nd_longest_edge_vertex(triangle)->x)) ||
-        (center.y == get_opposite_vertex(triangle)->y &&
-         (center.y == get_1st_longest_edge_vertex(triangle)->y ||
-          center.y == get_2nd_longest_edge_vertex(triangle)->y))) {
-
-        fprintf(stderr, "Function would_create_flat_triangle was called\n");
-        return true;
-    }
-
-    return false;
-}
-
-bool
 inside_condition(const struct triangle *triangle, double tolerance, struct mesh *mesh) //TODO: optimize
 {
     double height_mean = get_height_mean(triangle);
@@ -91,9 +72,6 @@ outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh
 int
 refine(struct triangle *triangle, struct mesh *mesh)
 {
-    if (is_too_small(triangle)) {
-        return 0;
-    }
     if (is_final_step(triangle, mesh)) {
         return split(triangle, mesh) ? 1 : 0;
     } else {
@@ -104,24 +82,6 @@ refine(struct triangle *triangle, struct mesh *mesh)
         refinements += split(triangle, mesh) ? 1 : 0;
         return refinements;
     }
-}
-
-bool
-is_too_small(struct triangle *triangle)
-{
-    if (fabs(get_1st_longest_edge_vertex(triangle)->x -
-            get_2nd_longest_edge_vertex(triangle)->x) <= 1 &&
-        fabs(get_1st_longest_edge_vertex(triangle)->y -
-            get_2nd_longest_edge_vertex(triangle)->y) <= 1) {
-
-        return true;
-    }
-
-    if (would_create_flat_triangle(triangle)) {
-        return true;
-    }
-
-    return false;
 }
 
 bool
@@ -141,11 +101,9 @@ split(struct triangle *triangle, struct mesh *mesh)
     if (next_triangle == NULL) {
         split_border(triangle, mesh);
         return true;
-    } else if (!would_create_flat_triangle(next_triangle)) {
+    } else {
         split_inner(triangle, next_triangle, mesh);
         return true;
-    } else {
-        return false;
     }
 }
 
