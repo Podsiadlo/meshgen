@@ -4,14 +4,15 @@
 #include "output.h"
 #include <getopt.h>
 #include <ctype.h>
+#include "string.h"
 
 int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 30;
+    double tolerance = 15;
     size_t requested_size = 5000000;
-    char *output_filename = "out/result16.smesh";
+    char *output_filename = "out/result17";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
     double begin_longitude = 50.01;
@@ -19,10 +20,11 @@ main(int argc, char **argv)
     double end_longitude = 50.3;
     double end_latitude = 19.99;
     char *map_dir = "Examples";
+    bool use_inp = false;
 
     //argument parsing
     int argument;
-    while ((argument = getopt (argc, argv, "t:s:i:o:k:l:m:n:d:")) != -1)
+    while ((argument = getopt (argc, argv, "t:s:i:o:k:l:m:n:d:p")) != -1)
         switch (argument)
         {
             case 't':
@@ -58,6 +60,9 @@ main(int argc, char **argv)
                 map_dir = optarg;
                 read_from_ASC = false;
                 break;
+            case 'p':
+                use_inp = true;
+                break;
             case '?':
                 if (optopt == 't' || optopt == 's')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -66,7 +71,7 @@ main(int argc, char **argv)
                                     "USAGE: meshgen -t <tolerance> -s <requsted_size> "
                                     "-i <data_file> -o <output_file> -d <data_dir>"
                                     "-k <begin_latitude> -l <end_latitude>"
-                                    "-m <begin_longitude> -n <end_longitude>\n",
+                                    "-m <begin_longitude> -n <end_longitude> -p (to use inp instead of smesh)\n",
                             optopt);
                 else
                     fprintf (stderr,
@@ -92,7 +97,13 @@ main(int argc, char **argv)
     refine_new_mesh(mesh, tolerance);
 
     //writing results
-    save_to_smesh(mesh, output_filename);
+    char buffer[256];
+    strcpy(buffer, output_filename);
+    if (use_inp) {
+        save_to_inp(mesh, strcat(buffer, ".inp"));
+    } else {
+        save_to_smesh(mesh, strcat(buffer, ".smesh"));
+    }
 
     //cleaning memory
     free_mesh(mesh);
