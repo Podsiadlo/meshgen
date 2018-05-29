@@ -81,18 +81,22 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     fflush(file);
 
     //Points
+    double south_border = mesh->map->north_border - (mesh->map->length - 1) * mesh->map->cell_length;
+    double north_border = mesh->map->north_border;
+    double east_border = mesh->map->west_border + (mesh->map->width - 1) * mesh->map->cell_width;
+    double west_border = mesh->map->west_border;
     struct point surface[4];
-    surface[0].x = 0.;
-    surface[0].y = 0.;
+    init_point(surface + 0, west_border,
+               north_border, false, mesh->map);
+    init_point(surface + 1, west_border,
+               south_border, false, mesh->map);
+    init_point(surface + 2, east_border,
+               north_border, false, mesh->map);
+    init_point(surface + 3, east_border,
+               south_border, false, mesh->map);
     surface[0].z = height;
-    surface[1].x = 0.;
-    surface[1].y = mesh->map->length - 1;
     surface[1].z = height;
-    surface[2].x = mesh->map->width - 1;
-    surface[2].y = 0.;
     surface[2].z = height;
-    surface[3].x = mesh->map->width - 1;
-    surface[3].y = mesh->map->length - 1;
     surface[3].z = height;
     get_new_point_index(&surface[0], &points, &point_counter, &points_size);
     get_new_point_index(&surface[1], &points, &point_counter, &points_size);
@@ -114,10 +118,10 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     }
     fprintf(file, surface_facet, point_counter - 3, point_counter - 4, point_counter - 2, point_counter - 1, 6);
     fflush(file);
-    write_border_facet(0., 0, 2, file, points, point_counter);
-    write_border_facet(mesh->map->width - 1, 0, 3, file, points, point_counter);
-    write_border_facet(0., 1, 4, file, points, point_counter);
-    write_border_facet(mesh->map->length - 1, 1, 5, file, points, point_counter);
+    write_border_facet(west_border, 0, 2, surface + 0, surface + 1, file, points, point_counter);
+    write_border_facet(east_border, 0, 3, surface + 2, surface + 3, file, points, point_counter);
+    write_border_facet(north_border, 1, 4, surface + 0, surface + 2, file, points, point_counter);
+    write_border_facet(south_border, 1, 5, surface + 1, surface + 3, file, points, point_counter);
 
     fprintf(file, ending);
 
@@ -180,11 +184,11 @@ save_to_dtm(struct mesh *mesh, char *filename) //FIXME
 }
 
 void
-write_border_facet(double border, int coordinate, int wall_number, FILE *file, struct point **points,
-                   size_t point_counter)
+write_border_facet(double border, int coordinate, int wall_number, struct point *corner1, struct point *corner2,
+                   FILE *file, struct point **points, size_t point_counter)
 {
     size_t buffer[1000]; //TODO improve memory management
-    int border_points = find_border_points(border, coordinate, buffer, points, point_counter);
+    int border_points = find_border_points(border, coordinate, corner1, corner2, buffer, points, point_counter);
     sort_points(border_points - 1, buffer, coordinate == 0 ? 1 : 0, points); // Maybe I don't need -1
     fprintf(file, "\n%d", border_points);
     fflush(file);
@@ -266,11 +270,21 @@ get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_co
 }
 
 int
-find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter) {
+find_border_points(double border, int coordinate, struct point *corner1, struct point *corner2, size_t *buffer,
+                   struct point **points, size_t points_counter) {
     int points_found = 0;
+    double lower;
+    double greater;
+    if (coordinate == 0 ? corner1->x : corner1->y < coordinate == 0 ? corner2->x : corner2->y) {
+        lower = coordinate == 0 ? corner1->x : corner1->y;
+        greater = coordinate == 0 ? corner2->x : corner2->y;
+    } else {
+        lower = coordinate == 0 ? corner2->x : corner2->y;
+        greater = coordinate == 0 ? corner1->x : corner1->y;
+    }
 
     for (size_t i = 0; i < points_counter; ++i) {
-        if (fabs((coordinate == 0 ? points[i]->x : points[i]->y) - border) < EPSILON) {
+        if ((coordinate == 0 ? points[i]->x : points[i]->y) > lower) {
             buffer[points_found++] = i;
         }
     }

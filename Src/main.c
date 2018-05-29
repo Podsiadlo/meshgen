@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "input.h"
 #include "asc_reader.h"
 #include "mesh.h"
@@ -13,7 +11,7 @@ main(int argc, char **argv)
     //default arguments
     double tolerance = 30;
     size_t requested_size = 5000000;
-    char *output_filename = "out/result15.inp";
+    char *output_filename = "out/result16.smesh";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
     double begin_longitude = 50.01;
@@ -94,7 +92,7 @@ main(int argc, char **argv)
     refine_new_mesh(mesh, tolerance);
 
     //writing results
-    save_to_inp(mesh, output_filename);
+    save_to_smesh(mesh, output_filename);
 
     //cleaning memory
     free_mesh(mesh);

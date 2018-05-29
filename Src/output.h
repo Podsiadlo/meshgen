@@ -23,11 +23,12 @@ get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_co
                    struct point ***points, size_t *point_counter, size_t *points_size);
 
 void
-write_border_facet(double border, int coordinate, int wall_number, FILE *file, struct point **points,
-                   size_t point_counter);
+write_border_facet(double border, int coordinate, int wall_number, struct point *corner1, struct point *corner2,
+                   FILE *file, struct point **points, size_t point_counter);
 
 int
-find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter);
+find_border_points(double border, int coordinate, struct point *corner1, struct point *corner2, size_t *buffer,
+                   struct point **points, size_t points_counter);
 
 size_t
 get_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size);

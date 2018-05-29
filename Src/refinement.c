@@ -36,10 +36,10 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
+    struct point tmp;
     for (double i = lowest_x; i < highest_x; i+= STEP_IN_METERS) {
         for (double j = lowest_y; j < highest_y; j+= STEP_IN_METERS) {
             if (is_inside_triangle(i, j, triangle)) {
-                struct point tmp;
                 tmp.x = i;
                 tmp.y = j;
                 if (fabs(height_mean - get_point_height(&tmp, mesh->map)) > tolerance) {

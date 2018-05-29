@@ -19,6 +19,10 @@ get_point_height(struct point *point, struct map *map);
 double
 get_height(double lon, double lat, struct map *map);
 
+
+double
+get_height_wo_interpol(double lon, double lat, int corner, const struct map *map);
+
 bool
 point_equals(struct point *a, struct point *b);
 
