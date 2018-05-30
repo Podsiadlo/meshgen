@@ -5,6 +5,8 @@
 #include <math.h>
 
 #include "mesh.h"
+#include "utils.h"
+#include "libmgrs/utm.h"
 
 #define NDEBUG
 
@@ -32,8 +34,15 @@ save_to_inp(struct mesh *mesh, char *filename) {
         exit(1);
     }
     fprintf(file, preambule, point_counter, triangles_counter);
+    char hemisphere;
+    long zone;
+    double x, y;
     for (size_t l = 0; l < point_counter; ++l) {
-        fprintf(file, point, l, points[l]->x, points[l]->y, points[l]->z);
+        if (Convert_Geodetic_To_UTM(d2r(points[l]->y), d2r(points[l]->x), &zone, &hemisphere, &x, &y)) {
+            fprintf(stderr, "Error during conversion.\n");
+        }
+        fprintf(file, point, l, x, y, points[l]->z);
+        fflush(file);
     }
     for (size_t j = 0; j < triangles_counter; ++j) {
         fprintf(file, triangle, j, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
@@ -52,7 +61,7 @@ save_to_inp(struct mesh *mesh, char *filename) {
 }
 
 void
-save_to_smesh(struct mesh *mesh, char *filename) {
+save_to_smesh(struct mesh *mesh, char *filename, bool utm) {
     double height = 2000;
 
     char *point_preambule = "%d 3 0 0"; //<number_of_points> <dimensions> <#_of_attributes> <boundary_markers>
@@ -77,8 +86,6 @@ save_to_smesh(struct mesh *mesh, char *filename) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
     }
-    fprintf(file, "\n"); //FIXME: I don't understand why, but without it, it throws SIGSEGV later
-    fflush(file);
 
     //Points
     double south_border = mesh->map->north_border - (mesh->map->length - 1) * mesh->map->cell_length;
@@ -86,14 +93,10 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     double east_border = mesh->map->west_border + (mesh->map->width - 1) * mesh->map->cell_width;
     double west_border = mesh->map->west_border;
     struct point surface[4];
-    init_point(surface + 0, west_border,
-               north_border, false, mesh->map);
-    init_point(surface + 1, west_border,
-               south_border, false, mesh->map);
-    init_point(surface + 2, east_border,
-               north_border, false, mesh->map);
-    init_point(surface + 3, east_border,
-               south_border, false, mesh->map);
+    init_point(surface + 0, west_border, north_border, mesh->map);
+    init_point(surface + 1, west_border, south_border, mesh->map);
+    init_point(surface + 2, east_border, north_border, mesh->map);
+    init_point(surface + 3, east_border, south_border, mesh->map);
     surface[0].z = height;
     surface[1].z = height;
     surface[2].z = height;
@@ -102,10 +105,24 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     get_new_point_index(&surface[1], &points, &point_counter, &points_size);
     get_new_point_index(&surface[2], &points, &point_counter, &points_size);
     get_new_point_index(&surface[3], &points, &point_counter, &points_size);
+
     fprintf(file, point_preambule, point_counter);
     fflush(file);
+
+    char hemisphere;
+    long zone;
+    double x, y;
     for (size_t l = 0; l < point_counter; ++l) {
-        fprintf(file, point, l, points[l]->x, points[l]->y, points[l]->z);
+        if (utm) {
+            if (Convert_Geodetic_To_UTM(d2r(points[l]->y), d2r(points[l]->x), &zone, &hemisphere, &x, &y)) {
+                fprintf(stderr, "Error during conversion.\n");
+                exit(13);
+            }
+        } else {
+            x = points[l]->x;
+            y = points[l]->y;
+        }
+        fprintf(file, point, l, x, y, points[l]->z);
         fflush(file);
     }
 
@@ -118,10 +135,10 @@ save_to_smesh(struct mesh *mesh, char *filename) {
     }
     fprintf(file, surface_facet, point_counter - 3, point_counter - 4, point_counter - 2, point_counter - 1, 6);
     fflush(file);
-    write_border_facet(west_border, 0, 2, surface + 0, surface + 1, file, points, point_counter);
-    write_border_facet(east_border, 0, 3, surface + 2, surface + 3, file, points, point_counter);
-    write_border_facet(north_border, 1, 4, surface + 0, surface + 2, file, points, point_counter);
-    write_border_facet(south_border, 1, 5, surface + 1, surface + 3, file, points, point_counter);
+    write_border_facet(west_border, 0, 2, file, points, point_counter);
+    write_border_facet(east_border, 0, 3, file, points, point_counter);
+    write_border_facet(north_border, 1, 4, file, points, point_counter);
+    write_border_facet(south_border, 1, 5, file, points, point_counter);
 
     fprintf(file, ending);
 
@@ -184,14 +201,24 @@ save_to_dtm(struct mesh *mesh, char *filename) //FIXME
 }
 
 void
-write_border_facet(double border, int coordinate, int wall_number, struct point *corner1, struct point *corner2,
-                   FILE *file, struct point **points, size_t point_counter)
+write_border_facet(double border, int coordinate, int wall_number, FILE *file, struct point **points,
+                   size_t point_counter)
 {
-    size_t buffer[1000]; //TODO improve memory management
-    int border_points = find_border_points(border, coordinate, corner1, corner2, buffer, points, point_counter);
-    sort_points(border_points - 1, buffer, coordinate == 0 ? 1 : 0, points); // Maybe I don't need -1
+    size_t buffer[1024]; //TODO improve memory management
+    int border_points = find_border_points(border, coordinate, buffer, points, point_counter);
+    sort_points(border_points - 2, buffer, coordinate == 0 ? 1 : 0, points);
     fprintf(file, "\n%d", border_points);
     fflush(file);
+
+    shift(0, border_points - 2, buffer);
+    if (get_coordinate(coordinate, points[border_points - 2]) < get_coordinate(coordinate, points[border_points - 1])) {
+        buffer[0] = (size_t) (border_points - 2);
+        buffer[border_points - 1] = (size_t) (border_points - 1);
+    } else {
+        buffer[0] = (size_t) (border_points - 1);
+        buffer[border_points - 1] = (size_t) (border_points - 2);
+    }
+
     for (int i = 0; i < border_points; ++i) {
         fprintf(file, " %d", (int) buffer[i]);
         fflush(file);
@@ -208,10 +235,7 @@ sort_points(int size, size_t indices[], int coordinate, struct point **points)
         for(int j = 0; j<i; ++j) {
             double j_elem = get_coordinate(coordinate, points[indices[j]]);
             double i_elem = get_coordinate(coordinate, points[indices[i]]);
-            if(j_elem > i_elem - EPSILON
-               || (fabs(i_elem-j_elem) < 0
-                   && get_coordinate(coordinate == 0 ? 1 : 0, points[indices[j]])
-                      > get_coordinate(coordinate == 0 ? 1 : 0, points[indices[j]]))) {
+            if((j_elem - i_elem) > EPSILON) {
                 size_t tmp = indices[i];
                 shift(j, i, indices);
                 indices[j] = tmp;
@@ -270,21 +294,11 @@ get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_co
 }
 
 int
-find_border_points(double border, int coordinate, struct point *corner1, struct point *corner2, size_t *buffer,
-                   struct point **points, size_t points_counter) {
+find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter) {
     int points_found = 0;
-    double lower;
-    double greater;
-    if (coordinate == 0 ? corner1->x : corner1->y < coordinate == 0 ? corner2->x : corner2->y) {
-        lower = coordinate == 0 ? corner1->x : corner1->y;
-        greater = coordinate == 0 ? corner2->x : corner2->y;
-    } else {
-        lower = coordinate == 0 ? corner2->x : corner2->y;
-        greater = coordinate == 0 ? corner1->x : corner1->y;
-    }
 
     for (size_t i = 0; i < points_counter; ++i) {
-        if ((coordinate == 0 ? points[i]->x : points[i]->y) > lower) {
+        if (fabs((coordinate == 0 ? points[i]->x : points[i]->y) - border) < EPSILON) {
             buffer[points_found++] = i;
         }
     }

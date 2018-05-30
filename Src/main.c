@@ -10,9 +10,9 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 15;
-    size_t requested_size = 5000000;
-    char *output_filename = "out/result17";
+    double tolerance = 100;
+    size_t requested_size = 500;
+    char *output_filename = "out/result18";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
     double begin_longitude = 50.01;
@@ -21,16 +21,17 @@ main(int argc, char **argv)
     double end_latitude = 19.99;
     char *map_dir = "Examples";
     bool use_inp = false;
+    bool utm = true;
 
     //argument parsing
     int argument;
-    while ((argument = getopt (argc, argv, "t:s:i:o:k:l:m:n:d:p")) != -1)
+    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pg")) != -1)
         switch (argument)
         {
             case 't':
                 tolerance = atof(optarg);
                 break;
-            case 's':
+            case 'z':
                 requested_size = (size_t)atoi(optarg);
                 break;
             case 'o':
@@ -40,19 +41,19 @@ main(int argc, char **argv)
                 input_filename = optarg;
                 read_from_ASC = true;
                 break;
-            case 'k':
+            case 'n':
                 begin_latitude = atof(optarg);
                 read_from_ASC = false;
                 break;
-            case 'l':
+            case 's':
                 end_latitude = atof(optarg);
                 read_from_ASC = false;
                 break;
-            case 'm':
+            case 'w':
                 begin_longitude = atof(optarg);
                 read_from_ASC = false;
                 break;
-            case 'n':
+            case 'e':
                 end_longitude = atof(optarg);
                 read_from_ASC = false;
                 break;
@@ -63,15 +64,20 @@ main(int argc, char **argv)
             case 'p':
                 use_inp = true;
                 break;
+            case 'g':
+                utm = false;
+                break;
             case '?':
                 if (optopt == 't' || optopt == 's')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 else if (isprint (optopt))
                     fprintf(stderr, "Unknown option `-%c'.\n"
-                                    "USAGE: meshgen -t <tolerance> -s <requsted_size> "
+                                    "USAGE: meshgen -t <tolerance> -z <requsted_size> "
                                     "-i <data_file> -o <output_file> -d <data_dir>"
-                                    "-k <begin_latitude> -l <end_latitude>"
-                                    "-m <begin_longitude> -n <end_longitude> -p (to use inp instead of smesh)\n",
+                                    "-n <begin_latitude> -s <end_latitude>"
+                                    "-w <begin_longitude> -e <end_longitude> "
+                                    "-p (to use inp instead of smesh)"
+                                    "-g (to output in geodetic coordinates instead of UTM)\n",
                             optopt);
                 else
                     fprintf (stderr,
@@ -102,7 +108,7 @@ main(int argc, char **argv)
     if (use_inp) {
         save_to_inp(mesh, strcat(buffer, ".inp"));
     } else {
-        save_to_smesh(mesh, strcat(buffer, ".smesh"));
+        save_to_smesh(mesh, strcat(buffer, ".smesh"), utm);
     }
 
     //cleaning memory

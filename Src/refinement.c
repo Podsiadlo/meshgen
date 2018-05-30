@@ -36,13 +36,10 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    struct point tmp;
-    for (double i = lowest_x; i < highest_x; i+= STEP_IN_METERS) {
-        for (double j = lowest_y; j < highest_y; j+= STEP_IN_METERS) {
+    for (double i = lowest_x; i < highest_x; i+=mesh->map->cell_width) {
+        for (double j = lowest_y; j < highest_y; j+=mesh->map->cell_length) {
             if (is_inside_triangle(i, j, triangle)) {
-                tmp.x = i;
-                tmp.y = j;
-                if (fabs(height_mean - get_point_height(&tmp, mesh->map)) > tolerance) {
+                if (fabs(height_mean - get_height(i, j, mesh->map)) > tolerance) {
                     return true;
                 }
             }
@@ -122,9 +119,10 @@ split_border(struct triangle *triangle, struct mesh *mesh)
     // Create new triangle
     new_triangle = get_new_triangle(mesh);
     triangle = get_triangle(triangle_index, mesh->triangles);
-    init_triangle(new_triangle, get_opposite_vertex(triangle)->x, get_opposite_vertex(triangle)->y,
-                  get_1st_longest_edge_vertex(triangle)->x, get_1st_longest_edge_vertex(triangle)->y, center.x,
-                  center.y, true, mesh->map);
+    init_triangle(new_triangle, get_opposite_vertex(triangle)->x,
+                  get_opposite_vertex(triangle)->y,
+                  get_1st_longest_edge_vertex(triangle)->x, get_1st_longest_edge_vertex(triangle)->y,
+                  center.x, center.y, mesh->map);
     new_triangle->neighbours[0] = get_2nd_shorter_edge_triangle_index(triangle);
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
@@ -133,7 +131,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
     // Fix old triangle
     get_1st_longest_edge_vertex(triangle)->x = center.x;
     get_1st_longest_edge_vertex(triangle)->y = center.y;
-    get_1st_longest_edge_vertex(triangle)->z = get_point_height(get_1st_longest_edge_vertex(triangle), mesh->map);
+    get_1st_longest_edge_vertex(triangle)->z = get_height(center.x, center.y, mesh->map);
     triangle->neighbours[(longest + 2) % 3] = new_triangle->index;
     fix_longest(triangle);
 
@@ -160,7 +158,7 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
 {
     struct point center;
     get_longest_edge_midsection(&center, triangle1);
-    center.z = get_point_height(&center, mesh->map);
+    center.z = get_height(center.x, center.y, mesh->map);
     int triangle1_index = triangle1->index;
     int triangle2_index = triangle2->index;
 
@@ -192,11 +190,11 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
             get_triangle(get_1st_shorter_edge_triangle_index(triangles[2]), mesh->triangles);
     outside_borders[2] = (triangles[2]->longest + 1) % 3;
 
-    init_triangle(triangles[1], points[1]->x, points[1]->y, points[2]->x, points[2]->y, center.x, center.y, true,
-                  mesh->map);
+    init_triangle(triangles[1], points[1]->x, points[1]->y, points[2]->x,
+                  points[2]->y, center.x, center.y, mesh->map);
     outside_borders[1] = 0;
-    init_triangle(triangles[3], points[3]->x, points[3]->y, points[0]->x, points[0]->y, center.x, center.y, true,
-                  mesh->map);
+    init_triangle(triangles[3], points[3]->x, points[3]->y, points[0]->x,
+                  points[0]->y, center.x, center.y, mesh->map);
     outside_borders[3] = 0;
 
     // Modify input triangles
