@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "input.h"
 #include "asc_reader.h"
 #include "mesh.h"
@@ -10,15 +12,15 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 100;
+    double tolerance = 50;
     size_t requested_size = 500;
-    char *output_filename = "out/result18";
+    char *output_filename = "out/result23";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
-    double begin_longitude = 50.01;
+    double begin_longitude = 50.1;
     double begin_latitude = 19.70;
     double end_longitude = 50.3;
-    double end_latitude = 19.99;
+    double end_latitude = 19.9;
     char *map_dir = "Examples";
     bool use_inp = false;
     bool utm = true;
@@ -106,7 +108,7 @@ main(int argc, char **argv)
     char buffer[256];
     strcpy(buffer, output_filename);
     if (use_inp) {
-        save_to_inp(mesh, strcat(buffer, ".inp"));
+        save_to_inp(mesh, strcat(buffer, ".inp"), utm);
     } else {
         save_to_smesh(mesh, strcat(buffer, ".smesh"), utm);
     }

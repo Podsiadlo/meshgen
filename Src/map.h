@@ -4,15 +4,13 @@
 #include <stdlib.h>
 
 struct map {
-    double north_border;
-    double west_border;
     size_t width;
     size_t length;
     double cell_width;
     double cell_length;
     const double **data;
-    char hemisphere;
-    long zone;
+    double north_border;
+    double west_border;
 };
 
 struct map *

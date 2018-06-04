@@ -31,11 +31,11 @@ add_library(meshgenlib
 	Src/refinement.c
 	Src/utils.c
 	Src/map.c
+	Src/libmgrs/utm.c
 	Src/libmgrs/mgrs.c
-	Src/libmgrs/polarst.c
-	Src/libmgrs/tranmerc.c
 	Src/libmgrs/ups.c
-	Src/libmgrs/utm.c)
+	Src/libmgrs/tranmerc.c
+	Src/libmgrs/polarst.c)
 
 
 target_compile_options(meshgenlib PRIVATE
@@ -66,11 +66,11 @@ add_executable(Test EXCLUDE_FROM_ALL
 target_compile_options(Test PUBLIC
 	${MY_CUSTOM_C_FLAGS})
 
-#target_link_libraries(Test
-#	PkgConfig::Check meshgenlib)
-#
-#include(CheckIPOSupported)
-#check_ipo_supported(RESULT result)
+target_link_libraries(Test 
+	PkgConfig::Check meshgenlib)
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT result)
 if(result)
 	set_target_properties(meshgenlib PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
 	set_target_properties(meshgen PROPERTIES INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)

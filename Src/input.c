@@ -8,51 +8,43 @@
 #include <stdio.h>
 
 struct map *
-read_map(const double begin_longitude, const double begin_latitude,
-         const double end_longitude, const double end_latitude, char *map_dir)
+read_map(const double west_border, const double north_border,
+         const double east_border, const double south_border, char *map_dir)
 { // data[row][column] - it's array of rows
-    swap_if_needed((double *) &begin_latitude, (double *) &end_latitude);
-    swap_if_needed((double *) &begin_longitude, (double *) &end_longitude);
 
+    swap_if_needed((double *) &north_border, (double *) &south_border);
+    swap_if_needed((double *) &west_border, (double *) &east_border);
     // Rounding to avoid problems with numerical errors
-    int begin_longitude_int = (int)round(begin_longitude * VALUES_IN_DEGREE);
-    int begin_latitude_int = (int)round(begin_latitude * VALUES_IN_DEGREE);
-    int end_longitude_int = (int)round(end_longitude * VALUES_IN_DEGREE);
-    int end_latitude_int = (int)round(end_latitude * VALUES_IN_DEGREE);
+    int west_border_int = (int)round(west_border * VALUES_IN_DEGREE);
+    int north_border_int = (int)round(north_border * VALUES_IN_DEGREE);
+    int east_border_int = (int)round(east_border * VALUES_IN_DEGREE);
+    int south_border_int = (int)round(south_border * VALUES_IN_DEGREE);
 
 
-    size_t cols = (size_t) (end_longitude_int - begin_longitude_int);
-    size_t rows = (size_t) (end_latitude_int - begin_latitude_int);
+    size_t cols = (size_t) (east_border_int - west_border_int);
+    size_t rows = (size_t) (south_border_int - north_border_int);
     double **map_data = init_map_data(rows, cols);
     struct map * map = (struct map*)malloc(sizeof(struct map));
     map->data = (const double **) map_data;
     map->length = rows;
     map->width = cols;
-    map->cell_length = 1./VALUES_IN_DEGREE;
-    map->cell_width = 1./VALUES_IN_DEGREE;
-    map->north_border = begin_longitude;
-    map->west_border = begin_latitude;
-//    for (int i = (int) begin_latitude; i <= (int) end_latitude; ++i) {
-//        for (int j = (int) begin_longitude; j <= (int) end_longitude; ++j) {
-//            int begin_longitude_int = j * VALUES_IN_DEGREE;
-//            int begin_latitude_int = (int) round(begin_latitude * VALUES_IN_DEGREE);
-//            int end_longitude_int = (int) round(end_longitude * VALUES_IN_DEGREE);
-//            int end_latitude_int = (int) round(end_latitude * VALUES_IN_DEGREE);
-//        }
-//    }
-    read_map2(map_data, map_dir, begin_longitude_int, begin_latitude_int, cols, rows);
+    map->cell_length = 1. / VALUES_IN_DEGREE;
+    map->cell_width = 1. / VALUES_IN_DEGREE;
+    map->north_border = north_border;
+    map->west_border = west_border;
+
+    read_map2(map_data, map_dir, west_border_int, north_border_int, cols, rows);
 
     return map;
 }
 
 void
-read_map2(double **map_data, const char *map_dir, int begin_longitude_int, int begin_latitude_int,
+read_map2(double **map_data, const char *map_dir, int west_border_int, int north_border_int,
           size_t cols, size_t rows)
 {
     char file_to_open[256];
 
-    get_filename(file_to_open, map_dir, begin_longitude_int,
-                 begin_latitude_int);
+    get_filename(file_to_open, map_dir, west_border_int, north_border_int);
 
     FILE *map_file;
     if ((map_file = fopen(file_to_open, "rb")) == NULL) {
@@ -61,8 +53,8 @@ read_map2(double **map_data, const char *map_dir, int begin_longitude_int, int b
     }
     int rows_in_degree = VALUES_IN_DEGREE + 1;
     if (fseek(map_file,
-              ((rows_in_degree - (begin_latitude_int % rows_in_degree)) * rows_in_degree +
-               (begin_longitude_int % rows_in_degree)) *
+              ((rows_in_degree - (north_border_int % rows_in_degree)) * rows_in_degree +
+               (west_border_int % rows_in_degree)) *
                   PIXEL_SIZE,
               SEEK_SET) == -1) {
         fprintf(stderr, "%s\n", strerror(errno));
@@ -127,7 +119,7 @@ get_filename(char *filename, const char *map_dir, int begin_longitude_int,
         first_lat_to_read = begin_latitude_int / VALUES_IN_DEGREE;
     }
 
-    sprintf(filename, "%s/%s%d%s%.3d.hgt", map_dir, //FIXME: Shame on me.
+    sprintf(filename, "%s/%s%d%s%.3d.hgt", map_dir,
             first_long_to_read < 0 ? "S" : "N", first_long_to_read,
             first_lat_to_read < 0 ? "W" : "E", first_lat_to_read);
 }

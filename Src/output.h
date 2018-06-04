@@ -10,7 +10,7 @@ struct three {
 };
 
 void
-save_to_inp(struct mesh *mesh, char *filename);
+save_to_inp(struct mesh *mesh, char *filename, bool utm);
 
 void
 save_to_smesh(struct mesh *mesh, char *filename, bool utm);
