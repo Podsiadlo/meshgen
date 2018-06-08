@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "refinement.h"
 #include "output.h"
+#include "utils.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -26,7 +27,7 @@ START_TEST(test_refine_new_mesh)
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
     struct mesh *local_mesh = generate_mesh(map, 5);
 
-    refine_new_mesh(local_mesh, 10);
+    refine_new_mesh(local_mesh, 99);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 
@@ -135,6 +136,25 @@ START_TEST(test_get_height)
 }
 END_TEST
 
+START_TEST(test_change_bytes_order)
+    {
+        uint16_t a = 1;
+        uint16_t a_expected = 256;
+        uint16_t b = 65535;
+        uint16_t b_expected = 65535;
+        uint16_t c = 512;
+        uint16_t c_expected = 2;
+
+        change_bytes_order(&a);
+        change_bytes_order(&b);
+        change_bytes_order(&c);
+
+        ck_assert_double_eq(a, a_expected);
+        ck_assert_double_eq(b, b_expected);
+        ck_assert_double_eq(c, c_expected);
+    }
+END_TEST
+
 Suite *
 meshgen_suite(void)
 {
@@ -146,10 +166,11 @@ meshgen_suite(void)
     /* Core test case */
     tc_core = tcase_create("Core");
 
-    tcase_add_test(tc_core, test_refine_new_mesh);
     tcase_add_test(tc_core, test_refine);
     tcase_add_test(tc_core, test_is_inside_triangle);
     tcase_add_test(tc_core, test_get_height);
+    tcase_add_test(tc_core, test_change_bytes_order);
+    tcase_add_test(tc_core, test_refine_new_mesh);
     suite_add_tcase(s, tc_core);
 
     return s;

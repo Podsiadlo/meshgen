@@ -10,8 +10,6 @@
 
 #define NDEBUG
 
-void shift(int from, int to, size_t *array);
-
 void
 save_to_inp(struct mesh *mesh, char *filename, bool utm) {
     char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
@@ -241,33 +239,9 @@ write_border_facet(double border, int coordinate, int wall_number, FILE *file, s
 }
 
 void
-sort_points(int size, size_t indices[], int coordinate, struct point **points)
-{
-
-    for(int i = 0; i<size; ++i) {
-        for(int j = 0; j<i; ++j) {
-            double j_elem = get_coordinate(coordinate, points[indices[j]]);
-            double i_elem = get_coordinate(coordinate, points[indices[i]]);
-            if((j_elem - i_elem) > EPSILON) {
-                size_t tmp = indices[i];
-                shift(j, i, indices);
-                indices[j] = tmp;
-            }
-        }
-    }
-}
-
-void
-shift(int from, int to, size_t *array)
-{
-    for (int i = to; i > from; --i) {
-        array[i] = array[i - 1];
-    }
-}
-
-void
 get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_counter, size_t *triangles_size,
-              struct point ***points, size_t *point_counter, size_t *points_size) {
+              struct point ***points, size_t *point_counter, size_t *points_size)
+{
     for (size_t i = 0; i < mesh->counter; ++i) {
         struct three *triangle = (struct three *) malloc(sizeof(struct three));
         triangle->points[0] = get_point_index(&mesh->triangles[i].vertices[0], points, point_counter, points_size);
@@ -307,7 +281,8 @@ get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_co
 }
 
 int
-find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter) {
+find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter)
+{
     int points_found = 0;
 
     for (size_t i = 0; i < points_counter; ++i) {
@@ -320,7 +295,8 @@ find_border_points(double border, int coordinate, size_t *buffer, struct point *
 }
 
 size_t
-get_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size) {
+get_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size)
+{
     for (size_t i = 0; i < *points_counter; ++i) {
         if (point->x == (*points)[i]->x && point->y == (*points)[i]->y) {
             return i;
@@ -329,7 +305,9 @@ get_point_index(struct point *point, struct point ***points, size_t *points_coun
     return get_new_point_index(point, points, points_counter, points_size);
 }
 
-size_t get_new_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size) {
+size_t
+get_new_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size)
+{
     if (*points_counter >= *points_size) { //TODO:
         *points_size *= 2;
         struct point **realloc_check = realloc(*points, *points_size);

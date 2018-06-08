@@ -36,9 +36,6 @@ size_t
 get_new_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size);
 
 void
-sort_points(int size, size_t indices[], int coordinate, struct point **points);
-
-void
 print_mesh(struct mesh *mesh);
 
 #endif // MESHGEN_OUTPUT_H

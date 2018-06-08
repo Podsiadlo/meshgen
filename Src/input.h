@@ -16,10 +16,7 @@ read_map2(double **map_data, const char *map_dir, int west_border_int, int north
           size_t rows);
 
 void
-get_filename(char *filename, const char *map_dir, int begin_longitude_int,
-             int begin_latitude_int);
-
-void
-swap_if_needed(double *should_be_lower, double *should_be_bigger);
+get_filename(char *filename, const char *map_dir, int west_border_int,
+             int north_border_int);
 
 #endif // MESHGEN_INPUT_H

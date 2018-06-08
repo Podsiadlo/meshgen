@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "map.h"
 
 struct map *
@@ -21,6 +22,17 @@ init_map_data(size_t rows, size_t cols)
         map[i] = (double *)malloc(cols * sizeof(double));
     }
     return map;
+}
+
+void
+print_map(struct map* map)
+{
+    for (int i = 0; i < map->length; ++i) {
+        for (int j = 0; j < map->width; ++j) {
+            fprintf(stdout, "%5.0lf ", map->data[i][j]);
+        }
+        fprintf(stdout, "\n");
+    }
 }
 
 void

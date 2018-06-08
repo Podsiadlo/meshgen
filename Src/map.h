@@ -20,6 +20,9 @@ double **
 init_map_data(size_t rows, size_t cols);
 
 void
+print_map(struct map* map);
+
+void
 free_map(struct map *map);
 
 #endif //MESHGEN_MAP_H

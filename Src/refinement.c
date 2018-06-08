@@ -36,8 +36,8 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    for (double i = lowest_x; i < highest_x; i+=mesh->map->cell_width) {
-        for (double j = lowest_y; j < highest_y; j+=mesh->map->cell_length) {
+    for (int i = (int)floor(lowest_x); i < ceil(highest_x); ++i) {
+        for (int j = (int)floor(lowest_y); j < ceil(highest_y); ++j) {
             if (is_inside_triangle(i, j, triangle)) {
                 if (fabs(height_mean - get_height(i, j, mesh->map)) > tolerance) {
                     return true;

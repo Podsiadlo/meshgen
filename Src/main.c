@@ -1,5 +1,3 @@
-#include <math.h>
-
 #include "input.h"
 #include "asc_reader.h"
 #include "mesh.h"
@@ -12,16 +10,16 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 50;
-    size_t requested_size = 500;
-    char *output_filename = "out/result23";
+    double tolerance = 100;
+    size_t requested_size = 60;
+    char *output_filename = "out/result24";
     char *input_filename = "Examples/test5.asc";
     bool read_from_ASC = false;
-    double begin_longitude = 50.1;
-    double begin_latitude = 19.70;
-    double end_longitude = 50.3;
-    double end_latitude = 19.9;
-    char *map_dir = "Examples";
+    double west_border = 19.80;
+    double north_border = 50.15;
+    double east_border = 19.99;
+    double south_border = 50.01;
+    char *map_dir = "Data";
     bool use_inp = false;
     bool utm = true;
 
@@ -44,19 +42,19 @@ main(int argc, char **argv)
                 read_from_ASC = true;
                 break;
             case 'n':
-                begin_latitude = atof(optarg);
+                north_border = atof(optarg);
                 read_from_ASC = false;
                 break;
             case 's':
-                end_latitude = atof(optarg);
+                south_border = atof(optarg);
                 read_from_ASC = false;
                 break;
             case 'w':
-                begin_longitude = atof(optarg);
+                west_border = atof(optarg);
                 read_from_ASC = false;
                 break;
             case 'e':
-                end_longitude = atof(optarg);
+                east_border = atof(optarg);
                 read_from_ASC = false;
                 break;
             case 'd':
@@ -76,8 +74,8 @@ main(int argc, char **argv)
                     fprintf(stderr, "Unknown option `-%c'.\n"
                                     "USAGE: meshgen -t <tolerance> -z <requsted_size> "
                                     "-i <data_file> -o <output_file> -d <data_dir>"
-                                    "-n <begin_latitude> -s <end_latitude>"
-                                    "-w <begin_longitude> -e <end_longitude> "
+                                    "-n <north_border> -s <south_border>"
+                                    "-w <west_border> -e <east_border> "
                                     "-p (to use inp instead of smesh)"
                                     "-g (to output in geodetic coordinates instead of UTM)\n",
                             optopt);
@@ -95,8 +93,7 @@ main(int argc, char **argv)
     if (read_from_ASC) {
         map = readASC(input_filename);
     } else {
-        map = read_map(begin_longitude, begin_latitude, end_longitude,
-                                   end_latitude, map_dir);
+        map = read_map(west_border, north_border, east_border, south_border, map_dir);
     }
 
     //Actual algorithm

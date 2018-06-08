@@ -1,5 +1,6 @@
 #include "point.h"
 #include "triangle.h"
+#include "utils.h"
 
 #include <math.h>
 #include <values.h>
@@ -55,3 +56,21 @@ get_coordinate(int coordinate, struct point *point)
             return MINDOUBLE;
     }
 }
+
+void
+sort_points(int size, size_t indices[], int coordinate, struct point **points)
+{
+
+    for(int i = 0; i<size; ++i) {
+        for(int j = 0; j<i; ++j) {
+            double j_elem = get_coordinate(coordinate, points[indices[j]]);
+            double i_elem = get_coordinate(coordinate, points[indices[i]]);
+            if((j_elem - i_elem) > EPSILON) {
+                size_t tmp = indices[i];
+                shift(j, i, indices);
+                indices[j] = tmp;
+            }
+        }
+    }
+}
+

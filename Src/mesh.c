@@ -6,7 +6,6 @@
 
 #include "refinement.h"
 #include "triangle.h"
-#include "input.h"
 
 #define NDEBUG
 
@@ -60,15 +59,13 @@ prepare_mesh(size_t requested_size, struct mesh *mesh)
 }
 
 void
-generate_first_triangles(size_t square_no, double cell_length, double cell_width, size_t cols, size_t rows,
+generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
                          struct mesh *mesh)
 {
     size_t square_row = square_no / cols;
     size_t square_col = square_no % cols;
-    cell_length = cell_length * mesh->map->cell_length;
-    cell_width = cell_width * mesh->map->cell_width;
-    double first_data_row = mesh->map->north_border - square_row * cell_length;
-    double first_data_col = mesh->map->west_border + square_col * cell_width;
+    double first_data_row = square_row * cell_length;
+    double first_data_col = square_col * cell_width;
 
     struct triangle *first = get_new_triangle(mesh);
     int first_index = first->index;
@@ -81,10 +78,10 @@ generate_first_triangles(size_t square_no, double cell_length, double cell_width
 
     first = get_triangle(first_index, mesh->triangles);
     first->neighbours[2] = second->index;
-    first->neighbours[1] = (square_col == cols - 1 ? -1 : (int) (square_no + 1) * 2 + 1);
+    first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
     first->neighbours[0] = square_row == rows - 1 ? -1 : (int)(square_no + cols) * 2 + 1;
     second->neighbours[2] = first->index;
-    second->neighbours[1] = (square_col % cols == 0 ? -1 : (int) (square_no - 1) * 2);
+    second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
     second->neighbours[0] = square_row  == 0 ? -1 : (int)(square_no - cols) * 2;
 }
 
