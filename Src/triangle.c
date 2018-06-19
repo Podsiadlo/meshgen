@@ -92,6 +92,20 @@ fix_longest(struct triangle *triangle)
     triangle->longest = longest;
 }
 
+double
+get_area(const struct point *a, const struct point *b, const struct point *c)
+{
+    return 0.5 * ((b->x - a->x) * (c->y - a->y) - (b->y - a->y) * (c->x - a->x));
+}
+
+void
+compute_barycentric_coords(double *barycentric_coords, struct point *point, const struct triangle *triangle) {
+    double area_triangle = get_area(&triangle->vertices[0], &triangle->vertices[1], &triangle->vertices[2]);
+    barycentric_coords[2] = get_area(point, &triangle->vertices[0], &triangle->vertices[1]) / area_triangle;
+    barycentric_coords[1]= get_area(point, &triangle->vertices[2], &triangle->vertices[0]) / area_triangle;
+    barycentric_coords[0] = get_area(point, &triangle->vertices[1], &triangle->vertices[2]) / area_triangle;
+}
+
 bool
 is_inside_triangle(double x, double y, const struct triangle *triangle)
 {

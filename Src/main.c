@@ -10,18 +10,18 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 100;
+    double tolerance = 0.01;
     size_t requested_size = 60;
-    char *output_filename = "out/result24";
-    char *input_filename = "Examples/test5.asc";
-    bool read_from_ASC = false;
+    char *output_filename = "out/test1";
+    char *input_filename = "Examples/test1.asc";
+    bool read_from_ASC = true;
     double west_border = 19.80;
     double north_border = 50.15;
     double east_border = 19.99;
     double south_border = 50.01;
     char *map_dir = "Data";
     bool use_inp = false;
-    bool utm = true;
+    bool utm = false;
 
     //argument parsing
     int argument;

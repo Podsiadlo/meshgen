@@ -57,6 +57,17 @@ get_coordinate(int coordinate, struct point *point)
     }
 }
 
+struct point *
+mul_by_scalar(double scalar, const struct point *point)
+{
+    struct point * ret_point = (struct point *)malloc(sizeof(struct point));
+
+    ret_point->x = point->x * scalar;
+    ret_point->y = point->y * scalar;
+    ret_point->z = point->z * scalar;
+    return ret_point;
+}
+
 void
 sort_points(int size, size_t indices[], int coordinate, struct point **points)
 {

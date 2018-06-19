@@ -22,6 +22,9 @@ point_equals(struct point *a, struct point *b);
 double
 get_coordinate(int coordinate, struct point *point);
 
+struct point *
+mul_by_scalar(double scalar, const struct point *point);
+
 void
 sort_points(int size, size_t indices[], int coordinate, struct point **points);
 

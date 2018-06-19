@@ -22,7 +22,6 @@ refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mes
 bool
 inside_condition(const struct triangle *triangle, double tolerance, struct mesh *mesh) //TODO: optimize
 {
-    double height_mean = get_height_mean(triangle);
     double lowest_x =
             triangle->vertices[0].x < triangle->vertices[1].x ? triangle->vertices[0].x : triangle->vertices[1].x;
     lowest_x = triangle->vertices[2].x < lowest_x ? triangle->vertices[2].x : lowest_x;
@@ -36,10 +35,21 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    for (int i = (int)floor(lowest_x); i < ceil(highest_x); ++i) {
-        for (int j = (int)floor(lowest_y); j < ceil(highest_y); ++j) {
+    for (int i = (int) floor(lowest_x); i < ceil(highest_x); ++i) {
+        for (int j = (int) floor(lowest_y); j < ceil(highest_y); ++j) {
             if (is_inside_triangle(i, j, triangle)) {
-                if (fabs(height_mean - get_height(i, j, mesh->map)) > tolerance) {
+                struct point *tmp = (struct point *) malloc(sizeof(struct point));
+                tmp->x=i;
+                tmp->y=j;
+                double barycentric_point[3];
+                compute_barycentric_coords(barycentric_point, tmp, triangle);
+                double height = 0;
+                for (int k = 0; k < 2; ++k) {
+//                    struct point *tmp2 = mul_by_scalar(barycentric_point[k], &triangle->vertices[k]);
+//                    height += tmp2->z;
+                    height += barycentric_point[k] * triangle->vertices[k].z;
+                }
+                if (height - get_height(i, j, mesh->map) > tolerance) {
                     return true;
                 }
             }
