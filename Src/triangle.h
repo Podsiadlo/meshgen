@@ -21,6 +21,9 @@ init_triangle(struct triangle *triangle, double a_x, double a_y,
 void
 fix_longest(struct triangle *triangle);
 
+short
+choose_longest(double ab, double bc, double ac, const struct triangle *triangle);
+
 double
 get_area(const struct point *a, const struct point *b, const struct point *c);
 

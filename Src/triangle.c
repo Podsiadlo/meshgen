@@ -16,25 +16,20 @@ init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change 
 void
 fix_longest(struct triangle *triangle)
 {
-    double ab = sqrt(pow((triangle->vertices[0].x) - //TODO: Do I need to take sqrt of it?
-                             (triangle->vertices[1].x),
-                         2) +
-                     pow((triangle->vertices[0].y) -
-                             (triangle->vertices[1].y),
-                         2));
-    double bc = sqrt(pow((triangle->vertices[1].x) -
-                             (triangle->vertices[2].x),
-                         2) +
-                     pow((triangle->vertices[1].y) -
-                             (triangle->vertices[2].y),
-                         2));
-    double ac = sqrt(pow((triangle->vertices[2].x) -
-                             (triangle->vertices[0].x),
-                         2) +
-                     pow((triangle->vertices[2].y) -
-                             (triangle->vertices[0].y),
-                         2));
+    double ab = sqrt(pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
+                     + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2)
+                     + pow(triangle->vertices[0].z - triangle->vertices[1].z, 2));
+    double bc = sqrt(pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
+                     + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2)
+                     + pow(triangle->vertices[1].z - triangle->vertices[2].z, 2));
+    double ac = sqrt(pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
+                     + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2)
+                     + pow(triangle->vertices[2].z - triangle->vertices[0].z, 2));
 
+    triangle->longest = choose_longest(ab, bc, ac, triangle);
+}
+
+short choose_longest(double ab, double bc, double ac, const struct triangle *triangle) {
     short longest;
     if (ab > bc) {
         if (ab > ac) {
@@ -89,7 +84,7 @@ fix_longest(struct triangle *triangle)
             longest = 2;
         }
     }
-    triangle->longest = longest;
+    return longest;
 }
 
 double

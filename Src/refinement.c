@@ -45,8 +45,6 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
                 compute_barycentric_coords(barycentric_point, tmp, triangle);
                 double height = 0;
                 for (int k = 0; k < 2; ++k) {
-//                    struct point *tmp2 = mul_by_scalar(barycentric_point[k], &triangle->vertices[k]);
-//                    height += tmp2->z;
                     height += barycentric_point[k] * triangle->vertices[k].z;
                 }
                 if (height - get_height(i, j, mesh->map) > tolerance) {
