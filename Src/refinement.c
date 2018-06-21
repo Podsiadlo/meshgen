@@ -1,4 +1,5 @@
 #include "refinement.h"
+#include "output.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -6,13 +7,25 @@
 
 #define NDEBUG
 
+const double tol = 1e-10;
+
+
 bool
-refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh)
+equal(const double a, const double b, double custom_tol)
+{
+    if (custom_tol == 0) {
+        custom_tol = tol;
+    }
+    return fabs(a - b) < custom_tol;
+}
+
+bool
+refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
     bool refined = false;
     if (inside_condition(triangle, tolerance, mesh) /*||
          outside_condition(triangle, mesh)*/) {
-        if (refine(triangle, mesh) > 0) {
+        if (refine(triangle, mesh, use_height) > 0) {
             refined = true;
         }
     }
@@ -77,17 +90,21 @@ outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh
     return false;
 }
 
+//int counter = 0;
 int
-refine(struct triangle *triangle, struct mesh *mesh)
+refine(struct triangle *triangle, struct mesh *mesh, bool use_height)
 {
     if (is_final_step(triangle, mesh)) {
-        return split(triangle, mesh) ? 1 : 0;
+//        char buf[256];
+//        sprintf(buf, "edges_%d.inp", counter++);
+//        write_edges(mesh, buf);
+        return split(triangle, mesh, use_height) ? 1 : 0;
     } else {
         int triangle_index = triangle->index;
         int refinements =
-            refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh);
+                refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh, NULL);
         triangle = get_triangle(triangle_index, mesh->triangles);
-        refinements += split(triangle, mesh) ? 1 : 0;
+        refinements += split(triangle, mesh, use_height) ? 1 : 0;
         return refinements;
     }
 }
@@ -102,21 +119,21 @@ is_final_step(struct triangle *triangle, struct mesh *mesh)
 }
 
 bool
-split(struct triangle *triangle, struct mesh *mesh)
+split(struct triangle *triangle, struct mesh *mesh, bool use_height)
 {
     struct triangle *next_triangle =
             get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles);
     if (next_triangle == NULL) {
-        split_border(triangle, mesh);
+        split_border(triangle, mesh, use_height);
         return true;
     } else {
-        split_inner(triangle, next_triangle, mesh);
+        split_inner(triangle, next_triangle, mesh, use_height);
         return true;
     }
 }
 
 void
-split_border(struct triangle *triangle, struct mesh *mesh)
+split_border(struct triangle *triangle, struct mesh *mesh, bool use_height)
 {
     int triangle_index = triangle->index;
     struct point center;
@@ -141,7 +158,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
     get_1st_longest_edge_vertex(triangle)->y = center.y;
     get_1st_longest_edge_vertex(triangle)->z = get_height(center.x, center.y, mesh->map);
     triangle->neighbours[(longest + 2) % 3] = new_triangle->index;
-    fix_longest(triangle);
+    fix_longest(triangle, use_height);
 
     // Fix neighbour
     if (neighbour != NULL) {
@@ -161,8 +178,7 @@ split_border(struct triangle *triangle, struct mesh *mesh)
 }
 
 void
-split_inner(struct triangle *triangle1, struct triangle *triangle2,
-            struct mesh *mesh)
+split_inner(struct triangle *triangle1, struct triangle *triangle2, struct mesh *mesh, bool use_height)
 {
     struct point center;
     get_longest_edge_midsection(&center, triangle1);
@@ -224,7 +240,7 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2,
             triangles[(k + 1) % 4]->index;
         triangles[k]->neighbours[(outside_borders[k] + 2) % 3] =
             triangles[(k + 3) % 4]->index;
-        fix_longest(triangles[k]);
+        fix_longest(triangles[k], use_height);
     }
 
     // Configure neighbours

@@ -12,8 +12,8 @@ main(int argc, char **argv)
     //default arguments
     double tolerance = 0.01;
     size_t requested_size = 60;
-    char *output_filename = "out/test1";
-    char *input_filename = "Examples/test1.asc";
+    char *output_filename = "out/test2";
+    char *input_filename = "Examples/test2.asc";
     bool read_from_ASC = true;
     double west_border = 19.80;
     double north_border = 50.15;
@@ -22,10 +22,11 @@ main(int argc, char **argv)
     char *map_dir = "Data";
     bool use_inp = false;
     bool utm = false;
+    bool use_height = false;
 
     //argument parsing
     int argument;
-    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pg")) != -1)
+    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pgh")) != -1)
         switch (argument)
         {
             case 't':
@@ -67,6 +68,9 @@ main(int argc, char **argv)
             case 'g':
                 utm = false;
                 break;
+            case 'h':
+                use_height = true;
+                break;
             case '?':
                 if (optopt == 't' || optopt == 's')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -99,7 +103,7 @@ main(int argc, char **argv)
     //Actual algorithm
     struct mesh* mesh = generate_mesh(map, requested_size);
 
-    refine_new_mesh(mesh, tolerance);
+    refine_new_mesh(mesh, tolerance, use_height);
 
     //writing results
     char buffer[256];

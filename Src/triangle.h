@@ -19,7 +19,7 @@ init_triangle(struct triangle *triangle, double a_x, double a_y,
               double c_y, struct map *map);
 
 void
-fix_longest(struct triangle *triangle);
+fix_longest(struct triangle *triangle, bool use_height);
 
 short
 choose_longest(double ab, double bc, double ac, const struct triangle *triangle);

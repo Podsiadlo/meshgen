@@ -36,6 +36,9 @@ size_t
 get_new_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size);
 
 void
+write_edges(struct mesh *mesh, const char *filename);
+
+void
 print_mesh(struct mesh *mesh);
 
 #endif // MESHGEN_OUTPUT_H

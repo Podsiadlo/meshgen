@@ -339,3 +339,33 @@ print_mesh(struct mesh *mesh) {
     }
     printf("\n\n\n");
 }
+
+
+void
+write_edges(struct mesh *mesh, const char *filename)
+{
+    FILE * f = fopen(filename, "w");
+
+    fprintf(f, "%ld %ld 0 0 0\n", mesh->counter * 3, mesh->counter * 3);
+
+    int nodeIdx = 0;
+    for (int triIdx = 0; triIdx < mesh->counter; ++triIdx) {
+        struct triangle triangle = mesh->triangles[triIdx];
+        for (int i = 0; i < 3; ++i) {
+            struct point point = triangle.vertices[i];
+            fprintf(f, "%d %g %g %g\n", nodeIdx++, point.x, point.y, point.z);
+        }
+    }
+
+    for (int triIdx = 0; triIdx < mesh->counter; ++triIdx) {
+        struct triangle triangle = mesh->triangles[triIdx];
+        int longestEdgeIdx = triangle.longest;
+        for (int edgeIdx = 0; edgeIdx < 3; ++edgeIdx) {
+            fprintf(f, "%d %d line %d %d\n",  edgeIdx + (triIdx*3), edgeIdx == longestEdgeIdx ? 0 : 1, edgeIdx + (triIdx*3), ((edgeIdx + 1)%3) + (triIdx*3) );
+        }
+    }
+
+    fclose(f);
+
+
+}

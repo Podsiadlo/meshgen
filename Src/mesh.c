@@ -53,7 +53,7 @@ prepare_mesh(size_t requested_size, struct mesh *mesh)
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
-            generate_first_triangles(i * columns + j, cell_length, cell_width, columns, rows, mesh);
+            generate_first_triangles((int) (i * columns + j), cell_length, cell_width, columns, rows, mesh);
         }
     }
 }
@@ -86,13 +86,13 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
 }
 
 void
-refine_new_mesh(struct mesh *mesh, double tolerance)
+refine_new_mesh(struct mesh *mesh, double tolerance, bool use_height)
 {
     bool finish = false;
     while (!finish) {
         bool modified = false;
         for (size_t i = 0; i < mesh->counter; ++i) {
-            if (refine_if_required(&(mesh->triangles[i]), tolerance, mesh)) {
+            if (refine_if_required(&(mesh->triangles[i]), tolerance, mesh, use_height)) {
                 modified = true;
             }
         }

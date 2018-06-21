@@ -10,21 +10,31 @@ init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change 
     init_point(&(triangle->vertices[0]), a_x, a_y, map);
     init_point(&(triangle->vertices[1]), b_x, b_y, map);
     init_point(&(triangle->vertices[2]), c_x, c_y, map);
-    fix_longest(triangle);
+    fix_longest(triangle, 0);
 }
 
 void
-fix_longest(struct triangle *triangle)
+fix_longest(struct triangle *triangle, bool use_height)
 {
-    double ab = sqrt(pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
-                     + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2)
-                     + pow(triangle->vertices[0].z - triangle->vertices[1].z, 2));
-    double bc = sqrt(pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
-                     + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2)
-                     + pow(triangle->vertices[1].z - triangle->vertices[2].z, 2));
-    double ac = sqrt(pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
-                     + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2)
-                     + pow(triangle->vertices[2].z - triangle->vertices[0].z, 2));
+    double ab, bc, ac;
+    if (use_height) {
+        ab = pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
+                  + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2)
+                  + pow(triangle->vertices[0].z - triangle->vertices[1].z, 2);
+        bc = pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
+                  + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2)
+                  + pow(triangle->vertices[1].z - triangle->vertices[2].z, 2);
+        ac = pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
+                  + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2)
+                  + pow(triangle->vertices[2].z - triangle->vertices[0].z, 2);
+    } else {
+        ab = pow((triangle->vertices[0].x) - (triangle->vertices[1].x), 2)
+                + pow((triangle->vertices[0].y) - (triangle->vertices[1].y), 2);
+        bc = pow((triangle->vertices[1].x) - (triangle->vertices[2].x), 2)
+                + pow((triangle->vertices[1].y) - (triangle->vertices[2].y), 2);
+        ac = pow((triangle->vertices[2].x) - (triangle->vertices[0].x), 2)
+                + pow((triangle->vertices[2].y) - (triangle->vertices[0].y), 2);
+    }
 
     triangle->longest = choose_longest(ab, bc, ac, triangle);
 }

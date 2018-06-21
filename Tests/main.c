@@ -27,7 +27,7 @@ START_TEST(test_refine_new_mesh)
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
     struct mesh *local_mesh = generate_mesh(map, 5);
 
-    refine_new_mesh(local_mesh, 99);
+    refine_new_mesh(local_mesh, 99, false);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 
@@ -53,19 +53,19 @@ START_TEST(test_refine)
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 
-    refine(triangle_to_refine, local_mesh);
+    refine(triangle_to_refine, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 4);
 
-    refine(triangle_to_refine, local_mesh);
+    refine(triangle_to_refine, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 5);
 
-    refine(triangle_to_refine, local_mesh);
+    refine(triangle_to_refine, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 8);
 
-    refine(triangle_to_refine, local_mesh);
+    refine(triangle_to_refine, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 
