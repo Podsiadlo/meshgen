@@ -11,15 +11,6 @@ const double tol = 1e-10;
 
 
 bool
-equal(const double a, const double b, double custom_tol)
-{
-    if (custom_tol == 0) {
-        custom_tol = tol;
-    }
-    return fabs(a - b) < custom_tol;
-}
-
-bool
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
     bool refined = false;

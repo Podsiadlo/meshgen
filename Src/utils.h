@@ -1,8 +1,22 @@
 #ifndef MESHGEN_UTILS_H
 #define MESHGEN_UTILS_H
 
+#ifndef EPSILON
+#define EPSILON 1e-10
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
+
+bool
+is_lesser(double a, double b);
+
+bool
+is_greater(double a, double b);
+
+bool
+equals(const double a, const double b);
 
 void
 change_bytes_order(uint16_t *var_ptr);

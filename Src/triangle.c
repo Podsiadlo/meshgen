@@ -1,4 +1,5 @@
 #include "triangle.h"
+#include "utils.h"
 
 #include <math.h>
 
@@ -41,16 +42,16 @@ fix_longest(struct triangle *triangle, bool use_height)
 
 short choose_longest(double ab, double bc, double ac, const struct triangle *triangle) {
     short longest;
-    if (ab > bc) {
-        if (ab > ac) {
+    if (is_greater(ab, bc)) {
+        if (is_greater(ab, ac)) {
             longest = 0;
-        } else if (fabs(ab - ac) < EPSILON) {
-            if (triangle->vertices[1].y > triangle->vertices[2].y) {
+        } else if (equals(ab, ac)) {
+            if (is_greater(triangle->vertices[1].y, triangle->vertices[2].y)) {
                 longest = 2;
-            } else if (triangle->vertices[1].y < triangle->vertices[2].y) {
+            } else if (is_lesser(triangle->vertices[1].y, triangle->vertices[2].y)) {
                 longest = 0;
             } else {
-                if (triangle->vertices[1].x > triangle->vertices[2].x) {
+                if (is_greater(triangle->vertices[1].x, triangle->vertices[2].x)) {
                     longest = 2;
                 } else {
                     longest = 0;
@@ -59,14 +60,14 @@ short choose_longest(double ab, double bc, double ac, const struct triangle *tri
         } else {
             longest = 2;
         }
-    } else if (fabs(ab - bc) < EPSILON) {
-        if (ab >= ac) {
-            if (triangle->vertices[0].y > triangle->vertices[2].y) {
+    } else if (equals(ab, bc)) {
+        if (!is_lesser(ab, ac)) {
+            if (is_greater(triangle->vertices[0].y, triangle->vertices[2].y)) {
                 longest = 1;
-            } else if (triangle->vertices[0].y < triangle->vertices[2].y) {
+            } else if (is_lesser(triangle->vertices[0].y, triangle->vertices[2].y)) {
                 longest = 0;
             } else {
-                if (triangle->vertices[0].x > triangle->vertices[2].x) {
+                if (is_greater(triangle->vertices[0].x, triangle->vertices[2].x)) {
                     longest = 1;
                 } else {
                     longest = 0;
@@ -76,15 +77,15 @@ short choose_longest(double ab, double bc, double ac, const struct triangle *tri
             longest = 2;
         }
     } else {
-        if (bc > ac) {
+        if (is_greater(bc, ac)) {
             longest = 1;
-        } else if (fabs(ac - bc) < EPSILON) {
-            if (triangle->vertices[1].y > triangle->vertices[0].y) {
+        } else if (equals(ac, bc)) {
+            if (is_greater(triangle->vertices[1].y, triangle->vertices[0].y)) {
                 longest = 2;
-            } else if (triangle->vertices[1].y < triangle->vertices[0].y) {
+            } else if (is_lesser(triangle->vertices[1].y, triangle->vertices[0].y)) {
                 longest = 1;
             } else {
-                if (triangle->vertices[1].x > triangle->vertices[0].x) {
+                if (is_greater(triangle->vertices[1].x, triangle->vertices[0].x)) {
                     longest = 2;
                 } else {
                     longest = 1;

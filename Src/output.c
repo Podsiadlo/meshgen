@@ -286,7 +286,7 @@ find_border_points(double border, int coordinate, size_t *buffer, struct point *
     int points_found = 0;
 
     for (size_t i = 0; i < points_counter; ++i) {
-        if (fabs((coordinate == 0 ? points[i]->x : points[i]->y) - border) < EPSILON) {
+        if (equals((coordinate == 0 ? points[i]->x : points[i]->y), border)) {
             buffer[points_found++] = i;
         }
     }

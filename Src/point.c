@@ -39,7 +39,7 @@ get_height(double x, double y, struct map *map)
 bool
 point_equals(struct point *a, struct point *b)
 {
-    return fabs(a->x - b->x) < EPSILON && fabs(a->y - b->y) < EPSILON;
+    return equals(a->x, b->x) && equals(a->y, b->y);
 }
 
 double
@@ -76,7 +76,7 @@ sort_points(int size, size_t indices[], int coordinate, struct point **points)
         for(int j = 0; j<i; ++j) {
             double j_elem = get_coordinate(coordinate, points[indices[j]]);
             double i_elem = get_coordinate(coordinate, points[indices[i]]);
-            if((j_elem - i_elem) > EPSILON) {
+            if(is_greater(j_elem, i_elem)) {
                 size_t tmp = indices[i];
                 shift(j, i, indices);
                 indices[j] = tmp;

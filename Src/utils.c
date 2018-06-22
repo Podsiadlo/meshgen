@@ -1,22 +1,29 @@
-#include <stdbool.h>
 #include "utils.h"
+
+#include <stdbool.h>
+#include <math.h>
 
 #ifndef PI
 #define PI 3.14159265358979323846
 #endif
 
-#ifndef EPSILON
-#define EPSILON 1e-10
-#endif
 
 bool
-is_lesser(double a, double b) {
-    return a-b < -EPSILON;
+is_lesser(double a, double b)
+{
+    return a-b < -2*EPSILON;
 }
 
 bool
-is_greater(double a, double b) {
-    return a-b < -EPSILON;
+is_greater(double a, double b)
+{
+    return a-b > 2*EPSILON;
+}
+
+bool
+equals(const double a, const double b)
+{
+    return fabs(a - b) < EPSILON;
 }
 
 
