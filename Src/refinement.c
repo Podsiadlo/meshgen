@@ -7,8 +7,6 @@
 
 #define NDEBUG
 
-const double tol = 1e-10;
-
 
 bool
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)

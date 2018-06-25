@@ -221,14 +221,9 @@ write_border_facet(double border, int coordinate, int wall_number, FILE *file, s
     fprintf(file, "\n%d", border_points);
     fflush(file);
 
+    size_t tmp = buffer[border_points - 2];
     shift(0, border_points - 2, buffer);
-    if (get_coordinate(coordinate, points[border_points - 2]) < get_coordinate(coordinate, points[border_points - 1])) {
-        buffer[0] = (size_t) (border_points - 2);
-        buffer[border_points - 1] = (size_t) (border_points - 1);
-    } else {
-        buffer[0] = (size_t) (border_points - 1);
-        buffer[border_points - 1] = (size_t) (border_points - 2);
-    }
+    buffer[0] = tmp;
 
     for (int i = 0; i < border_points; ++i) {
         fprintf(file, " %d", (int) buffer[i]);

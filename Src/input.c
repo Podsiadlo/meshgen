@@ -36,6 +36,26 @@ read_map(const double west_border, const double north_border,
 
     read_map2(map_data, map_dir, west_border_int, north_border_int, cols, rows);
 
+    //skip outliners
+    for (int i = 0; i < map->length; ++i) {
+        for (int j = 0; j < map->width; ++j) {
+            if (map->data[i][j] > 500 || map->data[i][j] < 10) {
+                if (i > 0) {
+                    map_data[i][j] = map_data[i-1][j];
+                } else {
+                    map_data[i][j] = map_data[i+1][j];
+                }
+            }
+            if (map->data[i][j] > 3000 || map->data[i][j] < 10) {
+                if (j > 0) {
+                    map_data[i][j] = map_data[i][j-1];
+                } else {
+                    map_data[i][j] = map_data[i][j+1];
+                }
+            }
+        }
+    }
+
     return map;
 }
 
