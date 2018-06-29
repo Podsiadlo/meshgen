@@ -13,7 +13,7 @@ read_map(const double west_border, const double north_border,
          const double east_border, const double south_border, char *map_dir)
 { // data[row][column] - it's array of rows
 
-    swap_if_needed((double *) &north_border, (double *) &south_border);
+    swap_if_needed((double *) &south_border, (double *) &north_border);
     swap_if_needed((double *) &west_border, (double *) &east_border);
     // Rounding to avoid problems with numerical errors
     int west_border_int = (int)round(west_border * VALUES_IN_DEGREE);
@@ -23,7 +23,7 @@ read_map(const double west_border, const double north_border,
 
 
     size_t cols = (size_t) (east_border_int - west_border_int);
-    size_t rows = (size_t) (south_border_int - north_border_int);
+    size_t rows = (size_t) (north_border_int - south_border_int);
     double **map_data = init_map_data(rows, cols);
     struct map * map = (struct map*)malloc(sizeof(struct map));
     map->data = (const double **) map_data;
@@ -36,17 +36,24 @@ read_map(const double west_border, const double north_border,
 
     read_map2(map_data, map_dir, west_border_int, north_border_int, cols, rows);
 
-    //skip outliners
-    for (int i = 0; i < map->length; ++i) {
-        for (int j = 0; j < map->width; ++j) {
-            if (map->data[i][j] > 500 || map->data[i][j] < 10) {
+    skip_outliers(map_data, map->length, map->width);
+
+    return map;
+}
+
+void
+skip_outliers(double *const *map_data, size_t length, size_t width)
+{
+    for (int i = 0; i < length; ++i) {
+        for (int j = 0; j < width; ++j) {
+            if (map_data[i][j] > 3000 || map_data[i][j] < 10) {
                 if (i > 0) {
                     map_data[i][j] = map_data[i-1][j];
                 } else {
                     map_data[i][j] = map_data[i+1][j];
                 }
             }
-            if (map->data[i][j] > 3000 || map->data[i][j] < 10) {
+            if (map_data[i][j] > 3000 || map_data[i][j] < 10) {
                 if (j > 0) {
                     map_data[i][j] = map_data[i][j-1];
                 } else {
@@ -55,8 +62,6 @@ read_map(const double west_border, const double north_border,
             }
         }
     }
-
-    return map;
 }
 
 void

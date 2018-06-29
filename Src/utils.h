@@ -2,7 +2,7 @@
 #define MESHGEN_UTILS_H
 
 #ifndef EPSILON
-#define EPSILON 1e-10
+#define EPSILON 1e-8
 #endif
 
 #include <stdlib.h>

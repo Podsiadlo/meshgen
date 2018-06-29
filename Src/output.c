@@ -14,7 +14,7 @@ void
 save_to_inp(struct mesh *mesh, char *filename, bool utm) {
     char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
     char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
-    char *triangle = "\n%d 0 tri %d %d %d"; //<triangle_id>  0 tri <vertex_id> <vertex_id> <vertex_id>
+    char *triangle = "\n%d %d tri %d %d %d"; //<triangle_id>  <material> tri <vertex_id> <vertex_id> <vertex_id>
 
     size_t points_size = mesh->counter + 2;
     size_t triangles_size = mesh->counter;
@@ -50,7 +50,7 @@ save_to_inp(struct mesh *mesh, char *filename, bool utm) {
         fflush(file);
     }
     for (size_t j = 0; j < triangles_counter; ++j) {
-        fprintf(file, triangle, j, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
+        fprintf(file, triangle, j, 0, triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
     }
 
     if (fclose(file) != 0) {
@@ -66,12 +66,12 @@ save_to_inp(struct mesh *mesh, char *filename, bool utm) {
 }
 
 void
-save_to_smesh(struct mesh *mesh, char *filename, bool utm) {
+save_to_smesh(struct mesh *mesh, char *filename, bool pre_utm, bool utm) {
     double height = 2000;
 
     char *point_preambule = "%d 3 0 0"; //<number_of_points> <dimensions> <#_of_attributes> <boundary_markers>
     char *facet_preambule = "\n%d 1"; //<number_of_facets> <boundary_markers>
-    char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
+    char *point = "\n%d %.2lf %.2lf %.2lf"; //<vertex_id> <x> <y> <z>
     char *triangle = "\n3 %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id> <face>
     char *surface_facet = "\n4 %d %d %d %d %d"; //<#_of_corners> <vertex_id> <vertex_id> <vertex_id>
     char *ending = "\n0\n0"; //<holes> <region_attributes>
@@ -98,22 +98,40 @@ save_to_smesh(struct mesh *mesh, char *filename, bool utm) {
     double east_border = mesh->map->west_border + (mesh->map->width - 1) * mesh->map->cell_width;
     double west_border = mesh->map->west_border;
     struct point surface[4];
-    surface[0].x = 0.;
-    surface[0].y = 0.;
+    surface[0].x = west_border;
+    surface[0].y = south_border;
     surface[0].z = height;
-    surface[1].x = 0.;
-    surface[1].y = mesh->map->length - 1;
+    surface[0].border = 36;
+    surface[1].x = west_border;
+    surface[1].y = north_border;
     surface[1].z = height;
-    surface[2].x = mesh->map->width - 1;
-    surface[2].y = 0.;
+    surface[1].border = 48;
+    surface[2].x = east_border;
+    surface[2].y = south_border;
     surface[2].z = height;
-    surface[3].x = mesh->map->width - 1;
-    surface[3].y = mesh->map->length - 1;
+    surface[2].border = 12;
+    surface[3].x = east_border;
+    surface[3].y = north_border;
     surface[3].z = height;
+    surface[3].border = 24;
     get_new_point_index(&surface[0], &points, &point_counter, &points_size);
     get_new_point_index(&surface[1], &points, &point_counter, &points_size);
     get_new_point_index(&surface[2], &points, &point_counter, &points_size);
     get_new_point_index(&surface[3], &points, &point_counter, &points_size);
+
+    if (pre_utm) {
+        char hemisphere;
+        long zone;
+        double x, y;
+        for (int i = 0; i < 4; ++i) {
+            if (Convert_Geodetic_To_UTM(d2r(surface[i].y), d2r(surface[i].x), &zone, &hemisphere, &x, &y)) {
+                fprintf(stderr, "Error during conversion.\n");
+                exit(13);
+            }
+            surface[i].x = x;
+            surface[i].y = y;
+        }
+    }
 
     fprintf(file, point_preambule, point_counter);
     fflush(file);
@@ -146,10 +164,10 @@ save_to_smesh(struct mesh *mesh, char *filename, bool utm) {
     }
     fprintf(file, surface_facet, point_counter - 3, point_counter - 4, point_counter - 2, point_counter - 1, 6);
     fflush(file);
-    write_border_facet(0., 0, 2, file, points, point_counter);
-    write_border_facet(mesh->map->width - 1, 0, 3, file, points, point_counter);
-    write_border_facet(0., 1, 4, file, points, point_counter);
-    write_border_facet(mesh->map->length - 1, 1, 5, file, points, point_counter);
+    write_border_facet(2, 1, file, points, point_counter); //south
+    write_border_facet(3, 0, file, points, point_counter); //east
+    write_border_facet(4, 1, file, points, point_counter); //north
+    write_border_facet(5, 0, file, points, point_counter); //west
 
     fprintf(file, ending);
 
@@ -166,57 +184,10 @@ save_to_smesh(struct mesh *mesh, char *filename, bool utm) {
 }
 
 void
-save_to_dtm(struct mesh *mesh, char *filename) //FIXME
-{
-    char *vtk0 = "# vtk DataFile Version 2.0\n"
-            "Map\n"
-            "ASCII\n"
-            "DATASET POLYDATA\n"
-            "POINTS %d float\n";
-    char *vtk1 = "POLYGONS %d %d\n";
-
-
-    size_t points_size = 1000;
-    size_t triangles_size = 1000;
-    struct point **points = (struct point **) malloc(points_size * sizeof(struct point *));
-    struct three **triangles = (struct three **) malloc(triangles_size * sizeof(struct three *));
-    size_t point_counter = 0;
-    size_t triangles_counter = 0;
-
-    get_triangles(mesh, &triangles, &triangles_counter, &triangles_size, &points, &point_counter, &points_size);
-
-
-    FILE *file;
-    if ((file = fopen(filename, "w")) == NULL) {
-        fprintf(stderr, "%s\n", strerror(errno));
-        exit(1);
-    }
-    fprintf(file, vtk0, point_counter);
-    for (size_t l = 0; l < point_counter; ++l) {
-        fprintf(file, "%lf %lf %lf\n", points[l]->x, points[l]->y, points[l]->z);
-    }
-    fprintf(file, vtk1, triangles_counter, 3 * triangles_counter);
-    for (size_t j = 0; j < triangles_counter; ++j) {
-        fprintf(file, "%ld %ld %ld\n", triangles[j]->points[0], triangles[j]->points[1], triangles[j]->points[2]);
-    }
-
-    if (fclose(file) != 0) {
-        fprintf(stderr, "%s\n", strerror(errno));
-        exit(1);
-    }
-    for (size_t k = 0; k < triangles_counter; ++k) {
-        free(triangles[k]);
-    }
-    free(points);
-    free(triangles);
-}
-
-void
-write_border_facet(double border, int coordinate, int wall_number, FILE *file, struct point **points,
-                   size_t point_counter)
+write_border_facet(char wall_number, int coordinate, FILE *file, struct point **points, size_t point_counter)
 {
     size_t buffer[1024]; //TODO improve memory management
-    int border_points = find_border_points(border, coordinate, buffer, points, point_counter);
+    int border_points = find_border_points(wall_number, buffer, points, point_counter);
     sort_points(border_points - 2, buffer, coordinate == 0 ? 1 : 0, points);
     fprintf(file, "\n%d", border_points);
     fflush(file);
@@ -276,12 +247,14 @@ get_triangles(struct mesh *mesh, struct three ***triangles, size_t *triangles_co
 }
 
 int
-find_border_points(double border, int coordinate, size_t *buffer, struct point **points, size_t points_counter)
+find_border_points(char border, size_t *buffer, struct point **points, size_t points_counter)
 {
     int points_found = 0;
 
     for (size_t i = 0; i < points_counter; ++i) {
-        if (equals((coordinate == 0 ? points[i]->x : points[i]->y), border)) {
+        char and = points[i]->border & (char)(1 << border);
+        if (and > 0) {
+//        if (equals((coordinate == 0 ? points[i]->x : points[i]->y), border)) {
             buffer[points_found++] = i;
         }
     }
@@ -293,7 +266,7 @@ size_t
 get_point_index(struct point *point, struct point ***points, size_t *points_counter, size_t *points_size)
 {
     for (size_t i = 0; i < *points_counter; ++i) {
-        if (point->x == (*points)[i]->x && point->y == (*points)[i]->y) {
+        if (point_equals(point, (*points)[i])) {
             return i;
         }
     }

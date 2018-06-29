@@ -1,17 +1,35 @@
 #include "triangle.h"
 #include "utils.h"
+#include "libmgrs/utm.h"
 
 #include <math.h>
+#include <stdio.h>
 
 void
-init_triangle(struct triangle *triangle, double a_x, double a_y, //TODO: Change the way of keeping points in memory
-              double b_x, double b_y, double c_x,
-              double c_y, struct map *map)
+init_triangle(double a_x, double a_y, double b_x, double b_y, double c_x, double c_y, struct triangle *triangle,
+              struct map *map, bool use_height)
 {
     init_point(&(triangle->vertices[0]), a_x, a_y, map);
     init_point(&(triangle->vertices[1]), b_x, b_y, map);
     init_point(&(triangle->vertices[2]), c_x, c_y, map);
-    fix_longest(triangle, 0);
+    fix_longest(triangle, use_height);
+}
+
+
+void
+convert_triangle_to_UTM(struct triangle * triangle) {
+    char hemisphere;
+    long zone;
+    double x, y;
+    for (int i = 0; i < 3; ++i) {
+        if (Convert_Geodetic_To_UTM(d2r(triangle->vertices[i].y), d2r(triangle->vertices[i].x),
+                                    &zone, &hemisphere, &x, &y)) {
+            fprintf(stderr, "Error during conversion.\n");
+            exit(13);
+        }
+        triangle->vertices[i].x = x;
+        triangle->vertices[i].y = y;
+    }
 }
 
 void
@@ -101,7 +119,7 @@ short choose_longest(double ab, double bc, double ac, const struct triangle *tri
 double
 get_area(const struct point *a, const struct point *b, const struct point *c)
 {
-    return 0.5 * ((b->x - a->x) * (c->y - a->y) - (b->y - a->y) * (c->x - a->x));
+    return 0.5 * fabs((b->x - a->x) * (c->y - a->y) - (b->y - a->y) * (c->x - a->x));
 }
 
 void
@@ -113,21 +131,9 @@ compute_barycentric_coords(double *barycentric_coords, struct point *point, cons
 }
 
 bool
-is_inside_triangle(double x, double y, const struct triangle *triangle)
+is_inside_triangle(double barycentric_coords[])
 {
-    double x1 = triangle->vertices[0].x;
-    double y1 = triangle->vertices[0].y;
-    double x2 = triangle->vertices[1].x;
-    double y2 = triangle->vertices[1].y;
-    double x3 = triangle->vertices[2].x;
-    double y3 = triangle->vertices[2].y;
-
-    double denominator = ((y2 - y3)*(x1 - x3) + (x3 - x2)*(y1 - y3)); //TODO: can be moved out as it is constant for a triangle
-    double a = ((y2 - y3)*(x - x3) + (x3 - x2)*(y - y3)) / denominator;
-    double b = ((y3 - y1)*(x - x3) + (x1 - x3)*(y - y3)) / denominator;
-    double c = 1 - a - b;
-
-    return -EPSILON <= a && a <= 1 + EPSILON && -EPSILON <= b && b <= 1 + EPSILON && -EPSILON <= c && c <= 1 + EPSILON;
+    return !is_greater(barycentric_coords[0] + barycentric_coords[1] + barycentric_coords[2], 1.);
 }
 
 double
@@ -177,6 +183,7 @@ get_longest_edge_midsection(struct point *destination,
     b = &(triangle->vertices[(triangle->longest + 1) % 3]);
     destination->x = (a->x + b->x) / 2;
     destination->y = (a->y + b->y) / 2;
+    destination->border = a->border & b->border;
 }
 
 struct point *

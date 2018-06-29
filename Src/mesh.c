@@ -3,14 +3,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 
 #include "refinement.h"
 #include "triangle.h"
+#include "input.h"
+#include "utils.h"
 
 #define NDEBUG
 
 struct mesh *
-generate_mesh(struct map *map, size_t requested_size)
+generate_mesh(struct map *map, size_t requested_size, bool use_height)
 {
     struct triangle *triangles =
             (struct triangle *)malloc(INITIAL_MESH_SIZE * sizeof(struct triangle));
@@ -19,12 +22,12 @@ generate_mesh(struct map *map, size_t requested_size)
     mesh->size = INITIAL_MESH_SIZE;
     mesh->counter = 0;
     mesh->map = map;
-    prepare_mesh(requested_size, mesh);
+    prepare_mesh(requested_size, mesh, use_height);
     return mesh;
 }
 
 void
-prepare_mesh(size_t requested_size, struct mesh *mesh)
+prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height)
 {
     double cell_width;
     double cell_length;
@@ -53,28 +56,37 @@ prepare_mesh(size_t requested_size, struct mesh *mesh)
 
     for (size_t i = 0; i < rows; ++i) {
         for (size_t j = 0; j < columns; ++j) {
-            generate_first_triangles((int) (i * columns + j), cell_length, cell_width, columns, rows, mesh);
+            generate_first_triangles((int) (i * columns + j), cell_length, cell_width, columns, rows, mesh, use_height);
         }
     }
 }
 
+/*  ___
+ * |2 /|
+ * | / |
+ * |/ 1|
+ *  ———
+ */
 void
 generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
-                         struct mesh *mesh)
+                         struct mesh *mesh, bool use_height)
 {
     size_t square_row = square_no / cols;
     size_t square_col = square_no % cols;
-    double first_data_row = square_row * cell_length;
-    double first_data_col = square_col * cell_width;
+    cell_length = cell_length / VALUES_IN_DEGREE;
+    cell_width = cell_width / VALUES_IN_DEGREE;
+    double first_data_row = mesh->map->north_border - square_row * cell_length;
+    double first_data_col = mesh->map->west_border + square_col * cell_width;
 
     struct triangle *first = get_new_triangle(mesh);
     int first_index = first->index;
-    init_triangle(first, first_data_col, first_data_row + cell_length, first_data_col + cell_width,
-                  first_data_row + cell_length, first_data_col + cell_width, first_data_row,
-                  mesh->map);
+    init_triangle(first_data_col, first_data_row - cell_length,
+                  first_data_col + cell_width, first_data_row - cell_length,
+                  first_data_col + cell_width, first_data_row, first, mesh->map, use_height);
     struct triangle *second = get_new_triangle(mesh);
-    init_triangle(second, first_data_col + cell_width, first_data_row, first_data_col, first_data_row,
-                  first_data_col, first_data_row + cell_length, mesh->map);
+    init_triangle(first_data_col + cell_width, first_data_row,
+                  first_data_col, first_data_row,
+                  first_data_col, first_data_row - cell_length, second, mesh->map, use_height);
 
     first = get_triangle(first_index, mesh->triangles);
     first->neighbours[2] = second->index;
@@ -83,6 +95,42 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
     second->neighbours[2] = first->index;
     second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
     second->neighbours[0] = square_row  == 0 ? -1 : (int)(square_no - cols) * 2;
+
+    mark_border_points(first, second, square_col, square_row, cols, rows);
+}
+
+void
+mark_border_points(struct triangle *first_triangle, struct triangle *second_triangle, size_t square_col,
+                   size_t square_row, size_t total_cols, size_t total_rows)
+{
+    if (square_row == total_rows - 1) { //south
+        first_triangle->vertices[0].border |= (1 << 2);
+        first_triangle->vertices[1].border |= (1 << 2);
+        second_triangle->vertices[2].border |= (1 << 2);
+    }
+    if (square_col == total_cols - 1) { //east
+        first_triangle->vertices[1].border |= (1 << 3);
+        first_triangle->vertices[2].border |= (1 << 3);
+        second_triangle->vertices[0].border |= (1 << 3);
+    }
+    if (square_row == 0) { //north
+        first_triangle->vertices[2].border |= (1 << 4);
+        second_triangle->vertices[0].border |= (1 << 4);
+        second_triangle->vertices[1].border |= (1 << 4);
+    }
+    if (square_col == 0) { //west
+        first_triangle->vertices[0].border |= (1 << 5);
+        second_triangle->vertices[1].border |= (1 << 5);
+        second_triangle->vertices[2].border |= (1 << 5);
+    }
+}
+
+void
+convert_mesh_to_UTM(struct mesh *mesh)
+{
+    for (int i = 0; i < mesh->counter; ++i) {
+        convert_triangle_to_UTM(&(mesh->triangles[i]));
+    }
 }
 
 void

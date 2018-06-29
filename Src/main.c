@@ -10,23 +10,24 @@ int
 main(int argc, char **argv)
 {
     //default arguments
-    double tolerance = 1;
-    size_t requested_size = 999999;
-    char *output_filename = "out/result_big3";
-    char *input_filename = "Examples/test1.asc";
+    double tolerance = 0.1;
+    size_t requested_size = 6000000;
+    char *output_filename = "out/a4";
+    char *input_filename = "Examples/test2.asc";
     bool read_from_ASC = false;
-    double west_border = 19.7;
-    double north_border = 50.3;
+    double west_border = 19.80;
+    double north_border = 49.3;
     double east_border = 19.99;
-    double south_border = 50.01;
+    double south_border = 49.10;
     char *map_dir = "Data";
     bool use_inp = false;
-    bool utm = true;
+    bool utm = false;
     bool use_height = false;
+    bool pre_utm = true;
 
     //argument parsing
     int argument;
-    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pgh")) != -1)
+    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pcgh")) != -1)
         switch (argument)
         {
             case 't':
@@ -68,11 +69,15 @@ main(int argc, char **argv)
             case 'g':
                 utm = false;
                 break;
+            case 'c':
+                pre_utm = true;
+                utm = false;
+                break;
             case 'h':
                 use_height = true;
                 break;
             case '?':
-                if (optopt == 't' || optopt == 's')
+                if (optopt == 't' || optopt == 'z')
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
                 else if (isprint (optopt))
                     fprintf(stderr, "Unknown option `-%c'.\n"
@@ -100,8 +105,14 @@ main(int argc, char **argv)
         map = read_map(west_border, north_border, east_border, south_border, map_dir);
     }
 
+//    print_map(map);
+
     //Actual algorithm
-    struct mesh* mesh = generate_mesh(map, requested_size);
+    struct mesh* mesh = generate_mesh(map, requested_size, use_height);
+
+    if (pre_utm) {
+        convert_mesh_to_UTM(mesh);
+    }
 
     refine_new_mesh(mesh, tolerance, use_height);
 
@@ -111,7 +122,7 @@ main(int argc, char **argv)
     if (use_inp) {
         save_to_inp(mesh, strcat(buffer, ".inp"), utm);
     } else {
-        save_to_smesh(mesh, strcat(buffer, ".smesh"), utm);
+        save_to_smesh(mesh, strcat(buffer, ".smesh"), pre_utm, utm);
     }
 
     //cleaning memory

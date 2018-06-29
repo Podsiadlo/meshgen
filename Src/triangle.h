@@ -14,9 +14,11 @@ struct triangle {
 };
 
 void
-init_triangle(struct triangle *triangle, double a_x, double a_y,
-              double b_x, double b_y, double c_x,
-              double c_y, struct map *map);
+init_triangle(double a_x, double a_y, double b_x, double b_y, double c_x, double c_y, struct triangle *triangle,
+              struct map *map, bool use_height);
+
+void
+convert_triangle_to_UTM(struct triangle * triangle);
 
 void
 fix_longest(struct triangle *triangle, bool use_height);
@@ -31,7 +33,7 @@ void
 compute_barycentric_coords(double *barycentric_coords, struct point *point, const struct triangle *triangle);
 
 bool
-is_inside_triangle(double x, double y, const struct triangle *triangle);
+is_inside_triangle(double barycentric_coords[]);
 
 double
 get_height_mean(const struct triangle *triangle);

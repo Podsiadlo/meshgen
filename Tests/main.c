@@ -25,9 +25,9 @@ START_TEST(test_refine_new_mesh)
 
     // Generate the initial mesh
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
-    struct mesh *local_mesh = generate_mesh(map, 5);
+    struct mesh *local_mesh = generate_mesh(map, 5, 0);
 
-    refine_new_mesh(local_mesh, 99, false);
+    refine_new_mesh(local_mesh, 0.1, false);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 
@@ -49,7 +49,7 @@ START_TEST(test_refine)
 
     // Generate the initial mesh
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
-    struct mesh *local_mesh = generate_mesh(map, 5);
+    struct mesh *local_mesh = generate_mesh(map, 5, 0);
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 
@@ -91,7 +91,13 @@ START_TEST(test_is_inside_triangle)
         int points_inside = 0;
         for (double i = 0; i <= floor(upper_boundary); i+= step) {
             for (double j = 0; j <= floor(upper_boundary); j+= step) {
-                points_inside += is_inside_triangle(i, j, triangle) ? lower_boundary : 0;
+                double coords[3];
+                struct point *point = malloc(sizeof(struct point));
+                point->x = i;
+                point->y = j;
+                compute_barycentric_coords(coords, point,triangle);
+                points_inside += is_inside_triangle(coords) ? 1 : 0;
+                free(point);
             }
         }
 

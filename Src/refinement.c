@@ -37,14 +37,14 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    for (int i = (int) floor(lowest_x); i < ceil(highest_x); ++i) {
-        for (int j = (int) floor(lowest_y); j < ceil(highest_y); ++j) {
-            if (is_inside_triangle(i, j, triangle)) {
-                struct point *tmp = (struct point *) malloc(sizeof(struct point));
-                tmp->x=i;
-                tmp->y=j;
-                double barycentric_point[3];
-                compute_barycentric_coords(barycentric_point, tmp, triangle);
+    for (int i = (int) floor(lowest_x); i < ceil(highest_x); i+=90) { //TODO: in geodetic coords it won't work
+        for (int j = (int) floor(lowest_y); j < ceil(highest_y); j+=90) {
+            struct point *tmp = (struct point *) malloc(sizeof(struct point));
+            tmp->x=i;
+            tmp->y=j;
+            double barycentric_point[3];
+            compute_barycentric_coords(barycentric_point, tmp, triangle);
+            if (is_inside_triangle(barycentric_point)) {
                 double height = 0;
                 for (int k = 0; k < 2; ++k) {
                     height += barycentric_point[k] * triangle->vertices[k].z;
@@ -53,6 +53,7 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
                     return true;
                 }
             }
+            free(tmp);
         }
     }
     return false;
@@ -101,10 +102,27 @@ refine(struct triangle *triangle, struct mesh *mesh, bool use_height)
 bool
 is_final_step(struct triangle *triangle, struct mesh *mesh)
 {
+//    if(is_too_small(triangle)) {
+//        return true;
+//    }
     int next_triangle = get_longest_edge_triangle_index(triangle);
     return next_triangle == -1 ||
             get_longest_edge_triangle_index(get_triangle(next_triangle, mesh->triangles)) ==
         triangle->index;
+}
+
+bool
+is_too_small(struct triangle *triangle) //TODO: Check if it works
+{
+    if (fabs(get_1st_longest_edge_vertex(triangle)->x -
+             get_2nd_longest_edge_vertex(triangle)->x) <= 1 &&
+        fabs(get_1st_longest_edge_vertex(triangle)->y -
+             get_2nd_longest_edge_vertex(triangle)->y) <= 1) {
+
+        return true;
+    }
+
+    return false;
 }
 
 bool
@@ -133,10 +151,12 @@ split_border(struct triangle *triangle, struct mesh *mesh, bool use_height)
     // Create new triangle
     new_triangle = get_new_triangle(mesh);
     triangle = get_triangle(triangle_index, mesh->triangles);
-    init_triangle(new_triangle, get_opposite_vertex(triangle)->x,
-                  get_opposite_vertex(triangle)->y,
+    init_triangle(get_opposite_vertex(triangle)->x, get_opposite_vertex(triangle)->y,
                   get_1st_longest_edge_vertex(triangle)->x, get_1st_longest_edge_vertex(triangle)->y,
-                  center.x, center.y, mesh->map);
+                  center.x, center.y, new_triangle, mesh->map, use_height);
+    new_triangle->vertices[0].border = get_opposite_vertex(triangle)->border;
+    new_triangle->vertices[1].border = get_1st_longest_edge_vertex(triangle)->border;
+    new_triangle->vertices[1].border = center.border;
     new_triangle->neighbours[0] = get_2nd_shorter_edge_triangle_index(triangle);
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
@@ -146,6 +166,7 @@ split_border(struct triangle *triangle, struct mesh *mesh, bool use_height)
     get_1st_longest_edge_vertex(triangle)->x = center.x;
     get_1st_longest_edge_vertex(triangle)->y = center.y;
     get_1st_longest_edge_vertex(triangle)->z = get_height(center.x, center.y, mesh->map);
+    get_1st_longest_edge_vertex(triangle)->border = center.border;
     triangle->neighbours[(longest + 2) % 3] = new_triangle->index;
     fix_longest(triangle, use_height);
 
@@ -203,22 +224,32 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2, struct mesh 
             get_triangle(get_1st_shorter_edge_triangle_index(triangles[2]), mesh->triangles);
     outside_borders[2] = (triangles[2]->longest + 1) % 3;
 
-    init_triangle(triangles[1], points[1]->x, points[1]->y, points[2]->x,
-                  points[2]->y, center.x, center.y, mesh->map);
+    init_triangle(points[1]->x, points[1]->y,
+                  points[2]->x, points[2]->y,
+                  center.x, center.y, triangles[1], mesh->map, use_height);
+    triangles[1]->vertices[0].border = points[1]->border;
+    triangles[1]->vertices[1].border = points[2]->border;
+    triangles[1]->vertices[2].border = center.border;
     outside_borders[1] = 0;
-    init_triangle(triangles[3], points[3]->x, points[3]->y, points[0]->x,
-                  points[0]->y, center.x, center.y, mesh->map);
+    init_triangle(points[3]->x, points[3]->y,
+                  points[0]->x, points[0]->y,
+                  center.x, center.y, triangles[3], mesh->map, use_height);
+    triangles[3]->vertices[0].border = points[3]->border;
+    triangles[3]->vertices[1].border = points[0]->border;
+    triangles[3]->vertices[2].border = center.border;
     outside_borders[3] = 0;
 
     // Modify input triangles
     points[0]->x = center.x;
     points[0]->y = center.y;
     points[0]->z = center.z;
+    points[0]->border = center.border;
     //    points[0] = &(triangles[3]->vertices[1]); //useless, but I'm leaving it to
     //    indicate that they need to be set before using points[0] again
     points[2]->x = center.x;
     points[2]->y = center.y;
     points[2]->z = center.z;
+    points[2]->border = center.border;
     //    points[2] = &(triangles[1]->vertices[1]);
 
     // Set neighbours

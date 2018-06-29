@@ -14,17 +14,24 @@ struct mesh {
 };
 
 struct mesh *
-generate_mesh(struct map *map, size_t requested_size);
+generate_mesh(struct map *map, size_t requested_size, bool use_height);
 
 void
-prepare_mesh(size_t requested_size, struct mesh *mesh);
+prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height);
 
 void
 refine_new_mesh(struct mesh *mesh, double tolerance, bool use_height);
 
 void
 generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,
-                         struct mesh *mesh);
+                         struct mesh *mesh, bool use_height);
+
+void
+mark_border_points(struct triangle *first_triangle, struct triangle *second_triangle, size_t square_col,
+                   size_t square_row, size_t total_cols, size_t total_rows);
+
+void
+convert_mesh_to_UTM(struct mesh *mesh);
 
 struct triangle *
 get_new_triangle(struct mesh *mesh);
