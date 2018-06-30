@@ -37,8 +37,8 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    for (int i = (int) floor(lowest_x); i < ceil(highest_x); i+=1) {
-        for (int j = (int) floor(lowest_y); j < ceil(highest_y); j+=1) {
+    for (double i = lowest_x; i <= highest_x; i+=mesh->map->cell_width) {
+        for (double j = lowest_y; j <= highest_y; j+=mesh->map->cell_length) {
             struct point *tmp = (struct point *) malloc(sizeof(struct point));
             tmp->x=i;
             tmp->y=j;
