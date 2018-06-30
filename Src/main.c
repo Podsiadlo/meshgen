@@ -5,76 +5,128 @@
 #include <getopt.h>
 #include <ctype.h>
 #include "string.h"
+#include "utils.h"
+
+void
+set_default_config(struct config *config);
+
+void
+parse_arguments(int argc, char **argv, struct config * config);
+
 
 int
 main(int argc, char **argv)
 {
+    struct config *config = malloc(sizeof(struct config));
     //default arguments
-    double tolerance = 0.1;
-    size_t requested_size = 6000000;
-    char *output_filename = "out/a4";
-    char *input_filename = "Examples/test2.asc";
-    bool read_from_ASC = false;
-    double west_border = 19.80;
-    double north_border = 49.3;
-    double east_border = 19.99;
-    double south_border = 49.10;
-    char *map_dir = "Data";
-    bool use_inp = false;
-    bool utm = false;
-    bool use_height = false;
-    bool pre_utm = true;
+    set_default_config(config);
 
     //argument parsing
+    parse_arguments(argc, argv, config);
+
+    //data reading
+    struct map *map;
+    if (config->read_from_ASC) {
+        map = readASC(config->input_filename);
+    } else {
+        map = read_map(config->west_border, config->north_border, config->east_border, config->south_border, config->map_dir);
+    }
+//    print_map(map);
+
+    //Actual algorithm
+    struct mesh* mesh = generate_mesh(map, config->requested_size, config->use_height);
+
+    if (config->pre_utm) {
+        convert_mesh_to_UTM(mesh);
+    }
+
+    refine_new_mesh(mesh, config->tolerance, config->use_height);
+
+    //writing results
+    char buffer[256];
+    strcpy(buffer, config->output_filename);
+    if (config->use_inp) {
+        save_to_inp(mesh, strcat(buffer, ".inp"), config->utm);
+    } else {
+        save_to_smesh(mesh, strcat(buffer, ".smesh"), config->pre_utm, config->utm);
+    }
+
+    //cleaning memory
+    free_mesh(mesh);
+    free(config);
+
+    return 0;
+}
+
+void set_default_config(struct config *config) {
+    config->tolerance = 0.1;
+    config->requested_size = 6000000;
+    config->output_filename = "out/a5";
+    config->input_filename = "Examples/test2.asc";
+    config->read_from_ASC = false;
+    config->west_border = 19.80;
+    config->north_border = 49.3;
+    config->east_border = 19.99;
+    config->south_border = 49.10;
+    config->map_dir = "Data";
+    config->use_inp = false;
+    config->utm = false;
+    config->use_height = false;
+    config->pre_utm = false;
+}
+
+void
+parse_arguments(int argc, char **argv, struct config * config)
+{
     int argument;
     while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pcgh")) != -1)
         switch (argument)
         {
             case 't':
-                tolerance = atof(optarg);
+                config->tolerance = atof(optarg);
                 break;
             case 'z':
-                requested_size = (size_t)atoi(optarg);
+                config->requested_size = (size_t)atoi(optarg);
                 break;
             case 'o':
-                output_filename = optarg;
+                config->output_filename = optarg;
                 break;
             case 'i':
-                input_filename = optarg;
-                read_from_ASC = true;
+                config->input_filename = optarg;
+                config->read_from_ASC = true;
                 break;
             case 'n':
-                north_border = atof(optarg);
-                read_from_ASC = false;
+                config->north_border = atof(optarg);
+                config->read_from_ASC = false;
                 break;
             case 's':
-                south_border = atof(optarg);
-                read_from_ASC = false;
+                config->south_border = atof(optarg);
+                config->read_from_ASC = false;
                 break;
             case 'w':
-                west_border = atof(optarg);
-                read_from_ASC = false;
+                config->west_border = atof(optarg);
+                config->read_from_ASC = false;
                 break;
             case 'e':
-                east_border = atof(optarg);
-                read_from_ASC = false;
+                config->east_border = atof(optarg);
+                config->read_from_ASC = false;
                 break;
             case 'd':
-                map_dir = optarg;
-                read_from_ASC = false;
+                config->map_dir = optarg;
+                config->read_from_ASC = false;
                 break;
             case 'p':
-                use_inp = true;
+                config->use_inp = true;
                 break;
             case 'g':
-                utm = false;
+                config->utm = false;
                 break;
             case 'c':
-                pre_utm = true;
-                utm = false;
+                config->pre_utm = true;
+                config->utm = false;
                 break;
             case 'h':
-                use_height = true;
+                config->use_height = true;
                 break;
             case '?':
                 if (optopt == 't' || optopt == 'z')
@@ -92,41 +144,8 @@ main(int argc, char **argv)
                     fprintf (stderr,
                              "Unknown option character `\\x%x'.\n",
                              optopt);
-                return 1;
+                exit(1);
             default:
-                abort ();
+                abort();
         }
-
-    //data reading
-    struct map *map;
-    if (read_from_ASC) {
-        map = readASC(input_filename);
-    } else {
-        map = read_map(west_border, north_border, east_border, south_border, map_dir);
-    }
-
-//    print_map(map);
-
-    //Actual algorithm
-    struct mesh* mesh = generate_mesh(map, requested_size, use_height);
-
-    if (pre_utm) {
-        convert_mesh_to_UTM(mesh);
-    }
-
-    refine_new_mesh(mesh, tolerance, use_height);
-
-    //writing results
-    char buffer[256];
-    strcpy(buffer, output_filename);
-    if (use_inp) {
-        save_to_inp(mesh, strcat(buffer, ".inp"), utm);
-    } else {
-        save_to_smesh(mesh, strcat(buffer, ".smesh"), pre_utm, utm);
-    }
-
-    //cleaning memory
-    free_mesh(mesh);
-
-    return 0;
 }
