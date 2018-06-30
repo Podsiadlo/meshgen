@@ -124,10 +124,10 @@ get_area(const struct point *a, const struct point *b, const struct point *c)
 
 void
 compute_barycentric_coords(double *barycentric_coords, struct point *point, const struct triangle *triangle) {
-    double area_triangle = get_area(&triangle->vertices[0], &triangle->vertices[1], &triangle->vertices[2]);
-    barycentric_coords[2] = get_area(point, &triangle->vertices[0], &triangle->vertices[1]) / area_triangle;
-    barycentric_coords[1]= get_area(point, &triangle->vertices[2], &triangle->vertices[0]) / area_triangle;
-    barycentric_coords[0] = get_area(point, &triangle->vertices[1], &triangle->vertices[2]) / area_triangle;
+    double triangle_area = get_area(&triangle->vertices[0], &triangle->vertices[1], &triangle->vertices[2]);
+    barycentric_coords[2] = get_area(point, &triangle->vertices[0], &triangle->vertices[1]) / triangle_area;
+    barycentric_coords[1]= get_area(point, &triangle->vertices[2], &triangle->vertices[0]) / triangle_area;
+    barycentric_coords[0] = get_area(point, &triangle->vertices[1], &triangle->vertices[2]) / triangle_area;
 }
 
 bool

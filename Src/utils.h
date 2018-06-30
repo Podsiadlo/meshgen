@@ -9,6 +9,23 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+struct config {
+    double tolerance;
+    size_t requested_size;
+    char *output_filename;
+    char *input_filename;
+    bool read_from_ASC;
+    double west_border;
+    double north_border;
+    double east_border;
+    double south_border;
+    char *map_dir;
+    bool use_inp;
+    bool utm;
+    bool use_height;
+    bool pre_utm;
+};
+
 bool
 is_lesser(double a, double b);
 

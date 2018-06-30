@@ -37,8 +37,8 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             triangle->vertices[0].y > triangle->vertices[1].y ? triangle->vertices[0].y : triangle->vertices[1].y;
     highest_y = triangle->vertices[2].y > highest_y ? triangle->vertices[2].y : highest_y;
 
-    for (int i = (int) floor(lowest_x); i < ceil(highest_x); i+=90) { //TODO: in geodetic coords it won't work
-        for (int j = (int) floor(lowest_y); j < ceil(highest_y); j+=90) {
+    for (int i = (int) floor(lowest_x); i < ceil(highest_x); i+=1) {
+        for (int j = (int) floor(lowest_y); j < ceil(highest_y); j+=1) {
             struct point *tmp = (struct point *) malloc(sizeof(struct point));
             tmp->x=i;
             tmp->y=j;
@@ -46,10 +46,10 @@ inside_condition(const struct triangle *triangle, double tolerance, struct mesh 
             compute_barycentric_coords(barycentric_point, tmp, triangle);
             if (is_inside_triangle(barycentric_point)) {
                 double height = 0;
-                for (int k = 0; k < 2; ++k) {
+                for (int k = 0; k < 3; ++k) {
                     height += barycentric_point[k] * triangle->vertices[k].z;
                 }
-                if (height - get_height(i, j, mesh->map) > tolerance) {
+                if (fabs(height - get_height(i, j, mesh->map)) > tolerance) {
                     return true;
                 }
             }
@@ -86,13 +86,13 @@ refine(struct triangle *triangle, struct mesh *mesh, bool use_height)
 {
     if (is_final_step(triangle, mesh)) {
 //        char buf[256];
-//        sprintf(buf, "edges_%d.inp", counter++);
+//        sprintf(buf, "Debug/edges_%d.inp", counter++);
 //        write_edges(mesh, buf);
         return split(triangle, mesh, use_height) ? 1 : 0;
     } else {
         int triangle_index = triangle->index;
         int refinements =
-                refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh, NULL);
+                refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh, use_height);
         triangle = get_triangle(triangle_index, mesh->triangles);
         refinements += split(triangle, mesh, use_height) ? 1 : 0;
         return refinements;

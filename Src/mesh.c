@@ -73,8 +73,8 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
 {
     size_t square_row = square_no / cols;
     size_t square_col = square_no % cols;
-    cell_length = cell_length / VALUES_IN_DEGREE;
-    cell_width = cell_width / VALUES_IN_DEGREE;
+    cell_length = cell_length * mesh->map->cell_length;
+    cell_width = cell_width * mesh->map->cell_width;
     double first_data_row = mesh->map->north_border - square_row * cell_length;
     double first_data_col = mesh->map->west_border + square_col * cell_width;
 

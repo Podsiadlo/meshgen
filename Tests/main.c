@@ -25,9 +25,11 @@ START_TEST(test_refine_new_mesh)
 
     // Generate the initial mesh
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
+    map->north_border = 4;
+    map->west_border = 0;
     struct mesh *local_mesh = generate_mesh(map, 5, 0);
 
-    refine_new_mesh(local_mesh, 0.1, false);
+    refine_new_mesh(local_mesh, 99, false);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 
@@ -49,6 +51,8 @@ START_TEST(test_refine)
 
     // Generate the initial mesh
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
+    map->north_border = 4;
+    map->west_border = 0;
     struct mesh *local_mesh = generate_mesh(map, 5, 0);
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
@@ -79,6 +83,8 @@ START_TEST(test_is_inside_triangle)
         double step = 1;
         int lower_boundary = 1;
         double upper_boundary = 6.5;
+        double coords[3];
+        struct point *point;
         struct triangle * triangle = (struct triangle *)malloc(sizeof(struct triangle));
 
         triangle->vertices[0].x = lower_boundary;
@@ -88,11 +94,52 @@ START_TEST(test_is_inside_triangle)
         triangle->vertices[2].x = upper_boundary;
         triangle->vertices[2].y = lower_boundary;
 
+        point = malloc(sizeof(struct point));
+        point->x = 0;
+        point->y = 2;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(!is_inside_triangle(coords));
+
+        point = malloc(sizeof(struct point));
+        point->x = 2;
+        point->y = 0;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(!is_inside_triangle(coords));
+
+        point = malloc(sizeof(struct point));
+        point->x = 7;
+        point->y = 3;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(!is_inside_triangle(coords));
+
+        point = malloc(sizeof(struct point));
+        point->x = 6;
+        point->y = 3;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(is_inside_triangle(coords));
+
+        point = malloc(sizeof(struct point));
+        point->x = 6.5;
+        point->y = 5;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(is_inside_triangle(coords));
+
+        point = malloc(sizeof(struct point));
+        point->x = 6.5;
+        point->y = 6.5;
+        compute_barycentric_coords(coords, point,triangle);
+        free(point);
+        ck_assert(is_inside_triangle(coords));
+
         int points_inside = 0;
         for (double i = 0; i <= floor(upper_boundary); i+= step) {
             for (double j = 0; j <= floor(upper_boundary); j+= step) {
-                double coords[3];
-                struct point *point = malloc(sizeof(struct point));
+                point = malloc(sizeof(struct point));
                 point->x = i;
                 point->y = j;
                 compute_barycentric_coords(coords, point,triangle);
@@ -120,23 +167,25 @@ START_TEST(test_get_height)
         }
     }
     struct map * map = init_map((const double **) map_data, 5, 5, 1, 1);
+    map->north_border = 4;
+    map->west_border = 0;
     //0 0 10 10 20
     //0 0 10 10 20
     //0 0 20 20 40
     //0 0 20 20 40
     //0 0 30 30 60
     ck_assert_double_eq_tol(get_height(0, 0, map), 0, 0.00001);
-    ck_assert_double_eq_tol(get_height(4, 4, map), 60, 0.00001);
+    ck_assert_double_eq_tol(get_height(4, 4, map), 20, 0.00001);
     ck_assert_double_eq_tol(get_height(1, 0.5, map), 0, 0.00001);
     ck_assert_double_eq_tol(get_height(0.5, 4, map), 0, 0.00001);
     ck_assert_double_eq_tol(get_height(0.5, 3.5, map), 0, 0.00001);
     ck_assert_double_eq_tol(get_height(2, 2, map), 20, 0.00001);
-    ck_assert_double_eq_tol(get_height(2.25, 2.75, map), 20, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 0, map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 0.5, map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(2.5, 1.5, map), 15, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.5, 1.5, map), 22.5, 0.00001);
-    ck_assert_double_eq_tol(get_height(3.25, 3.25, map), 28.125, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.25, 2.75, map), 12.5, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0, map), 45, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 0.5, map), 37.5, 0.00001);
+    ck_assert_double_eq_tol(get_height(2.5, 1.5, map), 20, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.5, 1.5, map), 30, 0.00001);
+    ck_assert_double_eq_tol(get_height(3.25, 3.25, map), 12.5, 0.00001);
 
     free_map(map);
 }

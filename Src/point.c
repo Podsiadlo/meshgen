@@ -66,12 +66,12 @@ get_height_wo_interpol(double lon, double lat, int corner, const struct map *map
     }
 
     int y, x;
-    if (fun1((lat - map->north_border) / map->cell_length) > map->length - 1) {
+    if (fun1((map->north_border - lat) / map->cell_length) > map->length - 1) {
         y = (int) (map->length - 1);
-    } else if (fun1((lat - map->north_border) / map->cell_length) < 0) {
+    } else if (fun1((map->north_border - lat) / map->cell_length) < 0) {
         y = 0;
     } else {
-        y = (int) fun1((lat - map->north_border) / map->cell_length);
+        y = (int) fun1((map->north_border - lat) / map->cell_length);
     }
     if (fun2((lon - map->west_border) / map->cell_width) > map->width - 1) {
         x = (int) (map->width - 1);
