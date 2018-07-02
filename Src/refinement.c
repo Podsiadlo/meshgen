@@ -156,7 +156,7 @@ split_border(struct triangle *triangle, struct mesh *mesh, bool use_height)
                   center.x, center.y, new_triangle, mesh->map, use_height);
     new_triangle->vertices[0].border = get_opposite_vertex(triangle)->border;
     new_triangle->vertices[1].border = get_1st_longest_edge_vertex(triangle)->border;
-    new_triangle->vertices[1].border = center.border;
+    new_triangle->vertices[2].border = center.border;
     new_triangle->neighbours[0] = get_2nd_shorter_edge_triangle_index(triangle);
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
