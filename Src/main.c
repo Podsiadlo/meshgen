@@ -17,11 +17,9 @@ parse_arguments(int argc, char **argv, struct config * config);
 int
 main(int argc, char **argv)
 {
-    struct config *config = malloc(sizeof(struct config));
-    //default arguments
-    set_default_config(config);
-
     //argument parsing
+    struct config *config = malloc(sizeof(struct config));
+    set_default_config(config);
     parse_arguments(argc, argv, config);
 
     //data reading
@@ -35,20 +33,18 @@ main(int argc, char **argv)
 
     //Actual algorithm
     struct mesh* mesh = generate_mesh(map, config->requested_size, config->use_height);
-
     if (config->pre_utm) {
         convert_mesh_to_UTM(mesh);
     }
-
     refine_new_mesh(mesh, config->tolerance, config->use_height);
 
     //writing results
     char buffer[256];
     strcpy(buffer, config->output_filename);
     if (config->use_inp) {
-        save_to_inp(mesh, strcat(buffer, ".inp"), config->utm);
+        save_to_inp(mesh, strcat(buffer, ".inp"), config->post_utm);
     } else {
-        save_to_smesh(mesh, strcat(buffer, ".smesh"), config->pre_utm, config->utm);
+        save_to_smesh(mesh, strcat(buffer, ".smesh"), config->pre_utm, config->post_utm);
     }
 
     //cleaning memory
@@ -70,7 +66,7 @@ void set_default_config(struct config *config) {
     config->south_border = 49.10;
     config->map_dir = "Data";
     config->use_inp = false;
-    config->utm = false;
+    config->post_utm = false;
     config->use_height = false;
     config->pre_utm = false;
 }
@@ -119,11 +115,11 @@ parse_arguments(int argc, char **argv, struct config * config)
                 config->use_inp = true;
                 break;
             case 'g':
-                config->utm = false;
+                config->post_utm = false;
                 break;
             case 'c':
                 config->pre_utm = true;
-                config->utm = false;
+                config->post_utm = false;
                 break;
             case 'h':
                 config->use_height = true;

@@ -16,6 +16,20 @@ void
 save_to_smesh(struct mesh *mesh, char *filename, bool pre_utm, bool utm);
 
 void
+print_points(bool convert_to_utm, const char *point_template, struct point *const *points, size_t point_counter,
+             FILE *file);
+
+void
+output_cleanup(struct point **points, struct three **triangles, size_t triangles_counter, FILE *file);
+
+void
+convert_if_required(struct point *point, bool convert_to_utm);
+
+struct point *
+generate_surface(struct map *map, bool pre_utm, double height, struct point ***points, size_t *point_counter,
+                 size_t *points_size);
+
+void
 save_to_dtm(struct mesh *mesh, char *filename);
 
 void

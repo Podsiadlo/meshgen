@@ -21,7 +21,7 @@ struct config {
     double south_border;
     char *map_dir;
     bool use_inp;
-    bool utm;
+    bool post_utm;
     bool use_height;
     bool pre_utm;
 };

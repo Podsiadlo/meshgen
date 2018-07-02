@@ -112,7 +112,7 @@ is_final_step(struct triangle *triangle, struct mesh *mesh)
 }
 
 bool
-is_too_small(struct triangle *triangle) //TODO: Check if it works
+is_too_small(struct triangle *triangle) //TODO: Check how it works
 {
     if (fabs(get_1st_longest_edge_vertex(triangle)->x -
              get_2nd_longest_edge_vertex(triangle)->x) <= 1 &&

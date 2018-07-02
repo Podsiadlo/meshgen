@@ -18,7 +18,6 @@ double
 get_height(double lon, double lat, struct map *map)
 {
     //using bilinear interpolation
-//    double divisor = 1.00 * 1.00;
     double top_left = get_height_wo_interpol(lon, lat, 1, map);
     double top_right = get_height_wo_interpol(lon, lat, 2, map);
     double bottom_right = get_height_wo_interpol(lon, lat, 3, map);
@@ -30,15 +29,15 @@ get_height(double lon, double lat, struct map *map)
             floor(fabs(lat - map->north_border) / map->cell_length );
 
     double height = 0.;
-    height += top_left * (1 - x_fract) * (1 - y_fract) /*/ divisor*/;
-    height += top_right * x_fract * (1 - y_fract) /*/ divisor*/;
-    height += bottom_right * x_fract * y_fract /*/ divisor*/;
-    height += bottom_left * (1 - x_fract) * y_fract /*/ divisor*/;
+    height += top_left * (1 - x_fract) * (1 - y_fract);
+    height += top_right * x_fract * (1 - y_fract);
+    height += bottom_right * x_fract * y_fract;
+    height += bottom_left * (1 - x_fract) * y_fract;
 
     return height;
 }
 
-//corner: 1 - top_left, 2 - top_right, 3 - bottom_right, 4 - bootom_left
+//corner: 1 - top_left, 2 - top_right, 3 - bottom_right, 4 - bottom_left
 double
 get_height_wo_interpol(double lon, double lat, int corner, const struct map *map)
 {
