@@ -55,10 +55,10 @@ main(int argc, char **argv)
 }
 
 void set_default_config(struct config *config) {
-    config->tolerance = 0.1;
-    config->requested_size = 6000000;
-    config->output_filename = "out/a5";
-    config->input_filename = "Examples/test2.asc";
+    config->tolerance = 100;
+    config->requested_size = 1000;
+    config->output_filename = "out/tatra_tol100";
+    config->input_filename = "Examples/test1.asc";
     config->read_from_ASC = false;
     config->west_border = 19.80;
     config->north_border = 49.3;
@@ -66,7 +66,7 @@ void set_default_config(struct config *config) {
     config->south_border = 49.10;
     config->map_dir = "Data";
     config->use_inp = false;
-    config->post_utm = false;
+    config->post_utm = true;
     config->use_height = false;
     config->pre_utm = false;
 }

@@ -11,7 +11,8 @@
 #define NDEBUG
 
 void
-save_to_inp(struct mesh *mesh, char *filename, bool utm) {
+save_to_inp(struct mesh *mesh, char *filename, bool utm)
+{
     char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
     char *point = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
     char *triangle = "\n%d %d tri %d %d %d"; //<triangle_id>  <material> tri <vertex_id> <vertex_id> <vertex_id>
@@ -42,8 +43,9 @@ save_to_inp(struct mesh *mesh, char *filename, bool utm) {
 }
 
 void
-save_to_smesh(struct mesh *mesh, char *filename, bool pre_utm, bool utm) {
-    double height = 2000;
+save_to_smesh(struct mesh *mesh, char *filename, bool pre_utm, bool utm)
+{
+    double height = 3000;
 
     char *point_preambule = "%d 3 0 0"; //<number_of_points> <dimensions> <#_of_attributes> <boundary_markers>
     char *facet_preambule = "\n%d 1"; //<number_of_facets> <boundary_markers>
@@ -132,7 +134,8 @@ generate_surface(struct map *map, bool pre_utm, double height,
     return surface;
 }
 
-void output_cleanup(struct point **points, struct three **triangles, size_t triangles_counter, FILE *file) {
+void output_cleanup(struct point **points, struct three **triangles, size_t triangles_counter, FILE *file)
+{
     if (fclose(file) != 0) {
         fprintf(stderr, "%s\n", strerror(errno));
         exit(1);
@@ -155,7 +158,9 @@ print_points(bool convert_to_utm, const char *point_template, struct point *cons
     }
 }
 
-void convert_if_required(struct point *point, bool convert_to_utm) {
+void
+convert_if_required(struct point *point, bool convert_to_utm)
+{
     if (convert_to_utm) {
         double x, y;
         char hemisphere;
@@ -283,7 +288,8 @@ get_new_point_index(struct point *point, struct point ***points, size_t *points_
 
 
 void
-print_mesh(struct mesh *mesh) {
+print_mesh(struct mesh *mesh)
+{
     printf("MESH:\n");
     for (size_t i = 0; i < mesh->counter; ++i) {
 #ifndef NDEBUG
@@ -321,8 +327,9 @@ write_edges(struct mesh *mesh, const char *filename)
         struct triangle triangle = mesh->triangles[triIdx];
         int longestEdgeIdx = triangle.longest;
         for (int edgeIdx = 0; edgeIdx < 3; ++edgeIdx) {
-            fprintf(f, "%d %d line %d %d\n",  edgeIdx + (triIdx*3), triangle.vertices[longestEdgeIdx].border & triangle.vertices[(longestEdgeIdx + 1) % 3].border, edgeIdx + (triIdx*3), ((edgeIdx + 1)%3) + (triIdx*3) );
-//            fprintf(f, "%d %d line %d %d\n",  edgeIdx + (triIdx*3), edgeIdx == longestEdgeIdx ? 0 : 1, edgeIdx + (triIdx*3), ((edgeIdx + 1)%3) + (triIdx*3) );
+//            char border = triangle.vertices[edgeIdx].border & triangle.vertices[(edgeIdx + 1) % 3].border;
+//            fprintf(f, "%d %d line %d %d\n", edgeIdx + (triIdx * 3), border, edgeIdx + (triIdx * 3), ((edgeIdx + 1) % 3) + (triIdx * 3) );
+            fprintf(f, "%d %d line %d %d\n",  edgeIdx + (triIdx*3), edgeIdx == longestEdgeIdx ? 0 : 1, edgeIdx + (triIdx*3), ((edgeIdx + 1)%3) + (triIdx*3) );
         }
     }
 
