@@ -9,14 +9,18 @@ static const unsigned short PIXEL_SIZE = 2;
 
 struct map *
 read_map(const double west_border, const double north_border, const double east_border,
-         const double south_border, char *map_dir);
+         const double south_border, const char *map_dir);
+
+void
+read_from_multiple_files(const double west_border, const double north_border, const double east_border,
+                         const double south_border, const char *map_dir, double **map_data);
+
+void
+read_from_file(int north_border_int, int west_border_int, size_t rows, size_t cols, int first_row, int first_col,
+               double **map_data, const char *map_dir);
 
 void
 skip_outliers(double *const *map_data, size_t length, size_t width);
-
-void
-read_map2(double **map_data, const char *map_dir, int west_border_int, int north_border_int, size_t cols,
-          size_t rows);
 
 void
 get_filename(char *filename, const char *map_dir, int west_border_int,

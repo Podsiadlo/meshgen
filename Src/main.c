@@ -55,15 +55,15 @@ main(int argc, char **argv)
 }
 
 void set_default_config(struct config *config) {
-    config->tolerance = 100;
+    config->tolerance = 5;
     config->requested_size = 1000;
-    config->output_filename = "out/tatra_tol100";
+    config->output_filename = "out/krakow_tol5";
     config->input_filename = "Examples/test1.asc";
     config->read_from_ASC = false;
-    config->west_border = 19.80;
-    config->north_border = 49.3;
-    config->east_border = 19.99;
-    config->south_border = 49.10;
+    config->west_border = 19.70;
+    config->north_border = 50.2;
+    config->east_border = 20.2;
+    config->south_border = 49.9;
     config->map_dir = "Data";
     config->use_inp = false;
     config->post_utm = true;

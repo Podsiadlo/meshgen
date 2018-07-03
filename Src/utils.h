@@ -35,6 +35,12 @@ is_greater(double a, double b);
 bool
 equals(const double a, const double b);
 
+double
+floor2(double a);
+
+double
+ceil2(double a);
+
 void
 change_bytes_order(uint16_t *var_ptr);
 

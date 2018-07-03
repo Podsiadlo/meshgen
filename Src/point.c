@@ -24,9 +24,9 @@ get_height(double lon, double lat, struct map *map)
     double bottom_left = get_height_wo_interpol(lon, lat, 4, map);;
 
     double x_fract = (lon - map->west_border) / map->cell_width -
-            floor((lon - map->west_border) / map->cell_width );
+            floor2((lon - map->west_border) / map->cell_width );
     double y_fract = fabs(lat - map->north_border) / map->cell_length -
-            floor(fabs(lat - map->north_border) / map->cell_length );
+            floor2(fabs(lat - map->north_border) / map->cell_length );
 
     double height = 0.;
     height += top_left * (1 - x_fract) * (1 - y_fract);
@@ -45,20 +45,20 @@ get_height_wo_interpol(double lon, double lat, int corner, const struct map *map
     double (*fun2)(double);
     switch (corner) {
         case 1:
-            fun1 = floor;
-            fun2 = floor;
+            fun1 = floor2;
+            fun2 = floor2;
             break;
         case 2:
-            fun1 = floor;
-            fun2 = ceil;
+            fun1 = floor2;
+            fun2 = ceil2;
             break;
         case 3:
-            fun1 = ceil;
-            fun2 = ceil;
+            fun1 = ceil2;
+            fun2 = ceil2;
             break;
         case 4:
-            fun1 = ceil;
-            fun2 = floor;
+            fun1 = ceil2;
+            fun2 = floor2;
             break;
         default:
             return MINDOUBLE;

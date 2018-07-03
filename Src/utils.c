@@ -26,6 +26,22 @@ equals(const double a, const double b)
     return fabs(a - b) < EPSILON;
 }
 
+double
+floor2(double a)
+{
+    double b = (int) a;
+    if (!(!is_greater(b, a) && is_greater(b+1, a))) {
+        ++b;
+    }
+    return b;
+}
+
+double
+ceil2(double a)
+{
+    return floor2(a) + 1;
+}
+
 
 void
 change_bytes_order(uint16_t *var_ptr)

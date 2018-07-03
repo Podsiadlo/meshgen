@@ -137,8 +137,8 @@ START_TEST(test_is_inside_triangle)
         ck_assert(is_inside_triangle(coords));
 
         int points_inside = 0;
-        for (double i = 0; i <= floor(upper_boundary); i+= step) {
-            for (double j = 0; j <= floor(upper_boundary); j+= step) {
+        for (double i = 0; i <= floor2(upper_boundary); i+= step) {
+            for (double j = 0; j <= floor2(upper_boundary); j+= step) {
                 point = malloc(sizeof(struct point));
                 point->x = i;
                 point->y = j;
@@ -148,7 +148,7 @@ START_TEST(test_is_inside_triangle)
             }
         }
 
-        double n = floor((upper_boundary) / step);
+        double n = floor2((upper_boundary) / step);
         double expected = (lower_boundary + (n - 1) / 2) * n;
 
         ck_assert_int_eq(points_inside, expected);
