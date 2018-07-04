@@ -26,4 +26,7 @@ void
 get_filename(char *filename, const char *map_dir, int west_border_int,
              int north_border_int);
 
+int
+border_to_int(const double border);
+
 #endif // MESHGEN_INPUT_H

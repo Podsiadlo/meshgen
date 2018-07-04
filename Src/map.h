@@ -2,6 +2,7 @@
 #define MESHGEN_MAP_H
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 struct map {
     size_t width;
@@ -11,6 +12,9 @@ struct map {
     const double **data;
     double north_border;
     double west_border;
+    bool utm; //TODO: Consider moving it to some better place
+    long zone;
+    char hemisphere;
 };
 
 struct map *
