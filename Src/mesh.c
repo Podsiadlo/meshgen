@@ -10,7 +10,9 @@
 #include "input.h"
 #include "utils.h"
 
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 struct mesh *
 generate_mesh(struct map *map, size_t requested_size, bool use_height)
