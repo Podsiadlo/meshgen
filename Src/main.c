@@ -7,6 +7,26 @@
 #include "string.h"
 #include "utils.h"
 
+static char *const USAGE = "OPTIONS:\n"
+                        "\t-t <tolerance>\n"
+                        "\t-s <requsted_size>\n"
+                        "\t-i <data_file>\n"
+                        "\t-o <output_file>\n"
+                        "\t-d <data_dir>\n"
+                        "\t-N <north_border>\n"
+                        "\t-S <south_border>\n"
+                        "\t-W <west_border>\n"
+                        "\t-E <east_border>\n"
+                        "\t-p (to write result into .inp file)\n"
+                        "\t-m (to write result into .smesh file)\n"
+                        "\t-g (to skip conversion to UTM)\n"
+                        "\t-u (to convert to UTM before refinement)\n"
+                        "\t-U (to convert to UTM after refinement)\n"
+                        "\t-h (to consider height of points during refinement)\n"
+                        "\t-f (to use Floater algorithm)\n"
+                        "\n"
+                        "You probably want to run it with either -p or -m.\n";
+
 void
 set_default_config(struct config *config);
 
@@ -27,7 +47,8 @@ main(int argc, char **argv)
     if (config->read_from_ASC) {
         map = readASC(config->input_filename);
     } else {
-        map = read_map(config->west_border, config->north_border, config->east_border, config->south_border, config->map_dir);
+        map = read_map(config->west_border, config->north_border, config->east_border, config->south_border,
+                config->map_dir);
     }
 //    print_map(map);
 
@@ -43,7 +64,8 @@ main(int argc, char **argv)
     strcpy(buffer, config->output_filename);
     if (config->use_inp) {
         save_to_inp(mesh, strcat(buffer, ".inp"), config->post_utm);
-    } else {
+    }
+    if (config->use_smesh) {
         save_to_smesh(mesh, strcat(buffer, ".smesh"), config->pre_utm, config->post_utm);
     }
 
@@ -55,9 +77,9 @@ main(int argc, char **argv)
 }
 
 void set_default_config(struct config *config) {
-    config->tolerance = 75;
-    config->requested_size = 1000;
-    config->output_filename = "out/d2";
+    config->tolerance = 10;
+    config->requested_size = SIZE_MAX;
+    config->output_filename = "out/d6";
     config->input_filename = "Examples/test1.asc";
     config->read_from_ASC = false;
     config->west_border = 20.26;
@@ -66,23 +88,30 @@ void set_default_config(struct config *config) {
     config->south_border = 49.44;
     config->map_dir = "Data";
     config->use_inp = false;
+    config->use_smesh = false;
     config->post_utm = true;
-    config->use_height = false;
     config->pre_utm = false;
+    config->use_height = false;
+    config->use_floater = false;
 }
 
 void
 parse_arguments(int argc, char **argv, struct config * config)
 {
     int argument;
-    while ((argument = getopt (argc, argv, "t:z:i:o:n:s:w:e:d:pcgh")) != -1)
+    if (argc == 1) {
+        fprintf(stderr, USAGE);
+    }
+    while ((argument = getopt (argc, argv, "t:s:i:o:N:S:W:E:d:pgUuhmf")) != -1)
         switch (argument)
         {
             case 't':
                 config->tolerance = atof(optarg);
                 break;
-            case 'z':
-                config->requested_size = (size_t)atoi(optarg);
+            case 's': {
+                double s = atof(optarg);
+                config->requested_size = (size_t) s * VALUES_IN_DEGREE;
+            }
                 break;
             case 'o':
                 config->output_filename = optarg;
@@ -91,19 +120,19 @@ parse_arguments(int argc, char **argv, struct config * config)
                 config->input_filename = optarg;
                 config->read_from_ASC = true;
                 break;
-            case 'n':
+            case 'N':
                 config->north_border = atof(optarg);
                 config->read_from_ASC = false;
                 break;
-            case 's':
+            case 'S':
                 config->south_border = atof(optarg);
                 config->read_from_ASC = false;
                 break;
-            case 'w':
+            case 'W':
                 config->west_border = atof(optarg);
                 config->read_from_ASC = false;
                 break;
-            case 'e':
+            case 'E':
                 config->east_border = atof(optarg);
                 config->read_from_ASC = false;
                 break;
@@ -111,35 +140,43 @@ parse_arguments(int argc, char **argv, struct config * config)
                 config->map_dir = optarg;
                 config->read_from_ASC = false;
                 break;
-            case 'p':
-                config->use_inp = true;
-                break;
             case 'g':
                 config->post_utm = false;
+                config->pre_utm = false;
                 break;
-            case 'c':
+            case 'u':
                 config->pre_utm = true;
                 config->post_utm = false;
+                break;
+            case 'U':
+                config->pre_utm = false;
+                config->post_utm = true;
                 break;
             case 'h':
                 config->use_height = true;
                 break;
+            case 'f':
+                config->use_floater = true;
+                break;
+            case 'm':
+                config->use_smesh = true;
+                break;
+            case 'p':
+                config->use_inp = true;
+                break;
             case '?':
-                if (optopt == 't' || optopt == 'z')
+                if (optopt == 't' || optopt == 's' || optopt == 'i' || optopt == 'o' || optopt == 'd'
+                    || optopt == 'N' || optopt == 'S' || optopt == 'W' || optopt == 'E') {
+
                     fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-                else if (isprint (optopt))
-                    fprintf(stderr, "Unknown option `-%c'.\n"
-                                    "USAGE: meshgen -t <tolerance> -z <requsted_size> "
-                                    "-i <data_file> -o <output_file> -d <data_dir>"
-                                    "-n <north_border> -s <south_border>"
-                                    "-w <west_border> -e <east_border> "
-                                    "-p (to use inp instead of smesh)"
-                                    "-g (to output in geodetic coordinates instead of UTM)\n",
-                            optopt);
-                else
-                    fprintf (stderr,
-                             "Unknown option character `\\x%x'.\n",
-                             optopt);
+                    fprintf(stderr, USAGE);
+                } else if (isprint (optopt)) {
+                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+                    fprintf(stderr, USAGE);
+                } else {
+                    fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+                    fprintf(stderr, USAGE);
+                }
                 exit(1);
             default:
                 abort();
