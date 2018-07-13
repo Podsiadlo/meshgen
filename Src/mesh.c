@@ -22,6 +22,7 @@ generate_mesh(struct map *map, size_t requested_size, bool use_height)
     mesh->size = INITIAL_MESH_SIZE;
     mesh->counter = 0;
     mesh->map = map;
+    mesh->map->utm = false;
     prepare_mesh(requested_size, mesh, use_height);
     return mesh;
 }
@@ -129,8 +130,9 @@ void
 convert_mesh_to_UTM(struct mesh *mesh)
 {
     for (int i = 0; i < mesh->counter; ++i) {
-        convert_triangle_to_UTM(&(mesh->triangles[i]));
+        convert_triangle_to_UTM(&(mesh->triangles[i]), &(mesh->map->zone), &(mesh->map->hemisphere));
     }
+    mesh->map->utm = true;
 }
 
 void

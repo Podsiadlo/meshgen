@@ -17,13 +17,11 @@ init_triangle(double a_x, double a_y, double b_x, double b_y, double c_x, double
 
 
 void
-convert_triangle_to_UTM(struct triangle * triangle) {
-    char hemisphere;
-    long zone;
+convert_triangle_to_UTM(struct triangle *triangle, long *zone, char *hemisphere) {
     double x, y;
     for (int i = 0; i < 3; ++i) {
         if (Convert_Geodetic_To_UTM(d2r(triangle->vertices[i].y), d2r(triangle->vertices[i].x),
-                                    &zone, &hemisphere, &x, &y)) {
+                                    zone, hemisphere, &x, &y)) {
             fprintf(stderr, "Error during conversion.\n");
             exit(13);
         }

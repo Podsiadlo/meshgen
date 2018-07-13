@@ -1,9 +1,11 @@
 #include "point.h"
 #include "triangle.h"
 #include "utils.h"
+#include "libmgrs/utm.h"
 
 #include <math.h>
 #include <values.h>
+#include <stdio.h>
 
 void
 init_point(struct point *point, double x, double y, struct map *map)
@@ -17,16 +19,29 @@ init_point(struct point *point, double x, double y, struct map *map)
 double
 get_height(double lon, double lat, struct map *map)
 {
+    double x, y;
+    //convert to geodetic if required
+    if (map->utm) {
+        if (Convert_UTM_To_Geodetic(map->zone, map->hemisphere, lon, lat, &y, &x)) {
+            fprintf(stderr, "Error during conversion.\n");
+            exit(18);
+        }
+        x = r2d(x);
+        y = r2d(y);
+    } else {
+        x = lon;
+        y = lat;
+    }
     //using bilinear interpolation
-    double top_left = get_height_wo_interpol(lon, lat, 1, map);
-    double top_right = get_height_wo_interpol(lon, lat, 2, map);
-    double bottom_right = get_height_wo_interpol(lon, lat, 3, map);
-    double bottom_left = get_height_wo_interpol(lon, lat, 4, map);;
+    double top_left = get_height_wo_interpol(x, y, 1, map);
+    double top_right = get_height_wo_interpol(x, y, 2, map);
+    double bottom_right = get_height_wo_interpol(x, y, 3, map);
+    double bottom_left = get_height_wo_interpol(x, y, 4, map);;
 
-    double x_fract = (lon - map->west_border) / map->cell_width -
-            floor2((lon - map->west_border) / map->cell_width );
-    double y_fract = fabs(lat - map->north_border) / map->cell_length -
-            floor2(fabs(lat - map->north_border) / map->cell_length );
+    double x_fract = (x - map->west_border) / map->cell_width -
+            floor2((x - map->west_border) / map->cell_width );
+    double y_fract = fabs(y - map->north_border) / map->cell_length -
+            floor2(fabs(y - map->north_border) / map->cell_length );
 
     double height = 0.;
     height += top_left * (1 - x_fract) * (1 - y_fract);

@@ -8,21 +8,18 @@
 #include <stdint.h>
 #include <stdio.h>
 
-int border_to_int(const double border) { return (int)round(border * VALUES_IN_DEGREE); }
-
 struct map *
 read_map(const double west_border, const double north_border,
          const double east_border, const double south_border, const char *map_dir)
 { // data[row][column] - it's array of rows
 
-    swap_if_needed((double *) &south_border, (double *) &north_border);
-    swap_if_needed((double *) &west_border, (double *) &east_border);
+    swap_if_required((double *) &south_border, (double *) &north_border);
+    swap_if_required((double *) &west_border, (double *) &east_border);
     // Rounding to avoid problems with numerical errors
     int west_border_int = border_to_int(west_border);
     int north_border_int = border_to_int(north_border);
     int east_border_int = border_to_int(east_border);
     int south_border_int = border_to_int(south_border);
-
 
     size_t cols = (size_t) (east_border_int - west_border_int);
     size_t rows = (size_t) (north_border_int - south_border_int);
@@ -180,3 +177,9 @@ get_filename(char *filename, const char *map_dir, int west_border_int,
             first_long_to_read < 0 ? "W" : "E", first_long_to_read);
 }
 
+
+int
+border_to_int(const double border)
+{
+    return (int)round(border * VALUES_IN_DEGREE);
+}
