@@ -5,7 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 
 bool

@@ -8,7 +8,9 @@
 #include "utils.h"
 #include "libmgrs/utm.h"
 
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 
 void
 save_to_inp(struct mesh *mesh, char *filename, bool utm)
