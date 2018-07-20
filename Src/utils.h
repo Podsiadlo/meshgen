@@ -24,6 +24,8 @@ struct config {
     bool post_utm;
     bool use_height;
     bool pre_utm;
+    bool use_smesh;
+    bool use_floater;
 };
 
 bool
