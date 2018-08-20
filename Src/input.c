@@ -106,7 +106,7 @@ read_from_file(int north_border_int, int west_border_int, size_t rows, size_t co
         }
         for (size_t j = 0; j < cols; ++j) {
             change_bytes_order(&(buffer[j]));
-            map_data[first_row + rows - 1 - i][first_col + j] = buffer[j];
+            map_data[first_row + i][first_col + j] = buffer[j];
         }
     }
     free(buffer);
