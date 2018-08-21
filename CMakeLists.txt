@@ -22,20 +22,20 @@ include(cmake/manage_dependencies.cmake)
 find_library(MATH_LIB m)
 
 add_library(meshgenlib
-	Src/point.c
-	Src/input.c
-	Src/asc_reader.c
-	Src/triangle.c
-	Src/output.c
-	Src/mesh.c
-	Src/refinement.c
-	Src/utils.c
-	Src/map.c
-	Src/libmgrs/utm.c
-	Src/libmgrs/mgrs.c
-	Src/libmgrs/ups.c
-	Src/libmgrs/tranmerc.c
-	Src/libmgrs/polarst.c)
+		Src/DataStructures/point.c
+		Src/Readers/srtm_reader.c
+		Src/Readers/asc_reader.c
+		Src/DataStructures/triangle.c
+		Src/Writers/writer.c
+		Src/DataStructures/mesh.c
+        Src/Refiners/refinement.c
+		Src/Utils/utils.c
+		Src/DataStructures/map.c
+		Src/libmgrs/utm.c
+		Src/libmgrs/mgrs.c
+		Src/libmgrs/ups.c
+		Src/libmgrs/tranmerc.c
+		Src/libmgrs/polarst.c)
 
 
 target_compile_options(meshgenlib PRIVATE

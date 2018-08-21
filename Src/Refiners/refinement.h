@@ -3,8 +3,11 @@
 
 #include <stdbool.h>
 
-#include "mesh.h"
-#include "triangle.h"
+#include "../DataStructures/mesh.h"
+#include "../DataStructures/triangle.h"
+
+void
+refine_mesh(struct mesh *mesh, double tolerance, bool use_height);
 
 bool
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height);

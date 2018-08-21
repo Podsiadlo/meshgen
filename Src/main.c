@@ -1,11 +1,13 @@
-#include "input.h"
-#include "asc_reader.h"
-#include "mesh.h"
-#include "output.h"
+#include "Readers/srtm_reader.h"
+#include "Readers/asc_reader.h"
+#include "DataStructures/mesh.h"
+#include "Writers/writer.h"
+#include "Refiners/refinement.h"
+#include "Utils/utils.h"
+
 #include <getopt.h>
 #include <ctype.h>
-#include "string.h"
-#include "utils.h"
+#include <string.h>
 
 static char *const USAGE = "OPTIONS:\n"
                         "\t-t <tolerance>\n"
@@ -57,15 +59,16 @@ main(int argc, char **argv)
     if (config->pre_utm) {
         convert_mesh_to_UTM(mesh);
     }
-    refine_new_mesh(mesh, config->tolerance, config->use_height);
+    refine_mesh(mesh, config->tolerance, config->use_height);
 
     //writing results
     char buffer[256];
-    strcpy(buffer, config->output_filename);
     if (config->use_inp) {
+        strcpy(buffer, config->output_filename);
         save_to_inp(mesh, strcat(buffer, ".inp"), config->post_utm);
     }
     if (config->use_smesh) {
+        strcpy(buffer, config->output_filename);//This line is duplicated to avoid making files with multiple extensions
         save_to_smesh(mesh, strcat(buffer, ".smesh"), config->pre_utm, config->post_utm);
     }
 

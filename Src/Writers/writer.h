@@ -1,7 +1,7 @@
 #ifndef MESHGEN_OUTPUT_H
 #define MESHGEN_OUTPUT_H
 
-#include "mesh.h"
+#include "../DataStructures/mesh.h"
 #include <stdlib.h>
 #include <stdio.h>
 

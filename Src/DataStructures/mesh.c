@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "refinement.h"
+#include "../Refiners/refinement.h"
+#include "../Readers/srtm_reader.h"
+#include "../Utils/utils.h"
 #include "triangle.h"
-#include "input.h"
-#include "utils.h"
 
 #ifndef NDEBUG
 #define NDEBUG
@@ -135,21 +135,6 @@ convert_mesh_to_UTM(struct mesh *mesh)
         convert_triangle_to_UTM(&(mesh->triangles[i]), &(mesh->map->zone), &(mesh->map->hemisphere));
     }
     mesh->map->utm = true;
-}
-
-void
-refine_new_mesh(struct mesh *mesh, double tolerance, bool use_height)
-{
-    bool finish = false;
-    while (!finish) {
-        bool modified = false;
-        for (size_t i = 0; i < mesh->counter; ++i) {
-            if (refine_if_required(&(mesh->triangles[i]), tolerance, mesh, use_height)) {
-                modified = true;
-            }
-        }
-        finish = !modified;
-    }
 }
 
 struct triangle *

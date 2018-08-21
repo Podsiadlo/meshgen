@@ -19,8 +19,7 @@ generate_mesh(struct map *map, size_t requested_size, bool use_height);
 void
 prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height);
 
-void
-refine_new_mesh(struct mesh *mesh, double tolerance, bool use_height);
+
 
 void
 generate_first_triangles(int square_no, double cell_length, double cell_width, size_t cols, size_t rows,

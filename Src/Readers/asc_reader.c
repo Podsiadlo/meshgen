@@ -1,5 +1,5 @@
 #include "asc_reader.h"
-#include "mesh.h"
+#include "../DataStructures/mesh.h"
 
 #include <math.h>
 #include <stddef.h>

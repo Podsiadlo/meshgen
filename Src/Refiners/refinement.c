@@ -1,5 +1,6 @@
 #include "refinement.h"
-#include "output.h"
+#include "../DataStructures/triangle.h"
+#include "../DataStructures/mesh.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -9,6 +10,20 @@
 #define NDEBUG
 #endif
 
+void
+refine_mesh(struct mesh *mesh, double tolerance, bool use_height)
+{
+    bool finish = false;
+    while (!finish) {
+        bool modified = false;
+        for (size_t i = 0; i < mesh->counter; ++i) {
+            if (refine_if_required(&(mesh->triangles[i]), tolerance, mesh, use_height)) {
+                modified = true;
+            }
+        }
+        finish = !modified;
+    }
+}
 
 bool
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)

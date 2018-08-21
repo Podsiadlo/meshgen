@@ -1,12 +1,12 @@
-#include "output.h"
+#include "writer.h"
 
 #include <string.h>
 #include <errno.h>
 #include <math.h>
 
-#include "mesh.h"
-#include "utils.h"
-#include "libmgrs/utm.h"
+#include "../DataStructures/mesh.h"
+#include "../Utils/utils.h"
+#include "../libmgrs/utm.h"
 
 #ifndef NDEBUG
 #define NDEBUG

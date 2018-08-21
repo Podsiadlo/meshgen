@@ -1,6 +1,6 @@
-#include "input.h"
-#include "map.h"
-#include "utils.h"
+#include "srtm_reader.h"
+#include "../DataStructures/map.h"
+#include "../Utils/utils.h"
 
 #include <errno.h>
 #include <math.h>

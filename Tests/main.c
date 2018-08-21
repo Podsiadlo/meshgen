@@ -1,9 +1,9 @@
 #include <check.h>
 
-#include "mesh.h"
-#include "refinement.h"
-#include "output.h"
-#include "utils.h"
+#include "DataStructures/mesh.h"
+#include "Refiners/refinement.h"
+#include "Writers/writer.h"
+#include "Utils/utils.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@ START_TEST(test_refine_new_mesh)
     map->west_border = 0;
     struct mesh *local_mesh = generate_mesh(map, 5, 0);
 
-    refine_new_mesh(local_mesh, 99, false);
+    refine_mesh(local_mesh, 99, false);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 

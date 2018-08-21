@@ -1,6 +1,6 @@
 #include "triangle.h"
-#include "utils.h"
-#include "libmgrs/utm.h"
+#include "../Utils/utils.h"
+#include "../libmgrs/utm.h"
 
 #include <math.h>
 #include <stdio.h>
