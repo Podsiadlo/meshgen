@@ -11,6 +11,7 @@ struct triangle {
     struct point vertices[3]; // P0, P1, P2
     int neighbours[3]; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
     short longest; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
+    double sides[3];
 };
 
 void
@@ -23,8 +24,11 @@ convert_triangle_to_UTM(struct triangle *triangle, long *zone, char *hemisphere)
 void
 fix_longest(struct triangle *triangle, bool use_height);
 
+void
+compute_sides(struct triangle *triangle, bool use_height);
+
 short
-choose_longest(double ab, double bc, double ac, const struct triangle *triangle);
+choose_longest(const struct triangle *triangle);
 
 double
 get_area(const struct point *a, const struct point *b, const struct point *c);

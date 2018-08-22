@@ -9,8 +9,8 @@
 #include <stdio.h>
 
 struct map *
-read_map(const double west_border, const double north_border,
-         const double east_border, const double south_border, const char *map_dir)
+read_SRTM(const double west_border, const double north_border,
+          const double east_border, const double south_border, const char *map_dir)
 { // data[row][column] - it's array of rows
 
     swap_if_required((double *) &south_border, (double *) &north_border);

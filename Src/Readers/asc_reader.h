@@ -8,7 +8,7 @@ int
 readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number);
 
 struct map *
-readASC(const char *filename);
+read_ASC(const char *filename);
 
 struct map *
 convert(double** coords, const size_t nRows, const size_t nCols);

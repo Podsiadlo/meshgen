@@ -34,7 +34,7 @@ readLine(FILE *f, char *buffer, const size_t buffersize, size_t *line_number)
 }
 
 struct map *
-readASC(const char *filename)
+read_ASC(const char *filename)
 {
     const size_t tambuf = 256;
     char buf[tambuf];

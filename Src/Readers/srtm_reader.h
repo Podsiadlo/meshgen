@@ -8,8 +8,8 @@ static const int VALUES_IN_DEGREE = 60 * 60 / RESOLUTION;
 static const unsigned short PIXEL_SIZE = 2;
 
 struct map *
-read_map(const double west_border, const double north_border, const double east_border,
-         const double south_border, const char *map_dir);
+read_SRTM(const double west_border, const double north_border, const double east_border,
+          const double south_border, const char *map_dir);
 
 void
 read_from_multiple_files(const double west_border, const double north_border, const double east_border,

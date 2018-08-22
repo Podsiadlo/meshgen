@@ -33,35 +33,40 @@ convert_triangle_to_UTM(struct triangle *triangle, long *zone, char *hemisphere)
 void
 fix_longest(struct triangle *triangle, bool use_height)
 {
-    double ab, bc, ac;
-    if (use_height) {
-        ab = pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
-                  + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2)
-                  + pow(triangle->vertices[0].z - triangle->vertices[1].z, 2);
-        bc = pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
-                  + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2)
-                  + pow(triangle->vertices[1].z - triangle->vertices[2].z, 2);
-        ac = pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
-                  + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2)
-                  + pow(triangle->vertices[2].z - triangle->vertices[0].z, 2);
-    } else {
-        ab = pow((triangle->vertices[0].x) - (triangle->vertices[1].x), 2)
-                + pow((triangle->vertices[0].y) - (triangle->vertices[1].y), 2);
-        bc = pow((triangle->vertices[1].x) - (triangle->vertices[2].x), 2)
-                + pow((triangle->vertices[1].y) - (triangle->vertices[2].y), 2);
-        ac = pow((triangle->vertices[2].x) - (triangle->vertices[0].x), 2)
-                + pow((triangle->vertices[2].y) - (triangle->vertices[0].y), 2);
-    }
+    compute_sides(triangle, use_height);
 
-    triangle->longest = choose_longest(ab, bc, ac, triangle);
+    triangle->longest = choose_longest(triangle);
 }
 
-short choose_longest(double ab, double bc, double ac, const struct triangle *triangle) {
+void
+compute_sides(struct triangle *triangle, bool use_height) {
+    if (use_height) {
+        triangle->sides[0] = pow(triangle->vertices[0].x - triangle->vertices[1].x, 2)
+                + pow(triangle->vertices[0].y - triangle->vertices[1].y, 2)
+                + pow((triangle->vertices[0].z - triangle->vertices[1].z) / 67000., 2);
+        triangle->sides[1] = pow(triangle->vertices[1].x - triangle->vertices[2].x, 2)
+                + pow(triangle->vertices[1].y - triangle->vertices[2].y, 2)
+                + pow((triangle->vertices[1].z - triangle->vertices[2].z) / 67000., 2);
+        triangle->sides[2] = pow(triangle->vertices[2].x - triangle->vertices[0].x, 2)
+                + pow(triangle->vertices[2].y - triangle->vertices[0].y, 2)
+                + pow((triangle->vertices[2].z - triangle->vertices[0].z) / 67000., 2);
+    } else {
+        triangle->sides[0] = pow((triangle->vertices[0].x) - (triangle->vertices[1].x), 2)
+                + pow((triangle->vertices[0].y) - (triangle->vertices[1].y), 2);
+        triangle->sides[1] = pow((triangle->vertices[1].x) - (triangle->vertices[2].x), 2)
+                + pow((triangle->vertices[1].y) - (triangle->vertices[2].y), 2);
+        triangle->sides[2] = pow((triangle->vertices[2].x) - (triangle->vertices[0].x), 2)
+                + pow((triangle->vertices[2].y) - (triangle->vertices[0].y), 2);
+    }
+}
+
+short
+choose_longest(const struct triangle *triangle) {
     short longest;
-    if (is_greater(ab, bc)) {
-        if (is_greater(ab, ac)) {
+    if (is_greater(triangle->sides[0], triangle->sides[1])) {
+        if (is_greater(triangle->sides[0], triangle->sides[2])) {
             longest = 0;
-        } else if (equals(ab, ac)) {
+        } else if (equals(triangle->sides[0], triangle->sides[2])) {
             if (is_greater(triangle->vertices[1].y, triangle->vertices[2].y)) {
                 longest = 2;
             } else if (is_lesser(triangle->vertices[1].y, triangle->vertices[2].y)) {
@@ -76,8 +81,8 @@ short choose_longest(double ab, double bc, double ac, const struct triangle *tri
         } else {
             longest = 2;
         }
-    } else if (equals(ab, bc)) {
-        if (!is_lesser(ab, ac)) {
+    } else if (equals(triangle->sides[0], triangle->sides[1])) {
+        if (!is_lesser(triangle->sides[0], triangle->sides[2])) {
             if (is_greater(triangle->vertices[0].y, triangle->vertices[2].y)) {
                 longest = 1;
             } else if (is_lesser(triangle->vertices[0].y, triangle->vertices[2].y)) {
@@ -93,9 +98,9 @@ short choose_longest(double ab, double bc, double ac, const struct triangle *tri
             longest = 2;
         }
     } else {
-        if (is_greater(bc, ac)) {
+        if (is_greater(triangle->sides[1], triangle->sides[2])) {
             longest = 1;
-        } else if (equals(ac, bc)) {
+        } else if (equals(triangle->sides[2], triangle->sides[1])) {
             if (is_greater(triangle->vertices[1].y, triangle->vertices[0].y)) {
                 longest = 2;
             } else if (is_lesser(triangle->vertices[1].y, triangle->vertices[0].y)) {

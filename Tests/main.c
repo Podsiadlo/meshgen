@@ -39,6 +39,7 @@ END_TEST
 
 START_TEST(test_refine)
 {
+    double tolerance = 5;
 
     // Simple 5x5 map with all heights zero except for one with 100m
     double **map_data = init_map_data(5, 5);
@@ -57,19 +58,19 @@ START_TEST(test_refine)
 
     struct triangle *triangle_to_refine = &(local_mesh->triangles[0]);
 
-    refine(triangle_to_refine, local_mesh, NULL);
+    refine(triangle_to_refine, tolerance, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 4);
 
-    refine(triangle_to_refine, local_mesh, NULL);
+    refine(triangle_to_refine, tolerance, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 5);
 
-    refine(triangle_to_refine, local_mesh, NULL);
+    refine(triangle_to_refine, tolerance, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 8);
 
-    refine(triangle_to_refine, local_mesh, NULL);
+    refine(triangle_to_refine, tolerance, local_mesh, NULL);
 
     ck_assert_int_eq(local_mesh->counter, 13);
 

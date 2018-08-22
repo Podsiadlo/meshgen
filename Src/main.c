@@ -47,10 +47,10 @@ main(int argc, char **argv)
     //data reading
     struct map *map;
     if (config->read_from_ASC) {
-        map = readASC(config->input_filename);
+        map = read_ASC(config->input_filename);
     } else {
-        map = read_map(config->west_border, config->north_border, config->east_border, config->south_border,
-                config->map_dir);
+        map = read_SRTM(config->west_border, config->north_border, config->east_border, config->south_border,
+                        config->map_dir);
     }
 //    print_map(map);
 
@@ -85,10 +85,10 @@ void set_default_config(struct config *config) {
     config->output_filename = "out/d6";
     config->input_filename = "Examples/test1.asc";
     config->read_from_ASC = false;
-    config->west_border = 20.26;
-    config->north_border = 49.52;
-    config->east_border = 20.44;
-    config->south_border = 49.44;
+    config->west_border = 19.6;
+    config->north_border = 49.35;
+    config->east_border = 20.3;
+    config->south_border = 49.1;
     config->map_dir = "Data";
     config->use_inp = false;
     config->use_smesh = false;
