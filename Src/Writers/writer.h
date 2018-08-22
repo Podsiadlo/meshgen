@@ -10,6 +10,9 @@ struct three {
 };
 
 void
+save_points(struct mesh *mesh, char *filename, bool utm);
+
+void
 save_to_inp(struct mesh *mesh, char *filename, bool utm);
 
 void

@@ -13,6 +13,42 @@
 #endif
 
 void
+save_points(struct mesh *mesh, char *filename, bool utm) {
+    char *preambule = "%d %d 0 0 0";
+    char *node = "\n%d %lf %lf %lf"; //<vertex_id> <x> <y> <z>
+    char *point = "\n%d 0 pt %d";
+
+    int counter = 0;
+    FILE *file;
+    if ((file = fopen(filename, "w")) == NULL) {
+        fprintf(stderr, "%s\n", strerror(errno));
+        exit(1);
+    }
+
+    fprintf(file, preambule, mesh->map->width * mesh->map->length, mesh->map->width * mesh->map->length);
+
+    struct point * pnt = malloc(sizeof(struct point));
+    for (int i = 0; i < mesh->map->length; ++i) {
+        for (int j = 0; j < mesh->map->width; ++j) {
+            pnt->x = mesh->map->west_border + j * mesh->map->cell_width;
+            pnt->y = mesh->map->north_border - i * mesh->map->cell_length;
+            pnt->z = mesh->map->data[i][j];
+
+            convert_if_required(pnt, utm);
+
+            fprintf(file, node, counter++, pnt->x, pnt->y, pnt->z);
+        }
+    }
+    free(pnt);
+
+    for (int k = 0; k < counter; ++k) {
+        fprintf(file, point, k, k);
+    }
+
+    fclose(file);
+}
+
+void
 save_to_inp(struct mesh *mesh, char *filename, bool utm)
 {
     char *preambule = "%d %d 0 0 0"; //<number_of_points> <number_of_triangles> 0 0 0
