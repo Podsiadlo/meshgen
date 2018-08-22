@@ -1,6 +1,7 @@
 #include "refinement.h"
 #include "../DataStructures/triangle.h"
 #include "../DataStructures/mesh.h"
+#include "../Readers/srtm_reader.h"
 
 #include <math.h>
 #include <stdlib.h>
@@ -25,17 +26,13 @@ refine_mesh(struct mesh *mesh, double tolerance, bool use_height)
     }
 }
 
-bool
+int
 refine_if_required(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
-    bool refined = false;
-    if (inside_condition(triangle, tolerance, mesh) /*||
-         outside_condition(triangle, mesh)*/) {
-        if (refine(triangle, mesh, use_height) > 0) {
-            refined = true;
-        }
+    if (inside_condition(triangle, tolerance, mesh)) {
+        return refine(triangle, tolerance, mesh, use_height);
     }
-    return refined;
+    return 0;
 }
 
 bool
@@ -100,19 +97,19 @@ outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh
 
 //int counter = 0;
 int
-refine(struct triangle *triangle, struct mesh *mesh, bool use_height)
+refine(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
     if (is_final_step(triangle, mesh)) {
 //        char buf[256];
 //        sprintf(buf, "Debug/edges_%d.inp", counter++);
-//        write_edges(mesh, buf);
-        return split(triangle, mesh, use_height) ? 1 : 0;
+//        save_to_inp(mesh, buf, false);
+        return split(triangle, tolerance, mesh, use_height) ? 1 : 0;
     } else {
         int triangle_index = triangle->index;
-        int refinements =
-                refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles), mesh, use_height);
+        int refinements = refine(get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles),
+                tolerance, mesh, use_height);
         triangle = get_triangle(triangle_index, mesh->triangles);
-        refinements += split(triangle, mesh, use_height) ? 1 : 0;
+        refinements += split(triangle, tolerance, mesh, use_height) ? 1 : 0;
         return refinements;
     }
 }
@@ -120,9 +117,9 @@ refine(struct triangle *triangle, struct mesh *mesh, bool use_height)
 bool
 is_final_step(struct triangle *triangle, struct mesh *mesh)
 {
-//    if(is_too_small(triangle)) {
-//        return true;
-//    }
+    if(is_too_small(triangle)) {
+        return true;
+    }
     int next_triangle = get_longest_edge_triangle_index(triangle);
     return next_triangle == -1 ||
             get_longest_edge_triangle_index(get_triangle(next_triangle, mesh->triangles)) ==
@@ -132,28 +129,33 @@ is_final_step(struct triangle *triangle, struct mesh *mesh)
 bool
 is_too_small(struct triangle *triangle) //TODO: Check how it works
 {
-    if (fabs(get_1st_longest_edge_vertex(triangle)->x -
-             get_2nd_longest_edge_vertex(triangle)->x) <= 1 &&
-        fabs(get_1st_longest_edge_vertex(triangle)->y -
-             get_2nd_longest_edge_vertex(triangle)->y) <= 1) {
-
-        return true;
+    for (int i = 0; i < 3; ++i) {
+        if (triangle->sides[i] < 0.5/VALUES_IN_DEGREE) {
+            return true;
+        }
     }
 
     return false;
 }
 
-bool
-split(struct triangle *triangle, struct mesh *mesh, bool use_height)
+int
+split(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
     struct triangle *next_triangle =
             get_triangle(get_longest_edge_triangle_index(triangle), mesh->triangles);
     if (next_triangle == NULL) {
         split_border(triangle, mesh, use_height);
         return true;
-    } else {
+    } else if (get_longest_edge_triangle_index(next_triangle) == triangle->index) {
         split_inner(triangle, next_triangle, mesh, use_height);
         return true;
+    } else {
+        int triangle_index = triangle->index;
+        int refinements = refine_if_required(next_triangle, tolerance, mesh, use_height);
+        if (refinements == 0) {
+            return 0;
+        }
+        return refinements + split(get_triangle(triangle_index, mesh->triangles), tolerance, mesh, use_height);
     }
 }
 
