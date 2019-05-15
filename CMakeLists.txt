@@ -1,19 +1,21 @@
 cmake_minimum_required(VERSION 3.9)
 
 project(meshgen
-	VERSION 0.1
-	DESCRIPTION "Terrain Mesh Generator"
-	LANGUAGES C
-	)
+		VERSION 0.1
+		DESCRIPTION "Terrain Mesh Generator"
+		LANGUAGES C CXX
+		)
 
 list(INSERT CMAKE_MODULE_PATH 0
-	"${CMAKE_CURRENT_LIST_DIR}/cmake")
+		"${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1 )
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 11)
+
 
 include(cmake/compiler_flags.cmake)
 include(cmake/ctags.cmake)
@@ -22,7 +24,7 @@ include(cmake/manage_dependencies.cmake)
 find_library(MATH_LIB m)
 
 add_library(meshgenlib
-		Src/DataStructures/point.c
+		Src/DataStructures/point.cpp
 		Src/Readers/srtm_reader.c
 		Src/Readers/asc_reader.c
 		Src/DataStructures/triangle.c
@@ -35,7 +37,7 @@ add_library(meshgenlib
 		Src/libmgrs/mgrs.c
 		Src/libmgrs/ups.c
 		Src/libmgrs/tranmerc.c
-		Src/libmgrs/polarst.c)
+		Src/libmgrs/polarst.c Src/Refiners/floater.cpp Src/Refiners/floater.h)
 
 
 target_compile_options(meshgenlib PRIVATE

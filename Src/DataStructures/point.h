@@ -2,6 +2,7 @@
 #define MESHGEN_POINT_H
 
 #include <stdbool.h>
+#include <vector>
 #include "map.h"
 
 struct point {
@@ -9,6 +10,7 @@ struct point {
     double y;
     double z;
     char border;
+    std::vector<double> normal;
 };
 
 void
