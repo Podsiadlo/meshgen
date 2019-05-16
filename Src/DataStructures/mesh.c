@@ -41,7 +41,7 @@ prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height)
         requested_size = mesh->map->width > mesh->map->length ? (mesh->map->length-1) : (mesh->map->width-1);
     }
 
-    columns = (mesh->map->width-1) / requested_size;
+    columns = (mesh->map->width-1) / (requested_size*3/5);
     if ((mesh->map->width-1) % requested_size != 0) {
         if ((double)((mesh->map->width-1) % requested_size) / requested_size > 0.5) {
             columns++;
@@ -49,7 +49,7 @@ prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height)
     }
     cell_width = (double)(mesh->map->width-1) / columns;
 
-    rows = (mesh->map->length-1) / requested_size;
+    rows = (mesh->map->length-1) / (requested_size/3);
     if ((mesh->map->length-1) % requested_size != 0) {
         if ((double)((mesh->map->length-1) % requested_size) / requested_size > 0.5) {
             rows++;
