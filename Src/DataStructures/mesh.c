@@ -41,7 +41,7 @@ prepare_mesh(size_t requested_size, struct mesh *mesh, bool use_height)
         requested_size = mesh->map->width > mesh->map->length ? (mesh->map->length-1) : (mesh->map->width-1);
     }
 
-    columns = (mesh->map->width-1) / (requested_size*3/5);
+    columns = (mesh->map->width-1) / (requested_size/2);
     if ((mesh->map->width-1) % requested_size != 0) {
         if ((double)((mesh->map->width-1) % requested_size) / requested_size > 0.5) {
             columns++;
@@ -95,9 +95,11 @@ generate_first_triangles(int square_no, double cell_length, double cell_width, s
     first->neighbours[2] = second->index;
     first->neighbours[1] = square_col == cols - 1 ? -1 : (square_no + 1) * 2 + 1;
     first->neighbours[0] = square_row == rows - 1 ? -1 : (int)(square_no + cols) * 2 + 1;
+    first->iterations = 0;
     second->neighbours[2] = first->index;
     second->neighbours[1] = square_col % cols == 0 ? -1 : (square_no - 1) * 2;
     second->neighbours[0] = square_row  == 0 ? -1 : (int)(square_no - cols) * 2;
+    second->iterations = 0;
 
     mark_border_points(first, second, square_col, square_row, cols, rows);
 }

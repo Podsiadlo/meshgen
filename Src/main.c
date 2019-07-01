@@ -80,15 +80,15 @@ main(int argc, char **argv)
 }
 
 void set_default_config(struct config *config) {
-    config->tolerance = 10;
+    config->tolerance = 5;
     config->requested_size = SIZE_MAX;
-    config->output_filename = "out/d6";
+    config->output_filename = "out/krakow_tol5_iter14";
     config->input_filename = "Examples/test1.asc";
     config->read_from_ASC = false;
-    config->west_border = 19.6;
-    config->north_border = 49.35;
+    config->west_border = 19.7;
+    config->north_border = 50.2;
     config->east_border = 20.3;
-    config->south_border = 49.1;
+    config->south_border = 49.9;
     config->map_dir = "Data";
     config->use_inp = false;
     config->use_smesh = false;

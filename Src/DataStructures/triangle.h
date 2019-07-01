@@ -12,6 +12,7 @@ struct triangle {
     int neighbours[3]; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
     short longest; // 0 -> P0P1, 1 -> P1P2, 2 -> P2P0
     double sides[3];
+    int iterations;
 };
 
 void

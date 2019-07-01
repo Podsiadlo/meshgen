@@ -9,6 +9,7 @@
 
 #ifndef NDEBUG
 #define NDEBUG
+#define MAX_ITERATIONS 14
 #endif
 
 void
@@ -99,7 +100,9 @@ outside_condition(struct triangle *triangle, double tolerance, struct mesh *mesh
 int
 refine(struct triangle *triangle, double tolerance, struct mesh *mesh, bool use_height)
 {
-    if (is_final_step(triangle, mesh)) {
+    if (triangle->iterations >= MAX_ITERATIONS) {
+        return 0;
+    } else if (is_final_step(triangle, mesh)) {
 //        char buf[256];
 //        sprintf(buf, "Debug/edges_%d.inp", counter++);
 //        save_to_inp(mesh, buf, false);
@@ -180,6 +183,8 @@ split_border(struct triangle *triangle, struct mesh *mesh, bool use_height)
     new_triangle->neighbours[0] = get_2nd_shorter_edge_triangle_index(triangle);
     new_triangle->neighbours[1] = -1;
     new_triangle->neighbours[2] = triangle->index;
+    new_triangle->iterations = triangle->iterations+1;
+    triangle->iterations++;
     struct triangle *neighbour = get_triangle(new_triangle->neighbours[0], mesh->triangles);
 
     // Fix old triangle
@@ -250,6 +255,8 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2, struct mesh 
     triangles[1]->vertices[0].border = points[1]->border;
     triangles[1]->vertices[1].border = points[2]->border;
     triangles[1]->vertices[2].border = center.border;
+    triangles[1]->iterations = triangles[0]->iterations + 1;
+    triangles[0]->iterations++;
     outside_borders[1] = 0;
     init_triangle(points[3]->x, points[3]->y,
                   points[0]->x, points[0]->y,
@@ -257,6 +264,8 @@ split_inner(struct triangle *triangle1, struct triangle *triangle2, struct mesh 
     triangles[3]->vertices[0].border = points[3]->border;
     triangles[3]->vertices[1].border = points[0]->border;
     triangles[3]->vertices[2].border = center.border;
+    triangles[3]->iterations = triangles[2]->iterations + 1;
+    triangles[2]->iterations++;
     outside_borders[3] = 0;
 
     // Modify input triangles
